@@ -1,0 +1,1546 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>หมูไก่</title>
+<base target="_top">
+<meta name="theme-color" content="#1E3A8C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="หมูไก่">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script src="config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a ledger book on a desk. Blue cover band per page, white ruled paper with a red margin, coloured paper index tabs (bottom on phone, top on desktop). On wide screens the daily page opens as a two-page spread. */
+:root{
+  --desk:#E2E6EB; --paper:#FFFFFF; --cover:#1E3A8C;
+  --ink:#1D3E9A; --text:#1C1C1C; --pencil:#6A6A6A;
+  --rule:#D3E0F3; --margin:#E58A8A; --colrule:#F0C6C6; --hair:#E4E7EC; --tint:#F2F6FD;
+  --tab-entry:#F4D35E; --tab-debt:#A7C7E7; --tab-sum:#D9C9EC; --tab-set:#D2D7DC;
+  --f:"Sarabun","Sukhumvit Set","Leelawadee UI",system-ui,sans-serif;
+  --row:36px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--desk);color:var(--text);font-family:var(--f);font-size:16px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--ink)}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+[hidden]{display:none!important}
+.r{font-variant-numeric:tabular-nums}
+.grow{flex:1;min-width:0}
+.ink{color:var(--ink);font-weight:600}
+.pencil{color:var(--pencil)}
+.small{font-size:13px}
+
+/* ---------- book, cover, paper ---------- */
+.book{max-width:900px;margin:0 auto;padding-bottom:calc(86px + env(safe-area-inset-bottom))}
+.book.spread-on{max-width:1240px}
+.cover{background:var(--cover);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 18px 14px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:4px 12px}
+.cover .k{font-size:12px;letter-spacing:.12em;opacity:.8;width:100%}
+.cover h1,.cover h2{margin:0;font-size:22px;font-weight:700;line-height:1.25;text-wrap:balance}
+.cover .sub{font-size:13.5px;opacity:.88}
+.cover .sync{margin-left:auto;font:inherit;font-size:12px;opacity:.85;white-space:nowrap;background:none;border:0;color:inherit;padding:2px 0;cursor:pointer}
+.cover .sync[data-s="off"]{opacity:1;background:#FCE8E6;color:#9B1C1C;border-radius:999px;padding:3px 10px;font-weight:600}
+.cover .x{margin-left:auto;border:1.5px solid rgb(255 255 255 / .5);background:none;color:#fff;border-radius:5px;width:38px;height:38px;font-size:18px;line-height:1}
+.demo{background:#FFF4C2;color:#6B4B00;padding:7px 18px;font-size:13.5px;font-weight:500}
+.datepick.notToday .dow{color:#B42318;font-weight:700}
+.page{background:var(--paper);position:relative;padding:12px 16px 28px 42px;min-height:60vh}
+.page::before,.page::after{content:"";position:absolute;top:0;bottom:0;width:1px;background:var(--margin)}
+.page::before{left:26px}.page::after{left:29px}
+.spread{display:grid}
+@media (min-width:900px){
+  .book{padding:22px 24px 48px}
+  .cover{border-radius:6px 6px 0 0}
+  .page{box-shadow:0 12px 28px rgb(30 40 60 / .12);border-radius:0 0 6px 6px}
+}
+@media (min-width:1100px){
+  .spread{grid-template-columns:1fr 1fr;box-shadow:0 12px 28px rgb(30 40 60 / .12);border-radius:0 0 6px 6px}
+  .spread .page{box-shadow:none;border-radius:0}
+  .spread .page+.page,.spread .panel{box-shadow:inset 14px 0 14px -12px rgb(0 0 0 / .18)}
+}
+
+/* ---------- index tabs ---------- */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;gap:4px;padding:0 8px calc(8px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--hair);align-items:flex-start}
+.tab{flex:1;border:0;padding:9px 0 9px;font-weight:600;font-size:14.5px;color:#262626;border-radius:0 0 9px 9px;background:var(--c);filter:saturate(.75) brightness(1.04)}
+.tab[aria-current="page"]{padding-bottom:15px;filter:none;box-shadow:0 2px 0 rgb(0 0 0 / .08)}
+@media (min-width:900px){
+  .tabs{position:static;max-width:900px;margin:22px auto -22px;padding:0 24px;background:none;border:0;align-items:flex-end;gap:6px}
+  .tabs.spread-on{max-width:1240px}
+  .tab{flex:0 0 120px;border-radius:9px 9px 0 0;padding:8px 0}
+  .tab[aria-current="page"]{padding:8px 0 13px}
+}
+
+/* ---------- ruled tables ---------- */
+.lined{width:100%;border-collapse:collapse;table-layout:fixed}
+.lined td,.lined th{height:var(--row);border-bottom:1px solid var(--rule);padding:0 6px 4px;vertical-align:bottom;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lined th{font-size:12px;font-weight:600;color:#B54444;text-align:right;border-bottom:1.5px solid var(--margin)}
+.lined th:first-child,.lined td:first-child{text-align:left}
+.lined .n{text-align:right;border-left:1px solid var(--colrule);font-variant-numeric:tabular-nums}
+.lined tr.tap{cursor:pointer}
+.lined tr.tap:hover td{background:var(--tint)}
+.lined tr.sel td{background:#E9F0FC}
+.lined tr.tot td{font-weight:700;color:var(--ink);border-top:1.5px solid var(--ink)}
+.lined .wrap{white-space:normal}
+.dbl{border-bottom:3px double currentColor}
+.stamp{display:inline-block;border:1.5px solid currentColor;border-radius:4px;padding:0 5px;font-size:12px;font-weight:700;line-height:1.45;transform:rotate(-4deg);color:var(--ink)}
+.owe{color:var(--pencil);font-size:13px}
+.lined tr.subrow td{height:30px;font-size:14px;padding-bottom:3px}
+.lined tr.subrow td:first-child{padding-left:16px;color:var(--pencil)}
+.sug{color:var(--pencil);font-weight:400}
+/* น้องบีเกิล: วางเฉพาะมุมปกกับพื้นที่ว่าง ไม่ทับตัวเลข */
+.cover{position:relative;z-index:2}
+#cover{padding-right:96px}
+.peek{position:absolute;right:14px;bottom:-14px;width:72px;height:60px;pointer-events:none;z-index:3}
+.peek svg,.peek img,.sticker svg,.sticker img{width:100%;height:100%;display:block;object-fit:contain}
+.sticker{display:block;width:120px;height:110px;margin:8px auto 4px}
+.sticker.sm{width:72px;height:66px;margin:0}
+.empty.with-sticker,.with-sticker{text-align:center}
+.with-sticker .sticker{margin:6px auto 8px}
+.pinbox .sticker{margin:0 auto}
+/* บีเกิลโบกมือ ข้างปุ่มวันนี้ */
+.tbeagle{position:relative;display:inline-block;width:72px;height:80px;flex:none;margin:-10px 0}
+.tbeagle img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+/* โบกมือ: สลับภาพมือ 2 จังหวะ โบก 4 ที แล้วพักครู่หนึ่ง */
+.tbeagle .w1{animation:waveA 3s steps(1) infinite}
+.tbeagle .w2{animation:waveB 3s steps(1) infinite}
+.tbeagle.single .w1{animation:none}
+@keyframes waveA{0%{opacity:1}10%{opacity:0}20%{opacity:1}30%{opacity:0}40%{opacity:1}50%{opacity:0}60%{opacity:1}70%{opacity:0}80%,100%{opacity:1}}
+@keyframes waveB{0%{opacity:0}10%{opacity:1}20%{opacity:0}30%{opacity:1}40%{opacity:0}50%{opacity:1}60%{opacity:0}70%{opacity:1}80%,100%{opacity:0}}
+/* บีเกิลเดินไปมาใต้ยอดลูกหนี้ */
+.headline.walk{border-bottom:0}
+.toolbar:has(.walkway){position:relative;min-height:48px}
+.walkway{position:absolute;left:170px;right:0;max-width:460px;margin-left:auto;top:50%;height:66px;margin-top:-42px;pointer-events:none}
+.walker{position:absolute;bottom:0;left:0;width:80px;height:66px;animation:walk 12s linear infinite}
+.walker img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.walker .f1{animation:legsA .5s steps(1) infinite}
+.walker .f2{animation:legsB .5s steps(1) infinite}
+@keyframes legsA{0%{opacity:1}50%{opacity:0}}
+@keyframes legsB{0%{opacity:0}50%{opacity:1}}
+@keyframes walk{0%{left:0;transform:scaleX(-1)}48%{left:calc(100% - 80px);transform:scaleX(-1)}50%{left:calc(100% - 80px);transform:scaleX(1)}98%{left:0;transform:scaleX(1)}100%{left:0;transform:scaleX(-1)}}
+@media (prefers-reduced-motion:reduce){.tbeagle img,.walker,.walker .f1,.walker .f2{animation:none}.walker .f2,.tbeagle .w2{opacity:0}}
+.cutdates{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* บีเกิลนอน หน้าสรุป: z ลอยขึ้นทีละตัว + หายใจเบาๆ */
+.napper{position:relative;display:inline-block;width:92px;height:70px;flex:none;margin:-8px 4px -8px auto}
+.napper img{position:absolute;left:0;bottom:0;width:100%;height:100%;object-fit:contain;transform-origin:50% 100%;animation:breathe 3.4s ease-in-out infinite}
+.napper i{position:absolute;right:4px;top:6px;font-style:normal;font-weight:700;color:#5B3A1E;font-size:13px;line-height:1;opacity:0;animation:zz 3.6s ease-in infinite}
+.napper i:nth-of-type(2){animation-delay:1.2s;font-size:15px}
+.napper i:nth-of-type(3){animation-delay:2.4s;font-size:18px}
+@keyframes zz{0%{transform:translate(0,8px) scale(.6);opacity:0}15%{opacity:1}75%{opacity:.9}100%{transform:translate(14px,-24px) scale(1.15);opacity:0}}
+@keyframes breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.035)}}
+@media (prefers-reduced-motion:reduce){.napper img,.napper i{animation:none}.napper i:nth-of-type(3){opacity:1}}
+.paidline{display:flex;align-items:center;gap:10px}
+.lined tr.cur td{color:var(--pencil)}
+.cutbox{display:grid;gap:12px}
+.cutbox .sum{display:grid;gap:2px;padding:10px 12px;border:1.5px dashed #9BB0DA;border-radius:6px;background:var(--tint);font-size:15px}
+.cutbox .sum b{color:var(--ink);font-size:20px;font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:no-preference){.peek{transition:transform .25s}.cover:hover .peek{transform:translateY(-3px)}}
+.sec{margin:20px 0 4px;font-size:13px;font-weight:700;color:#B54444;letter-spacing:.04em}
+.note{font-size:13px;color:var(--pencil);margin:8px 0 0;max-width:68ch}
+.empty{padding:22px 4px;color:var(--pencil)}
+.empty b{display:block;color:var(--text);font-size:16.5px}
+
+/* ---------- controls ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:5px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);font-weight:600;font-size:15.5px;text-decoration:none;white-space:nowrap}
+.btn.solid{background:var(--cover);border-color:var(--cover);color:#fff}
+.btn.lg{min-height:50px;font-size:16.5px}
+.link{border:0;background:none;color:var(--ink);font-weight:600;padding:6px 2px;text-decoration:underline;text-underline-offset:3px;font-size:14.5px}
+.icon{width:40px;height:40px;border:1.5px solid var(--ink);border-radius:5px;background:#fff;color:var(--ink);font-size:18px;line-height:1;padding:0}
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:5px;overflow:hidden;max-width:100%}
+.seg button{border:0;background:#fff;color:var(--ink);font-weight:600;font-size:14.5px;padding:6px 13px;white-space:nowrap}
+.seg button+button{border-left:1.5px solid var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.seg.sm button{padding:5px 11px;font-size:13.5px;min-height:32px}
+.fld{border:0;border-bottom:1.5px dotted #8A9BC4;background:transparent;font-weight:600;font-size:18px;color:var(--ink);height:40px;padding:0 4px;width:100%;min-width:0;border-radius:0;text-align:right;font-variant-numeric:tabular-nums}
+.fld.l{text-align:left;font-weight:500;font-size:16px}
+.fld:focus{outline:none;border-bottom:2px solid var(--ink);background:var(--tint)}
+select.fld{text-align:left}
+.lbl{font-size:12.5px;color:var(--pencil);display:block}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px;margin-bottom:8px}
+.datebar{display:flex;align-items:center;gap:6px}
+.datepick{position:relative;display:flex;flex-direction:column;padding:0 6px}
+.datepick .dow{font-size:12.5px;color:var(--pencil)}
+.datepick .dl{font-size:19px;font-weight:700;white-space:nowrap}
+.datepick input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.prices{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;font-size:14.5px}
+.prices label{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+.prices .fld{width:64px;height:34px;font-size:17px}
+.daysum{font-size:14px;color:var(--pencil);border-bottom:1px solid var(--rule);padding:6px 0;margin-bottom:4px}
+.daysum b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* ---------- entry panel ---------- */
+.panel{display:none}
+.panel.open{display:block;position:fixed;inset:0;z-index:40;overflow:auto;background:var(--paper)}
+@media (min-width:1100px){
+  .panel,.panel.open{display:block;position:static;inset:auto;z-index:auto;overflow:visible;background:var(--paper)}
+  .panel .cover{border-radius:0}
+  .panel .cover .x{display:none}
+}
+.panel .page{min-height:0}
+.load{border-bottom:1px solid var(--rule);padding:6px 0 8px}
+.lhead{display:flex;align-items:center;gap:10px;min-height:34px}
+.lhead .amt{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--ink);font-weight:700;white-space:nowrap}
+.lgrid{display:grid;grid-template-columns:1.25fr .8fr 1fr;gap:10px}
+.xbtn{border:0;background:none;color:var(--pencil);width:40px;height:40px;margin:-5px -8px -5px 0;font-size:18px;line-height:1;padding:0}
+.frow{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:var(--row);border-bottom:1px solid var(--rule);padding:2px 0}
+.frow .v{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;white-space:nowrap}
+.frow.total{border-top:1.5px solid var(--ink);border-bottom:0;padding-top:6px}
+.frow.total .l{font-weight:700}
+.frow.total .v{font-size:23px;font-weight:700}
+.payline{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center;border-bottom:1px solid var(--rule);padding:6px 0}
+.payline .fld{font-size:20px}
+.hint{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;padding:8px 10px;margin:6px 0;border:1.5px dashed #9BB0DA;border-radius:6px;background:var(--tint);font-size:14.5px}
+.hint .btn{min-height:36px;font-size:14px;padding:0 12px}
+.warn{color:#8A4B00;font-size:13.5px;padding:4px 0}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.panel-actions{position:sticky;bottom:0;display:grid;grid-template-columns:1fr 1.5fr;gap:8px;padding:12px 0 calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--paper) 80%,transparent);margin-top:12px}
+
+/* ---------- drawer, summary ---------- */
+.drawer{position:fixed;inset:0;z-index:50;background:var(--desk);overflow:auto}
+.drawer .book{padding-bottom:40px}
+.big{font-size:30px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
+.headline{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px;padding:8px 0 10px;border-bottom:1px solid var(--rule)}
+.periodbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 6px}
+.rangenav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rangenav .lbl2{font-weight:700;padding:0 4px}
+.custom{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.custom .fld{width:auto;font-size:16px}
+.billtext{width:100%;min-height:200px;border:1.5px dotted #8A9BC4;border-radius:4px;background:var(--tint);padding:10px;font-family:var(--f);font-size:15px;resize:vertical;margin-top:8px}
+.setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px 18px}
+.pinbox{max-width:360px;display:grid;gap:12px;padding:20px 0}
+.pinbox .fld{text-align:center;letter-spacing:.3em;font-size:22px}
+.err{color:#A12A2A;font-size:14px}
+.modal{position:fixed;inset:0;z-index:60;background:rgb(20 28 40 / .45);display:grid;place-items:center;padding:16px}
+.modal-card{background:var(--paper);border-radius:6px;padding:20px;max-width:380px;width:100%;display:grid;gap:16px;border-top:6px solid var(--cover)}
+.modal-card p{margin:0;font-size:16.5px}
+.modal-card .row{display:flex;gap:8px;justify-content:flex-end}
+#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:70;background:var(--cover);color:#fff;padding:10px 18px;border-radius:5px;font-weight:600;font-size:15px;max-width:calc(100% - 32px);opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
+@media (min-width:900px){#toast{bottom:28px}}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+
+<nav class="tabs" id="tabs" aria-label="เมนูหลัก"></nav>
+<div class="book" id="book">
+  <header class="cover" id="cover"><div class="k" id="coverK">Kai Account</div><h1 id="coverTitle">หมูไก่</h1><span class="sub" id="coverSub"></span><button type="button" class="sync" data-s="busy" data-act="flush" aria-label="สถานะการบันทึก แตะเพื่อส่งหรือโหลดใหม่">กำลังโหลด…</button><span class="peek" id="coverPeek" aria-hidden="true"></span></header>
+  <div class="demo" id="demoBar" hidden>โหมดตัวอย่าง ตัวเลขทั้งหมดเป็นข้อมูลสมมติ ที่กรอกจะไม่ถูกบันทึกจริง</div>
+  <main id="main"></main>
+</div>
+<div id="drawer" class="drawer" hidden></div>
+<div id="modal" class="modal" hidden></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+"use strict";
+/* ================= helpers ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const r2 = n => Math.round((+n || 0) * 100) / 100;
+const num = v => { const x = parseFloat(String(v ?? "").replace(/,/g, "")); return isFinite(x) ? x : 0; };
+const fmtN = (n, d = 2) => (+n || 0).toLocaleString("th-TH", { maximumFractionDigits: d });
+const kg1 = n => (+n || 0).toLocaleString("th-TH", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const money = n => { const v = r2(n), d = Number.isInteger(v) ? 0 : 2; return (v < 0 ? "−" : "") + Math.abs(v).toLocaleString("th-TH", { minimumFractionDigits: d, maximumFractionDigits: d }); };
+const baht = n => "฿" + money(n);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const parseISO = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parseISO(s); d.setDate(d.getDate() + n); return iso(d); };
+const daysBetween = (a, b) => Math.round((parseISO(b) - parseISO(a)) / 864e5);
+const DOW = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
+const thLong = s => parseISO(s).toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" });
+const thShort = s => parseISO(s).toLocaleDateString("th-TH", { day: "numeric", month: "short" });
+const thShortY = s => parseISO(s).toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "2-digit" });
+const thMonth = s => parseISO(s).toLocaleDateString("th-TH", { month: "long", year: "numeric" });
+function rangeLabel(a, b) {
+  const A = parseISO(a), B = parseISO(b);
+  const tail = B.toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" });
+  return (A.getFullYear() === B.getFullYear() && A.getMonth() === B.getMonth()) ? `${A.getDate()}–${tail}` : `${thShort(a)} – ${tail}`;
+}
+const todayISO = () => iso(new Date());
+const wide = () => window.matchMedia("(min-width:1100px)").matches;
+const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const METHODS = ["เงินสด", "โอน", "เช็ค"];
+const TYPES = ["ซาก", "หมูเป็น"];
+
+/* ---------- น้องบีเกิล: สติกเกอร์ในโฟลเดอร์ stickers/ (ถ้าไม่มีไฟล์ จะซ่อนตัวเอง) ---------- */
+function sticker(name, cls) {
+  return `<span class="sticker ${cls || ""}" aria-hidden="true"><img src="stickers/beagle-${name}.png" alt="" onerror="this.parentNode.remove()"></span>`;
+}
+
+/* ================= state ================= */
+const DEFAULT_SET = { defaultPrice: 86, defaultLivePrice: 0, defaultBuyPrice: 0, weekStart: 2, openingDate: "2026-01-01", roundOffMax: 1000, buyEnabled: false,
+  expenseCats: ["ค่าแรง", "ค่าน้ำมัน/ขนส่ง", "ค่าน้ำ-ไฟ", "ค่าซ่อมบำรุง", "ค่าวัสดุสิ้นเปลือง", "อื่นๆ"] };
+const S = {
+  mode: "demo", demo: false, loaded: false, loadError: null, needPin: false, pinMsg: "", pin: "", pinRequired: false, sheetUrl: "",
+  rev: null, saving: 0, offline: false, staleRev: false, outbox: [], cachedAt: null, today: todayISO(),
+  customers: [], farms: [], set: clone(DEFAULT_SET), days: {}, dates: [], expenses: [], cuts: {},
+  tab: "entry", entryKind: "sale", date: todayISO(), openId: null, draft: null, dirty: false, expDraft: null,
+  debtFilter: "owe", detail: null, stMode: "week", stAnchor: todayISO(), billOpen: false,
+  sumKind: "cash", sumMode: "month", sumAnchor: todayISO(), sumFrom: addDays(todayISO(), -6), sumTo: todayISO(),
+  pendingRender: false,
+};
+const K = {
+  sale: { key: "lines", label: "ขาย", party: "ลูกค้า", amountLabel: "ขาย", payLabel: "รับเงิน", balLabel: "คงค้าง" },
+  buy: { key: "buys", label: "ซื้อหมู", party: "ฟาร์ม", amountLabel: "ซื้อ", payLabel: "จ่ายเงิน", balLabel: "ค้างจ่าย" },
+};
+const partiesOf = k => k === "sale" ? S.customers : S.farms;
+const partyById = (k, id) => partiesOf(k).find(p => p.id === id);
+const lineOf = (k, d, id) => { const day = S.days[d]; const m = day && day[K[k].key]; return m ? m[id] : undefined; };
+
+/* ================= accounting logic ================= */
+function lineTotals(l) {
+  const t = { kg: 0, n: 0, amt: 0, paid: num(l && l.paid), disc: num(l && l.disc), method: (l && l.method) || "เงินสด", by: {} };
+  for (const x of (l && l.loads) || []) {
+    if (x.skip) continue;
+    const w = num(x.w), n = num(x.n), a = w * num(x.p), ty = x.t === "หมูเป็น" ? "หมูเป็น" : "ซาก";
+    t.kg += w; t.n += n; t.amt += a;
+    const b = t.by[ty] || (t.by[ty] = { kg: 0, n: 0, amt: 0 }); b.kg += w; b.n += n; b.amt += a;
+  }
+  t.kg = r2(t.kg); t.amt = r2(t.amt);
+  return t;
+}
+const emptyT = t => !t.kg && !t.n && !t.amt && !t.paid && !t.disc;
+function loadsDesc(t, k) {
+  const parts = Object.keys(t.by).map(ty => `${k === "sale" ? ty + " " : ""}${fmtN(t.by[ty].n, 0)} ตัว ${kg1(t.by[ty].kg)} กก.`);
+  return parts.join(" · ");
+}
+/** ราคาของวัน: ถ้าวันนั้นไม่ได้ตั้ง ใช้ราคาล่าสุดก่อนหน้า ถ้าไม่เคยตั้งเลยใช้ค่าเริ่มต้น */
+function priceKey(k, ty) { return k === "buy" ? "buyPrice" : ty === "หมูเป็น" ? "livePrice" : "price"; }
+function priceOn(k, date, ty) {
+  const pk = priceKey(k, ty), day = S.days[date];
+  if (day && day[pk] !== undefined && day[pk] !== null && day[pk] !== "") return num(day[pk]);
+  for (let i = S.dates.length - 1; i >= 0; i--) {
+    const d = S.dates[i]; if (d >= date) continue;
+    const v = S.days[d][pk]; if (v !== undefined && v !== null && v !== "") return num(v);
+  }
+  return 0; // ยังไม่เคยขายให้คนนี้: ให้พิมพ์ราคาเองครั้งแรก
+}
+/** ราคาของแต่ละคน: ใช้ราคาล่าสุดที่เคยขายให้คนนี้ (รอบเดียวกัน ชนิดเดียวกันก่อน) ถ้าไม่เคยขาย ใช้ราคาเริ่มต้น */
+function partyPrice(k, id, idx, ty, date) {
+  const match = x => x && num(x.p) && (k === "buy" || (x.t === "หมูเป็น" ? "หมูเป็น" : "ซาก") === ty);
+  // หารอบเดียวกันย้อนไปก่อน (เมื่อวานมีแค่รอบ 1 วันนี้รอบ 3 ก็ยังได้ราคารอบ 3 ครั้งล่าสุด) ไม่เจอค่อยใช้รอบไหนก็ได้
+  for (const same of [true, false]) for (let i = S.dates.length - 1; i >= 0; i--) {
+    const d = S.dates[i]; if (d >= date) continue;
+    const loads = ((lineOf(k, d, id) || {}).loads) || [], x = same ? loadOfRound(loads, idx + 1) : loads.find(match);
+    if (match(x)) return { p: num(x.p), from: d };
+  }
+  return { p: priceOn(k, date, ty), from: null };
+}
+const roundsOf = (k, p) => k === "sale" ? Math.min(5, Math.max(1, Math.round(num(p && p.rounds)) || 1)) : 1;
+// แต่ละรอบจำเลขรอบของตัวเอง (r) วันไหนไม่มีรอบ 2 รอบ 3 ก็ยังเป็นรอบ 3 ราคาไม่สลับกัน ข้อมูลเก่าที่ไม่มี r ใช้ลำดับแทน
+const roundNo = (x, i) => Math.max(1, Math.round(num(x && x.r)) || i + 1);
+const loadOfRound = (loads, r) => loads.find((x, i) => !x.skip && roundNo(x, i) === r);
+// รอบประจำที่วันนั้นพ่อกด ✕ ไว้ (บันทึกเป็น skip) ไม่ต้องโชว์ ส่วนรอบที่แค่ยังไม่ได้กรอก โชว์ให้กรอกต่อได้ทั้งวัน
+const skippedRounds = loads => new Set(loads.map((x, i) => x.skip ? roundNo(x, i) : 0).filter(Boolean));
+function roundsToShow(loads, R) {
+  const skip = skippedRounds(loads), out = new Set();
+  for (let r = 1; r <= R; r++) if (!skip.has(r)) out.add(r);
+  loads.forEach((x, i) => { if (!x.skip) out.add(roundNo(x, i)); });
+  return [...out].sort((a, b) => a - b);
+}
+function balBefore(k, id, date) {
+  const p = partyById(k, id); let b = num(p && p.opening);
+  for (const d of S.dates) {
+    if (d >= date) break;
+    const l = lineOf(k, d, id); if (l) { const t = lineTotals(l); b += t.amt - t.paid - t.disc; }
+  }
+  return r2(b);
+}
+const latestBal = (k, id) => balBefore(k, id, "9999-12-31");
+function stats(k, id, from, to) {
+  const s = { opening: balBefore(k, id, from), kg: 0, n: 0, amt: 0, paid: 0, disc: 0, days: 0 };
+  for (const d of S.dates) {
+    if (d < from) continue; if (d > to) break;
+    const l = lineOf(k, d, id); if (!l) continue;
+    const t = lineTotals(l); if (emptyT(t)) continue;
+    s.kg += t.kg; s.n += t.n; s.amt += t.amt; s.paid += t.paid; s.disc += t.disc; s.days++;
+  }
+  for (const f of ["kg", "amt", "paid", "disc"]) s[f] = r2(s[f]);
+  s.closing = r2(s.opening + s.amt - s.paid - s.disc);
+  return s;
+}
+/**
+ * ยอดที่ยังค้าง: เงินที่รับ + ส่วนลด ตัดยอดขายที่เก่าที่สุดก่อน (FIFO)
+ * ได้รายการบิลที่ยังค้าง, วันที่จ่ายครบถึง, และเครดิต (ถ้าจ่ายเกิน)
+ */
+/* ---------- งวดบิล: พ่อเลือกเองว่างวดเริ่ม–จบวันไหน ยอดขายในช่วงนั้นรวมเป็น 1 งวด เงินที่รับตัดยอดเก่าสุดก่อน ---------- */
+const cutsOf = id => ((S.cuts && S.cuts[id]) || []).slice().sort((a, b) => a.date < b.date ? -1 : 1);
+function periodList(id) {
+  let prev = null;
+  return cutsOf(id).map((c, i) => { const from = c.from || (prev ? addDays(prev, 1) : null); prev = c.date; return { no: i + 1, from, to: c.date }; });
+}
+function periodBuckets(id, asOf) {
+  const per = periodList(id), p = partyById("sale", id), op = num(p && p.opening);
+  const list = []; let credits = 0;
+  if (op > 0) list.push({ opening: true, from: S.set.openingDate, to: S.set.openingDate, amt: op }); else credits += -op;
+  const pb = per.map(x => ({ no: x.no, from: x.from, to: x.to, amt: 0, days: 0, first: null }));
+  const gaps = {}, cur = { current: true, no: per.length + 1, from: null, to: null, amt: 0, days: 0 };
+  const lastTo = per.length ? per[per.length - 1].to : null;
+  for (const d of S.dates) {
+    if (d > asOf) break;
+    const l = lineOf("sale", d, id); if (!l) continue;
+    const t = lineTotals(l); credits += t.paid + t.disc; if (!t.amt) continue;
+    let b = pb.find(x => (!x.from || d >= x.from) && d <= x.to);
+    if (!b) {
+      if (!lastTo || d > lastTo) b = cur;
+      else { const gi = per.filter(x => x.to < d).length; b = gaps[gi] || (gaps[gi] = { gap: true, from: d, to: d, amt: 0, days: 0 }); }
+    }
+    b.amt += t.amt; b.days++; if (!b.first) b.first = d;
+    if (b.current || b.gap) { if (!b.from) b.from = d; b.to = d; }
+  }
+  pb.forEach(b => { if (!b.from) b.from = b.first; });
+  list.push(...[...pb, ...Object.values(gaps)].sort((a, b) => (a.from || "") < (b.from || "") ? -1 : 1), cur);
+  let rem = credits;
+  for (const b of list) { b.amt = r2(b.amt); if (rem >= b.amt - 0.004) { b.left = 0; rem -= b.amt; } else { b.left = r2(b.amt - rem); rem = 0; } }
+  const shown = list.filter(b => b.amt > 0.004);
+  return { buckets: shown, credit: shown.every(b => b.left <= 0.004) ? r2(rem) : 0 };
+}
+function periodBills(id, asOf) {
+  const pb = periodBuckets(id, asOf), open = pb.buckets.filter(b => b.left > 0.004), ageRef = asOf > todayISO() ? todayISO() : asOf;
+  const paid = pb.buckets.filter(b => b.left <= 0.004);
+  return { mode: "period", all: pb.buckets, credit: open.length ? 0 : pb.credit,
+    bills: open.map(b => ({ date: b.from, to: b.to, amt: b.amt, left: b.left, opening: !!b.opening, current: !!b.current, no: b.no, age: Math.max(0, daysBetween(b.from, ageRef)) })),
+    total: r2(open.reduce((s, b) => s + b.left, 0)), count: open.length, closedOpen: open.filter(b => !b.current).length,
+    cur: (open.find(b => b.current) || {}).left || 0, paidThrough: paid.length ? paid[paid.length - 1].to : null, oldest: open.length ? open[0].from : null };
+}
+function oweText(ob) {
+  if (ob.mode === "period") return [ob.closedOpen ? `${ob.closedOpen} งวด` : "", ob.cur > 0.004 ? "งวดนี้" : ""].filter(Boolean).join(" + ");
+  return `${ob.count} ยอด · ตั้งแต่ ${ob.bills[0].opening ? "ยอดยกมา" : thShort(ob.oldest)}`;
+}
+function openBills(k, id, asOf) {
+  if (k === "sale" && cutsOf(id).length) return periodBills(id, asOf);
+  const p = partyById(k, id), op = num(p && p.opening);
+  const debits = []; let credits = 0;
+  if (op > 0) debits.push({ date: S.set.openingDate, amt: op, opening: true }); else credits += -op;
+  for (const d of S.dates) {
+    if (d > asOf) break;
+    const l = lineOf(k, d, id); if (!l) continue;
+    const t = lineTotals(l);
+    if (t.amt) debits.push({ date: d, amt: t.amt });
+    credits += t.paid + t.disc;
+  }
+  const bills = []; let rem = credits, paidThrough = null;
+  const ageRef = asOf > todayISO() ? todayISO() : asOf;
+  for (const x of debits) {
+    if (rem >= x.amt - 0.004) { rem -= x.amt; paidThrough = x.date; continue; }
+    bills.push({ date: x.date, amt: x.amt, left: r2(x.amt - rem), opening: !!x.opening, age: Math.max(0, daysBetween(x.date, ageRef)) });
+    rem = 0;
+  }
+  const total = r2(bills.reduce((s, b) => s + b.left, 0));
+  return { bills, total, count: bills.length, credit: bills.length ? 0 : r2(rem), paidThrough, oldest: bills.length ? bills[0].date : null };
+}
+function statusHTML(ob, short) {
+  if (!ob.count) return ob.credit > 0.004 ? `<span class="stamp">เครดิต${short ? "" : " " + money(ob.credit)}</span>` : `<span class="stamp">ครบ</span>`;
+  if (ob.mode === "period") return `<span class="owe">${ob.closedOpen ? `${short ? "" : "ค้าง "}${ob.closedOpen} งวด` : "งวดนี้"}</span>`;
+  return `<span class="owe">${short ? "" : "ค้าง "}${ob.count} ยอด</span>`;
+}
+function daySum(k, d) {
+  const m = (S.days[d] && S.days[d][K[k].key]) || {};
+  const s = { amt: 0, paid: 0, disc: 0, discN: 0, kg: 0, n: 0, cnt: 0, m: {}, by: {} };
+  for (const id in m) {
+    const t = lineTotals(m[id]); if (emptyT(t)) continue;
+    s.amt += t.amt; s.paid += t.paid; s.disc += t.disc; s.kg += t.kg; s.n += t.n; if (t.amt) s.cnt++; if (t.disc) s.discN++;
+    if (t.paid) s.m[t.method] = (s.m[t.method] || 0) + t.paid;
+    for (const ty in t.by) { const b = s.by[ty] || (s.by[ty] = { kg: 0, n: 0, amt: 0 }); b.kg += t.by[ty].kg; b.n += t.by[ty].n; b.amt += t.by[ty].amt; }
+  }
+  return s;
+}
+function periodTotals(from, to) {
+  const blank = () => ({ amt: 0, paid: 0, disc: 0, discN: 0, kg: 0, n: 0, m: {}, by: {} });
+  const P = { sale: blank(), buy: blank(), exp: { total: 0, cat: {}, m: {} } };
+  for (const d of S.dates) {
+    if (d < from) continue; if (d > to) break;
+    for (const k of ["sale", "buy"]) {
+      const s = daySum(k, d), x = P[k];
+      for (const f of ["amt", "paid", "disc", "discN", "kg", "n"]) x[f] += s[f];
+      for (const mm in s.m) x.m[mm] = (x.m[mm] || 0) + s.m[mm];
+      for (const ty in s.by) { const b = x.by[ty] || (x.by[ty] = { kg: 0, n: 0, amt: 0 }); b.kg += s.by[ty].kg; b.n += s.by[ty].n; b.amt += s.by[ty].amt; }
+    }
+  }
+  for (const e of S.expenses) {
+    if (e.date < from || e.date > to) continue;
+    const a = num(e.amount), c = e.cat || "อื่นๆ", mm = e.method || "เงินสด";
+    P.exp.total += a; P.exp.cat[c] = (P.exp.cat[c] || 0) + a; P.exp.m[mm] = (P.exp.m[mm] || 0) + a;
+  }
+  P.saleNet = r2(P.sale.amt - P.sale.disc); P.buyNet = r2(P.buy.amt - P.buy.disc);
+  P.gross = r2(P.saleNet - P.buyNet); P.net = r2(P.gross - P.exp.total);
+  return P;
+}
+function weekOf(s) { const diff = (parseISO(s).getDay() - S.set.weekStart + 7) % 7; const from = addDays(s, -diff); return [from, addDays(from, 6)]; }
+function monthOf(s) { const d = parseISO(s); return [iso(new Date(d.getFullYear(), d.getMonth(), 1)), iso(new Date(d.getFullYear(), d.getMonth() + 1, 0))]; }
+
+/* ================= backend (Google Sheets / app on phone / demo) ================= */
+const LS_PIN = "papa-accounting-pin";
+function getPin() { try { return localStorage.getItem(LS_PIN) || ""; } catch (e) { return ""; } }
+function setPin(p) { try { if (p) localStorage.setItem(LS_PIN, p); else localStorage.removeItem(LS_PIN); } catch (e) { /* storage blocked */ } }
+// กล่องรอส่ง: รายการที่ลงบัญชีแล้วแต่ยังส่งขึ้นชีตไม่ได้ (เน็ตหลุด) เก็บไว้ในเครื่อง แล้วส่งให้เองตอนเน็ตกลับมา
+// ข้อมูลล่าสุดที่โหลดได้ก็เก็บไว้ด้วย ไม่มีเน็ตก็ยังเปิดดูได้
+const LS_OUT = "papa-accounting-outbox", LS_CACHE = "papa-accounting-cache";
+function lsGet(k, dv) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : dv; } catch (e) { return dv; } }
+function lsSet(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; /* storage full or blocked */ } }
+// สำเนาข้อมูลในเครื่อง อัปเดตทุกครั้งที่โหลดหรือบันทึกสำเร็จ (at = เวลาที่คุยกับชีตได้ล่าสุด)
+let cacheT = null;
+function saveCache() {
+  if (S.demo) return; S.syncedAt = Date.now(); clearTimeout(cacheT);
+  cacheT = setTimeout(() => lsSet(LS_CACHE, { at: S.syncedAt, d: { customers: S.customers, farms: S.farms, settings: S.set, days: S.days, expenses: S.expenses, cuts: S.cuts, rev: S.rev, sheetUrl: S.sheetUrl, pinRequired: S.pinRequired } }), 400);
+}
+function saveOutbox() {
+  // กล่องรอส่งสำคัญกว่าสำเนา ถ้าเครื่องเต็ม ทิ้งสำเนาก่อนแล้วเก็บกล่องรอส่งใหม่
+  if (!S.demo && !lsSet(LS_OUT, S.outbox.length ? S.outbox : null)) { lsSet(LS_CACHE, null); if (!lsSet(LS_OUT, S.outbox)) toast("เครื่องเต็ม เก็บรายการรอส่งไม่ได้ อย่าปิดแอปจนกว่าจะมีเน็ต"); }
+  setSync();
+}
+const isNetErr = e => /failed to fetch|load failed|networkerror|timeout|HTTP 5\d\d|HTTP 0/i.test(errText(e));
+function queueLine(k, date, id, line, name) {
+  const key = k + "|" + date + "|" + id;
+  S.outbox = S.outbox.filter(x => x.key !== key).concat([{ key, k, date, id, line, name }]);
+  saveOutbox(); return key;
+}
+let flushing = null;
+function flushOutbox() {
+  if (flushing) return flushing;
+  flushing = (async () => {
+    let sent = 0;
+    // ส่งทีละรายการ ทุกรายการที่อยู่ในกล่องตอนเริ่ม + ที่เพิ่มเข้ามาระหว่างส่ง (แต่ละรายการลองครั้งเดียวต่อรอบ)
+    const tried = new Set();
+    for (let x; !S.needPin && (x = S.outbox.find(y => !tried.has(y)));) {
+      tried.add(x);
+      try { await backend.writeLine(x.k, x.date, x.id, x.line); }
+      catch (e) {
+        if (isNetErr(e) || S.needPin) break; // เน็ตหลุด หยุดไว้ก่อน
+        x.err = errText(e); saveOutbox(); continue; // หลังบ้านไม่รับรายการนี้ ข้ามไปส่งรายการอื่นก่อน ไม่ให้ค้างทั้งกล่อง
+      }
+      // ระหว่างส่ง ถ้าพ่อแก้รายการเดิมอีก ตัวใหม่ยังอยู่ในกล่อง เอาออกเฉพาะตัวที่ส่งไปแล้ว
+      S.outbox = S.outbox.filter(y => y !== x); sent++; saveOutbox();
+    }
+    return sent;
+  })().finally(() => { flushing = null; });
+  return flushing;
+}
+function reapplyOutbox() {
+  for (const x of S.outbox) {
+    const day = S.days[x.date] || (S.days[x.date] = { date: x.date, lines: {}, buys: {} });
+    day[K[x.k].key] = Object.assign({}, day[K[x.k].key], { [x.id]: clone(x.line) });
+  }
+}
+// ข้ามวันแล้ว (เปิดแอปค้างไว้ข้ามคืน) ให้เลื่อนไปวันนี้เอง ถ้าไม่ได้กรอกค้างอยู่
+function checkNewDay() {
+  const t = todayISO(); if (t === S.today) return;
+  // กำลังกรอกค้างอยู่: ยังไม่ย้ายวัน แค่ให้ป้ายวันที่ขึ้นแดง "ไม่ใช่วันนี้" แล้วรอบหน้าค่อยลองใหม่
+  if (S.dirty || !S.loaded) { if ($("#dDow") && S.entryKind !== "expense") fillDateBar(); return; }
+  const was = S.today; S.today = t;
+  if (S.date === was) {
+    S.date = t; S.openId = null; S.draft = null;
+    if (S.tab === "entry") render();
+    toast("ขึ้นวันใหม่แล้ว · " + thLong(t));
+  }
+}
+const errText = e => String((e && e.message) || e || "error");
+const isPinErr = e => /PIN_INVALID/.test(errText(e));
+const API_URL = String(window.PAPA_API || "").trim();
+let DEMO = null;
+function api(fn, ...args) {
+  if (S.demo) return Promise.resolve().then(() => demoApi(fn, ...args));
+  if (S.mode === "api") {
+    // ส่งเป็น text/plain เพื่อไม่ให้ติด CORS preflight ของ Apps Script
+    // เน็ตช้ามากจนเกิน 30 วิ ให้ถือว่าเชื่อมต่อไม่ได้ ไม่ค้าง "กำลังบันทึก…" ไปตลอด
+    const ctl = typeof AbortController === "function" ? new AbortController() : null, tm = ctl && setTimeout(() => ctl.abort(), 30000);
+    return fetch(API_URL, { method: "POST", body: JSON.stringify({ fn, pin: S.pin, args }), signal: ctl ? ctl.signal : undefined })
+      .then(r => { if (!r.ok) throw new Error("เชื่อมต่อหลังบ้านไม่ได้ (HTTP " + r.status + ")"); return r.json(); })
+      .then(j => { if (!j.ok) throw new Error(j.error || "เกิดข้อผิดพลาด"); return j.result; })
+      .catch(e => { throw (e && e.name === "AbortError") ? new Error("Failed to fetch (timeout)") : e; })
+      .finally(() => clearTimeout(tm));
+  }
+  return new Promise((resolve, reject) => {
+    google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[fn](S.pin, ...args);
+  });
+}
+function normSettings(s) {
+  s = s || {}; const d = DEFAULT_SET;
+  const pick = (v, dv) => (v === "" || v === null || v === undefined) ? dv : num(v);
+  let cats = d.expenseCats;
+  if (typeof s.expenseCats === "string" && s.expenseCats.trim()) cats = s.expenseCats.split(",").map(x => x.trim()).filter(Boolean);
+  else if (Array.isArray(s.expenseCats) && s.expenseCats.length) cats = s.expenseCats;
+  return {
+    defaultPrice: pick(s.defaultPrice, d.defaultPrice), defaultLivePrice: pick(s.defaultLivePrice, d.defaultLivePrice),
+    defaultBuyPrice: pick(s.defaultBuyPrice, d.defaultBuyPrice), weekStart: pick(s.weekStart, d.weekStart),
+    openingDate: /^\d{4}-\d{2}-\d{2}$/.test(String(s.openingDate || "")) ? s.openingDate : d.openingDate,
+    roundOffMax: pick(s.roundOffMax, d.roundOffMax),
+    buyEnabled: s.buyEnabled === true || String(s.buyEnabled).toUpperCase() === "TRUE",
+    expenseCats: cats,
+  };
+}
+function applyLoad(d) {
+  S.customers = d.customers || []; S.farms = d.farms || []; S.set = normSettings(d.settings);
+  S.days = d.days || {}; for (const k in S.days) { S.days[k].lines = S.days[k].lines || {}; S.days[k].buys = S.days[k].buys || {}; }
+  S.expenses = d.expenses || []; S.cuts = d.cuts || {}; S.rev = d.rev; S.sheetUrl = d.sheetUrl || ""; S.pinRequired = !!d.pinRequired;
+  if (!S.set.buyEnabled && S.entryKind === "buy") S.entryKind = "sale";
+  reapplyOutbox(); // รายการที่ยังส่งไม่ได้ ต้องไม่หายไปจากจอ
+  S.dates = Object.keys(S.days).sort();
+}
+let writeSeq = 0, staleLoads = 0;
+async function loadAll(silent) {
+  const seq = writeSeq, busy = S.saving;
+  try {
+    const d = await api("apiLoad");
+    // มีการบันทึกก่อน/ระหว่างที่กำลังโหลด ข้อมูลชุดนี้อาจเก่ากว่าที่เพิ่งบันทึก ทิ้งแล้วโหลดใหม่
+    const older = S.rev != null && d.rev != null && Number(d.rev) < Number(S.rev);
+    if (S.loaded && (seq !== writeSeq || busy || S.saving || older)) {
+      if (staleLoads++ < 5) { setTimeout(() => loadAll(true), 800); return; }
+      if (older) { staleLoads = 0; return; } // ลองครบแล้วยังเก่ากว่า ไม่เอามาทับ
+    }
+    staleLoads = 0;
+    applyLoad(d); saveCache();
+    S.loaded = true; S.needPin = false; S.offline = false; S.loadError = null; S.cachedAt = null;
+    if (S.pin && !S.demo) setPin(S.pin);
+    setSync(); onData();
+    if (S.outbox.length) flushOutbox();
+  } catch (e) {
+    if (isPinErr(e)) { S.pinMsg = S.pin ? "รหัสไม่ถูกต้อง ลองอีกครั้ง" : ""; S.needPin = true; setPin(""); render(); return; }
+    S.offline = true;
+    // เปิดแอปตอนไม่มีเน็ต: แสดงข้อมูลล่าสุดที่เคยโหลดไว้ในเครื่องแทน
+    // ใช้สำเนาได้เฉพาะเครื่องที่จำรหัสไว้ (หรือระบบไม่ได้ตั้งรหัส) กดออกจากระบบแล้วจะเปิดดูไม่ได้
+    const c = !S.loaded && !S.demo ? lsGet(LS_CACHE, null) : null;
+    if (c && c.d && (S.pin || !c.d.pinRequired)) { applyLoad(c.d); S.rev = null; S.cachedAt = c.at; S.loaded = true; S.loadError = null; setSync(); render(); return; }
+    setSync();
+    const msg = errText(e);
+    if (!silent || !S.loaded) {
+      S.loadError = /failed to fetch|load failed|networkerror/i.test(msg) ? "เชื่อมต่อไม่ได้ ตรวจว่ามีอินเทอร์เน็ต และลิงก์ใน config.js ถูกต้อง" : msg;
+      render();
+    }
+  }
+}
+async function write(fn, ...args) {
+  writeSeq++; S.saving++; setSync();
+  try {
+    const r = await api(fn, ...args);
+    if (r && r.rev != null) { if (S.rev != null && r.rev !== S.rev + 1) S.staleRev = true; S.rev = r.rev; }
+    S.offline = false; if (!S.cachedAt) saveCache(); return r; // ยังแสดงสำเนาเก่าอยู่ ไม่ต้องอัปเวลาสำเนา รอโหลดใหม่
+  } catch (e) {
+    if (isPinErr(e)) { S.needPin = true; setPin(""); render(); } else S.offline = true;
+    throw e;
+  } finally {
+    S.saving--; setSync();
+    if (!S.saving && S.staleRev) { S.staleRev = false; loadAll(true); }
+  }
+}
+const backend = {
+  saveConfig: () => write("apiSaveConfig", {
+    customers: S.customers, farms: S.farms,
+    settings: { defaultPrice: S.set.defaultPrice, defaultLivePrice: S.set.defaultLivePrice, defaultBuyPrice: S.set.defaultBuyPrice, weekStart: S.set.weekStart,
+      openingDate: S.set.openingDate, roundOffMax: S.set.roundOffMax, buyEnabled: S.set.buyEnabled ? "TRUE" : "FALSE", expenseCats: S.set.expenseCats.join(",") },
+  }),
+  writeLine: (k, date, id, line) => write("apiSaveLine", k, date, id, line),
+  writePrice: (date, prices) => write("apiSavePrice", date, prices),
+  saveExpense: e => write("apiSaveExpense", e),
+  saveCut: c => write("apiSaveCut", c),
+};
+function setSync() {
+  let s = "busy", t = "กำลังโหลด…";
+  if (S.demo) t = "โหมดตัวอย่าง";
+  else if (S.saving) t = "กำลังบันทึก…";
+  else if (S.cachedAt) { s = "off"; t = `ออฟไลน์ · ข้อมูล ${new Date(S.cachedAt).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })} ↻`; }
+  else if (S.offline) { s = "off"; t = "เชื่อมต่อไม่ได้ ↻"; }
+  else if (S.loaded) { s = "ok"; t = "บันทึกแล้ว ✓"; }
+  // ป้ายเล็กมุมขวาบน กดได้: มีรายการรอส่ง = กดเพื่อส่ง
+  if (S.outbox.length && !S.saving) { s = "off"; t = `รอส่ง ${S.outbox.length} รายการ${S.cachedAt ? " · ออฟไลน์" : ""} ↻`; }
+  $$(".sync").forEach(el => { el.dataset.s = s; el.textContent = t; });
+}
+async function retryNow(manual) {
+  if (S.needPin) return;
+  const had = S.outbox.length;
+  if (had) { const sent = await flushOutbox(); if (manual) toast(S.outbox.length ? "ยังส่งไม่ได้ ลองใหม่อีกทีตอนมีเน็ต" : `ส่งครบ ${sent || had} รายการแล้ว`); }
+  if (S.cachedAt || (manual && !S.outbox.length)) { await loadAll(true); if (manual && !had) toast(S.offline ? "ยังเชื่อมต่อไม่ได้ ลองใหม่ตอนมีเน็ต" : "โหลดข้อมูลล่าสุดแล้ว"); }
+}
+setInterval(async () => {
+  checkNewDay();
+  if (S.demo || document.hidden || S.saving || !S.loaded || S.needPin) return;
+  if (S.outbox.length || S.cachedAt) return retryNow(false);
+  try { const r = await api("apiRev"); S.offline = false; setSync(); if (r !== S.rev) loadAll(true); }
+  catch (e) { if (isPinErr(e)) { S.needPin = true; render(); } else { S.offline = true; setSync(); } }
+}, 30000);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) return;
+  checkNewDay();
+  if (!S.demo && S.loaded && !S.saving && !S.needPin) { if (S.outbox.length) flushOutbox().then(() => loadAll(true)); else loadAll(true); }
+});
+window.addEventListener("online", () => { if (S.loaded && !S.demo) retryNow(false); });
+
+/* ---------- demo mode: generated example data, nothing saved ---------- */
+function demoApi(fn, ...a) {
+  if (window.__demoOffline) throw new Error("Failed to fetch"); // ใช้ทดสอบตอนเน็ตหลุดในโหมดตัวอย่าง
+  const D = DEMO;
+  const dayOf = date => D.days[date] || (D.days[date] = { date, lines: {}, buys: {} });
+  if (fn === "apiLoad") return clone(D);
+  if (fn === "apiRev") return D.rev;
+  if (fn === "apiSaveLine") { const [k, date, id, line] = a; dayOf(date)[K[k].key][id] = clone(line); }
+  else if (fn === "apiSavePrice") { const [date, p] = a; Object.assign(dayOf(date), p); }
+  else if (fn === "apiSaveConfig") { const [c] = a; D.customers = clone(c.customers); D.farms = clone(c.farms); D.settings = clone(c.settings); }
+  else if (fn === "apiSaveExpense") {
+    const [e] = a; const i = D.expenses.findIndex(x => x.id === e.id);
+    if (e.deleted) { if (i >= 0) D.expenses.splice(i, 1); } else if (i >= 0) D.expenses[i] = clone(e); else D.expenses.push(clone(e));
+  }
+  else if (fn === "apiSaveCut") {
+    const [c] = a; const list = D.cuts[c.id] || (D.cuts[c.id] = []);
+    if (c.deleted) { const i = list.findIndex(x => x.date === c.date); if (i >= 0) list.splice(i, 1); } else list.push({ date: c.date, from: c.from || null });
+  }
+  return { rev: ++D.rev };
+}
+function buildDemo() {
+  let seed = 20261010;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  const r1 = x => Math.round(x * 10) / 10;
+  const names = ["ม", "ต", "ศ", "ดำ", "ส", "พิณ", "นิค", "ล", "ง", "ร", "ค", "ก", "บ", "อ", "ข", "อู๋", "เจ้ป้อง", "สำโรง", "น้อย"];
+  const customers = names.map((n, i) => ({ id: "c" + String(i + 1).padStart(2, "0"), name: n, opening: i % 7 === 3 ? 8000 + Math.round(rnd() * 60) * 100 : 0, active: true, rounds: i === 17 ? 3 : 1 }));
+  const style = id => ({ c17: "partial", c18: "partial", c04: "weekly" })[id] || ["daily", "weekly", "partial"][parseInt(id.slice(1), 10) % 3];
+  const live = new Set(["c05", "c13", "c19"]);
+  const today = todayISO(), start = addDays(today, -41);
+  const days = {}, expenses = [], bal = {};
+  customers.forEach(c => { bal[c.id] = c.opening; });
+  const buyers = customers.map((c, i) => ({ id: c.id, prob: 0.4 + rnd() * 0.45, heads: 1 + Math.floor(rnd() * 2), payDay: (i % 6) + 1, style: style(c.id), off: Math.round((rnd() - 0.5) * 6) }));
+  let price = 86;
+  for (let d = start; d <= today; d = addDays(d, 1)) {
+    const dow = parseISO(d).getDay(); if (dow === 0) continue;
+    // ราคาเปลี่ยนทุกต้นวีค (วันอังคาร) และแต่ละคนได้ราคาไม่เท่ากัน
+    if (dow === 2 || d === start) price = Math.min(92, Math.max(82, price + Math.round((rnd() - 0.5) * 4)));
+    const livePrice = Math.round(price * 0.84);
+    const day = { date: d, lines: {}, buys: {} };
+    buyers.forEach(b => {
+      let line = null, today$ = 0;
+      if (rnd() < b.prob) {
+        const loads = [], cp = price + b.off, heads = n => rnd() < 0.2 ? 0 : n;
+        if (b.id === "c18") [price - 2, price, price + 3].forEach(p => { if (rnd() < 0.85) loads.push({ w: r1(72 + rnd() * 14), n: heads(1), p, t: "ซาก" }); else loads.push({ w: 0, n: 0, p, t: "ซาก" }); });
+        else if (live.has(b.id) && rnd() < 0.6) loads.push({ w: r1(95 + rnd() * 20), n: 1, p: livePrice + b.off, t: "หมูเป็น" });
+        else { const n = b.heads + (rnd() < 0.25 ? 1 : 0); loads.push({ w: r1(n * (72 + rnd() * 14)), n: heads(n), p: cp, t: "ซาก" }); }
+        today$ = loads.reduce((s, x) => s + x.w * x.p, 0); bal[b.id] += today$;
+        line = { loads, paid: 0, disc: 0, method: "เงินสด", note: "" };
+      }
+      let pay = 0;
+      if (b.style === "daily" && today$) pay = Math.floor(bal[b.id] / 100) * 100;
+      else if (b.style === "weekly" && dow === b.payDay && bal[b.id] > 0) pay = Math.floor(bal[b.id] / 1000) * 1000;
+      else if (b.style === "partial" && bal[b.id] > 3000 && rnd() < 0.3) pay = Math.round(bal[b.id] * (0.3 + rnd() * 0.3) / 1000) * 1000;
+      if (pay > 0) {
+        line = line || { loads: [], paid: 0, disc: 0, method: "เงินสด", note: "" };
+        line.paid = pay; line.method = rnd() < 0.8 ? "โอน" : "เงินสด"; bal[b.id] -= pay;
+        const rest = r2(bal[b.id]);
+        if (b.style === "daily" && rest > 0 && rest <= 300) { line.disc = rest; bal[b.id] = 0; }
+      }
+      if (line) day.lines[b.id] = line;
+    });
+    expenses.push({ id: "e" + d + "a", date: d, cat: "ค่าแรง", desc: "ค่าแรงลูกน้อง 4 คน", amount: 1600, method: "เงินสด" });
+    if (dow === 3) expenses.push({ id: "e" + d + "b", date: d, cat: "ค่าน้ำมัน/ขนส่ง", desc: "เติมน้ำมันรถส่งของ", amount: 2400 + Math.round(rnd() * 6) * 100, method: "เงินสด" });
+    if (parseISO(d).getDate() === 5) expenses.push({ id: "e" + d + "c", date: d, cat: "ค่าน้ำ-ไฟ", desc: "ค่าไฟโรงเชือด", amount: 9800 + Math.round(rnd() * 20) * 100, method: "โอน" });
+    days[d] = day;
+  }
+  return { customers, farms: [], settings: { defaultPrice: 86, defaultLivePrice: 72, defaultBuyPrice: "", weekStart: 2, openingDate: addDays(start, -1), roundOffMax: 1000, buyEnabled: false, expenseCats: DEFAULT_SET.expenseCats.join(",") },
+    days, expenses, cuts: { c17: [9, 19, 29].map(n => ({ date: addDays(start, n) })).filter(c => c.date < today) }, rev: 1, sheetUrl: "", pinRequired: false };
+}
+
+/* ================= shell ================= */
+const TABS = [["entry", "บันทึก", "--tab-entry"], ["debts", "ลูกหนี้", "--tab-debt"], ["summary", "สรุป", "--tab-sum"], ["settings", "ตั้งค่า", "--tab-set"]];
+function buildTabs() {
+  $("#tabs").innerHTML = TABS.map(([t, label, c]) => `<button class="tab" style="--c:var(${c})" data-act="tab" data-tab="${t}">${label}</button>`).join("");
+}
+function setCover(k, title, sub, pose) {
+  $("#coverK").textContent = k; $("#coverTitle").textContent = title; $("#coverSub").textContent = sub || "";
+  const peek = $("#coverPeek");
+  if (peek.dataset.pose !== (pose || "")) { peek.dataset.pose = pose || ""; peek.innerHTML = pose ? `<img src="stickers/beagle-${pose}.png" alt="" onerror="this.remove()">` : ""; }
+}
+function onData() {
+  S.dates = Object.keys(S.days).sort();
+  if (S.tab === "entry" && S.entryKind !== "expense" && $("#plist")) { fillEntryList(); if (S.openId) updatePanelCalc(); }
+  else if (isTyping()) S.pendingRender = true;
+  else render();
+  if (S.detail && !$("#drawer").hidden && !S.billOpen) renderDetail();
+}
+function isTyping() { const a = document.activeElement; return !!(a && a.matches("input,select,textarea") && $("#main").contains(a)); }
+document.addEventListener("focusout", () => setTimeout(() => { if (S.pendingRender && !isTyping()) { S.pendingRender = false; render(); } }, 60));
+function render() {
+  $$(".tab").forEach(b => b.setAttribute("aria-current", b.dataset.tab === S.tab ? "page" : "false"));
+  const spread = S.tab === "entry" && S.entryKind !== "expense";
+  $("#book").classList.toggle("spread-on", spread); $("#tabs").classList.toggle("spread-on", spread);
+  if (S.needPin) return renderPin();
+  if (!S.loaded) {
+    setCover("Kai Account", "หมูไก่", "");
+    $("#main").innerHTML = `<div class="page"><div class="empty">${S.loadError ? `<b>โหลดข้อมูลไม่ได้</b>${esc(S.loadError)}<div style="margin-top:12px"><button class="btn solid" data-act="reload">ลองอีกครั้ง</button></div>` : `<div class="with-sticker">${sticker("sleep")}<b>กำลังเปิดสมุดบัญชี…</b>รอสักครู่</div>`}</div></div>`;
+    return;
+  }
+  ({ entry: renderEntry, debts: renderDebts, summary: renderSummary, settings: renderSettings })[S.tab]();
+}
+function renderPin() {
+  setCover("Kai Account", "ใส่รหัสเข้าแอป", "ใส่ครั้งเดียว เครื่องนี้จะจำไว้");
+  $("#main").innerHTML = `<div class="page"><div class="pinbox">${sticker("wave")}
+    <input class="fld" id="pinInput" type="password" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="รหัสเข้าแอป">
+    ${S.pinMsg ? `<div class="err" role="alert">${esc(S.pinMsg)}</div>` : ""}
+    <button class="btn solid lg" data-act="pin">เปิดสมุด</button></div></div>`;
+  $("#pinInput").focus();
+}
+
+/* ================= page: บันทึก ================= */
+function renderEntry() {
+  const k = S.entryKind;
+  setCover("Kai Account", k === "expense" ? "รายจ่าย" : k === "buy" ? "ซื้อหมูจากฟาร์ม" : "ขาย · รับเงิน", "");
+  const kinds = [["sale", "ขาย · รับเงิน"], ...(S.set.buyEnabled ? [["buy", "ซื้อหมู"]] : []), ["expense", "รายจ่าย"]];
+  const top = `<div class="toolbar">
+      <div class="datebar"><button class="icon" data-act="prevDay" aria-label="วันก่อนหน้า">‹</button>
+        <label class="datepick" for="dateInput"><span class="dow" id="dDow"></span><span class="dl" id="dLabel"></span><input type="date" id="dateInput" aria-label="เลือกวันที่"></label>
+        <button class="icon" data-act="nextDay" aria-label="วันถัดไป">›</button><button class="link" data-act="today" id="todayBtn">วันนี้</button></div>
+      <span class="tbeagle" aria-hidden="true"><img class="w1" src="stickers/beagle-wave-1.png" alt="" onerror="this.onerror=()=>this.parentNode.remove();this.parentNode.classList.add('single');this.src='stickers/beagle-wave.png'"><img class="w2" src="stickers/beagle-wave-2.png" alt="" onerror="this.remove()"></span>
+      <div class="seg" role="group" aria-label="ประเภท">${kinds.map(([v, t]) => `<button data-act="ekind" data-kind="${v}" aria-pressed="${k === v}">${t}</button>`).join("")}</div>
+    </div>`;
+  if (k === "expense") { $("#main").innerHTML = `<div class="page">${top}<div id="expArea"></div></div>`; fillDateBar(); renderExpenses(); return; }
+  $("#main").innerHTML = `<div class="spread"><div class="page">${top}
+      <div class="daysum" id="daySum"></div>
+      <div id="plist"></div></div>
+    <aside class="panel" id="panel" aria-label="ลงบัญชี"></aside></div>`;
+  fillDateBar(); fillEntryList(); renderPanel();
+}
+const dayWord = d => d === todayISO() ? "วันนี้" : "วันที่ " + thShort(d);
+function fillDateBar() {
+  const d = S.date, isToday = d === todayISO();
+  $("#dDow").textContent = "วัน" + DOW[parseISO(d).getDay()] + (isToday ? " · วันนี้" : " · ไม่ใช่วันนี้");
+  $("#dDow").parentNode.classList.toggle("notToday", !isToday);
+  $("#dLabel").textContent = thLong(d);
+  $("#dateInput").value = d;
+  $("#todayBtn").hidden = d === todayISO();
+  $("#coverSub").textContent = "วัน" + DOW[parseISO(d).getDay()] + "ที่ " + thLong(d);
+}
+function visibleParties(k, d) {
+  return partiesOf(k).filter(p => { if (p.active !== false) return true; const l = lineOf(k, d, p.id); return l && !emptyT(lineTotals(l)); });
+}
+function fillEntryList() {
+  const k = S.entryKind, d = S.date;
+  fillDateBar();
+  const s = daySum(k, d);
+  $("#daySum").innerHTML = `รวม${dayWord(d)} <b>${fmtN(s.n, 0)}</b> ตัว · <b>${kg1(s.kg)}</b> กก. · ${K[k].amountLabel} <b>${money(s.amt)}</b> · ${K[k].payLabel} <b>${money(s.paid)}</b>`;
+  if (!partiesOf(k).length) {
+    $("#plist").innerHTML = `<div class="empty"><b>ยังไม่มีรายชื่อ${K[k].party}</b>เพิ่มได้ที่แท็บตั้งค่า</div>`; return;
+  }
+  $("#plist").innerHTML = `<table class="lined">
+    <colgroup><col style="width:25%"><col style="width:12%"><col style="width:17%"><col style="width:9%"><col style="width:21%"><col style="width:16%"></colgroup>
+    <thead><tr><th>${K[k].party}</th><th class="n">ราคา</th><th class="n">กก.</th><th class="n">ตัว</th><th class="n">${K[k].amountLabel}${d === todayISO() ? "วันนี้" : ""}</th><th class="n">${k === "sale" ? "ค้าง" : "ค้างจ่าย"}</th></tr></thead>
+    <tbody>${visibleParties(k, d).map(p => {
+      const l = lineOf(k, d, p.id), t = lineTotals(l), loads = (l && l.loads) || [], R = roundsOf(k, p), id = esc(p.id);
+      const st = k === "sale" ? statusHTML(openBills("sale", p.id, d), true) : (() => { const b = balBefore("buy", p.id, addDays(d, 1)); return b > 0.004 ? `<span class="owe r">${money(b)}</span>` : `<span class="stamp">ครบ</span>`; })();
+      // ราคาที่ลงวันนี้แล้วเป็นสีหมึก ราคาที่จะใช้ถ้ายังไม่ลงเป็นสีดินสอ
+      const priceCell = i => {
+        const x = loadOfRound(loads, i + 1);
+        if (x && num(x.p) && (num(x.w) || num(x.n))) return `<span class="ink">${fmtN(num(x.p))}</span>`;
+        const pp = partyPrice(k, p.id, i, (x && x.t) || "ซาก", d).p;
+        return pp ? `<span class="sug">${fmtN(pp)}</span>` : "";
+      };
+      const main = `<tr class="tap ${S.openId === p.id ? "sel" : ""}" data-act="open" data-id="${id}">
+        <td>${esc(p.name)}${t.paid && !t.amt ? ` <span class="pencil small">รับ ${money(t.paid)}</span>` : ""}</td><td class="n">${R > 1 ? "" : priceCell(0)}</td>
+        <td class="n ink">${t.kg ? kg1(t.kg) : ""}</td><td class="n ink">${t.n || ""}</td><td class="n ink">${t.amt ? money(t.amt) : ""}</td><td class="n">${st}</td></tr>`;
+      if (R <= 1) return main;
+      let subs = "";
+      for (const rn of roundsToShow(loads, R)) {
+        const i = rn - 1, x = loadOfRound(loads, rn) || {}, w = num(x.w);
+        subs += `<tr class="tap subrow" data-act="open" data-id="${id}" data-round="${i + 1}"><td>รอบ ${i + 1}</td><td class="n">${priceCell(i)}</td>
+          <td class="n ink">${w ? kg1(w) : ""}</td><td class="n ink">${num(x.n) || ""}</td><td class="n ink">${w ? money(w * num(x.p)) : ""}</td><td class="n"></td></tr>`;
+      }
+      return main + subs;
+    }).join("")}</tbody></table>`;
+}
+function blankLoads(k, id, date, from, to) {
+  const out = [];
+  for (let i = from; i < to; i++) out.push(blankLoad(k, id, date, i + 1, "ซาก"));
+  return out;
+}
+const blankLoad = (k, id, date, r, ty) => ({ w: "", n: "", p: String(partyPrice(k, id, r - 1, ty, date).p || ""), t: ty, r });
+function draftFor(k, date, id) {
+  const l = lineOf(k, date, id), R = roundsOf(k, partyById(k, id)), has = l && !emptyT(lineTotals(l));
+  const raw = (l && l.loads) || [];
+  const loads = has ? raw.map((x, i) => ({ w: x.w ? String(x.w) : "", n: x.n ? String(x.n) : "", p: String(x.p ?? ""), t: x.t === "หมูเป็น" ? "หมูเป็น" : "ซาก", r: roundNo(x, i), skip: !!x.skip })).filter(x => !x.skip) : [];
+  // รอบประจำที่ยังไม่ได้กรอก เติมช่องว่างให้ (ช่องว่างไม่ถูกบันทึก) ยกเว้นรอบที่กด ✕ ไว้แล้ว
+  for (const r of roundsToShow(has ? raw : [], R)) if (!loadOfRound(loads, r)) loads.push(blankLoad(k, id, date, r, "ซาก"));
+  loads.sort((a, b) => a.r - b.r);
+  return { loads, paid: has && l.paid ? String(l.paid) : "", disc: has && l.disc ? String(l.disc) : "",
+    method: (l && l.method) || "โอน", note: (l && l.note) || "", showDisc: !!(has && num(l.disc)) };
+}
+function renderPanel() {
+  const el = $("#panel"); if (!el) return;
+  const k = S.entryKind, KK = K[k], id = S.openId, p = id && partyById(k, id);
+  if (!p) {
+    el.classList.remove("open");
+    el.innerHTML = `<div class="page"><div class="empty"><b>แตะชื่อ${KK.party}ทางซ้ายเพื่อลงบัญชี</b>ใส่น้ำหนัก จำนวนตัว และราคา ระบบคิดเงินให้ ถ้าวันนี้ลูกค้ามาจ่ายอย่างเดียว ก็แตะชื่อแล้วใส่แค่เงินที่รับ</div></div>`;
+    return;
+  }
+  el.classList.add("open");
+  const D = S.draft;
+  el.innerHTML = `
+    <header class="cover"><div class="k">ลงบัญชี${KK.label} · ${thLong(S.date)}</div><h2>${esc(p.name)}</h2><button class="x" data-act="close" aria-label="ปิด">✕</button></header>
+    <div class="page">
+      <div class="frow"><span class="pencil">ยอดยกมา</span><span class="v" id="pBefore"></span><button class="link" data-act="detail" data-id="${esc(id)}" data-kind="${k}">ดูบัญชี</button></div>
+      ${D.loads.map((x, i) => `<div class="load">
+        <div class="lhead"><span class="pencil">รอบ ${x.r}</span>
+          ${k === "sale" ? `<div class="seg sm" role="group" aria-label="ชนิดรอบ ${x.r}">${TYPES.map(ty => `<button data-act="ltype" data-i="${i}" data-t="${ty}" aria-pressed="${x.t === ty}">${ty}</button>`).join("")}</div>` : ""}
+          <span class="amt" id="la${i}"></span>${D.loads.length > 1 ? `<button class="xbtn" data-act="rmload" data-i="${i}" aria-label="ลบรอบ ${x.r}">✕</button>` : ""}</div>
+        <div class="lgrid">
+          <label for="w${i}"><span class="lbl">น้ำหนัก (กก.)</span><input class="fld" id="w${i}" data-i="${i}" data-f="w" inputmode="decimal" placeholder="0" value="${esc(x.w)}"></label>
+          <label for="n${i}"><span class="lbl">จำนวน (ตัว)</span><input class="fld" id="n${i}" data-i="${i}" data-f="n" inputmode="numeric" placeholder="0" value="${esc(x.n)}"></label>
+          <label for="p${i}"><span class="lbl">ราคา (฿/กก.)</span><input class="fld" id="p${i}" data-i="${i}" data-f="p" inputmode="decimal" placeholder="0" value="${esc(x.p)}"><span class="lbl" id="ps${i}" style="text-align:right"></span></label>
+        </div></div>`).join("")}
+      <div class="frow"><button class="link" data-act="addload">＋ เพิ่มรอบ</button><span class="pencil small" id="avgW"></span></div>
+      <div class="frow"><span>${KK.amountLabel}${dayWord(S.date)}</span><span class="v" id="pAmt"></span></div>
+      <div class="frow"><span>รวมต้อง${k === "sale" ? "ชำระ" : "จ่าย"}</span><span class="v" id="pDue"></span></div>
+      <div class="payline">
+        <label for="pPaid"><span class="lbl">${KK.payLabel} (บาท)</span><input class="fld" id="pPaid" data-f="paid" inputmode="decimal" placeholder="0" value="${esc(D.paid)}"></label>
+        <div class="seg sm" role="group" aria-label="ช่องทาง">${METHODS.map(m => `<button data-act="method" data-m="${m}" aria-pressed="${D.method === m}">${m}</button>`).join("")}</div>
+        <div style="grid-column:1/-1;display:flex;gap:14px;flex-wrap:wrap"><button class="link" data-act="payAll" id="payAllBtn"></button><button class="link" data-act="showDisc" id="showDiscBtn">ใส่ส่วนลด</button></div>
+      </div>
+      <div class="hint" id="roHint" hidden><span id="roText"></span><button class="btn" data-act="roundOff">ลดให้ ปิดยอด</button></div>
+      <div class="frow" id="discRow" hidden><label for="pDisc" style="flex:1"><span class="lbl">ลดให้ (บาท)</span><input class="fld" id="pDisc" data-f="disc" inputmode="decimal" placeholder="0" value="${esc(D.disc)}"></label><button class="link" data-act="clearDisc">ยกเลิก</button></div>
+      <div class="frow total"><span class="l">${KK.balLabel}</span><span class="v" id="pAfter"></span></div>
+      <div class="warn" id="pWarn" hidden></div>
+      <label for="pNote" style="display:block;margin-top:8px"><span class="lbl">หมายเหตุ</span><input class="fld l" id="pNote" data-f="note" value="${esc(D.note)}" placeholder="${k === "sale" ? "เช่น โอนเข้ากสิกร" : "เช่น เลขที่บิลฟาร์ม"}"></label>
+      <div class="panel-actions"><button class="btn lg" data-act="save">ลงบัญชี</button><button class="btn solid lg" data-act="savenext">ลงบัญชี · คนถัดไป</button></div>
+      <div style="text-align:center"><button class="link" data-act="clear" style="color:var(--pencil)">ล้างรายการของ${dayWord(S.date)}</button></div>
+    </div>`;
+  updatePanelCalc();
+}
+function draftTotals() {
+  const D = S.draft; let kg = 0, n = 0, amt = 0;
+  D.loads.forEach(x => { const w = num(x.w); kg += w; n += num(x.n); amt += w * num(x.p); });
+  return { kg: r2(kg), n, amt: r2(amt), paid: num(D.paid), disc: num(D.disc) };
+}
+function updatePanelCalc() {
+  if (!S.openId || !$("#pBefore")) return;
+  const k = S.entryKind, D = S.draft;
+  D.loads.forEach((x, i) => {
+    const o = $("#la" + i); if (o) o.textContent = num(x.w) ? "= " + money(num(x.w) * num(x.p)) : "";
+    const ps = $("#ps" + i); if (!ps) return;
+    const ref = partyPrice(k, S.openId, x.r - 1, x.t, S.date);
+    ps.textContent = !num(x.p) ? "" : num(x.p) !== ref.p ? "ราคาใหม่" : ref.from ? `ราคาเดิม (${thShort(ref.from)})` : "ราคาเริ่มต้น";
+  });
+  const t = draftTotals(), before = balBefore(k, S.openId, S.date), due = r2(before + t.amt), after = r2(due - t.paid - t.disc);
+  $("#avgW").textContent = t.n && t.kg ? `เฉลี่ย ${fmtN(t.kg / t.n, 1)} กก./ตัว` : "";
+  $("#pBefore").textContent = money(before);
+  $("#pAmt").textContent = money(t.amt);
+  $("#pDue").textContent = money(due);
+  $("#payAllBtn").textContent = due > 0.004 ? `${k === "sale" ? "รับ" : "จ่าย"}ครบ ${money(Math.max(0, due - t.disc))}` : "";
+  $("#payAllBtn").hidden = due <= 0.004;
+  // ปุ่มลดให้: โผล่เฉพาะตอนรับเงินมาแล้ว และเหลือนิดเดียว พ่อต้องกดยืนยันเอง
+  const remain = r2(due - t.paid - t.disc);
+  const showRo = k === "sale" && t.paid > 0 && !t.disc && remain > 0.004 && remain <= num(S.set.roundOffMax);
+  $("#roHint").hidden = !showRo;
+  if (showRo) $("#roText").textContent = `รับมา ${money(t.paid)} เหลือ ${money(remain)}`;
+  const showDiscRow = D.showDisc || t.disc > 0;
+  $("#discRow").hidden = !showDiscRow;
+  $("#showDiscBtn").hidden = showDiscRow;
+  $("#pAfter").textContent = after < -0.004 ? "เครดิต " + money(-after) : money(after);
+  const warns = [];
+  if (D.loads.some(x => num(x.w) && !num(x.p))) warns.push("มีรอบที่ใส่น้ำหนักแต่ยังไม่ใส่ราคา");
+  $("#pWarn").hidden = !warns.length; $("#pWarn").textContent = warns.join(" · ");
+}
+async function openParty(id, round) {
+  if (S.dirty && S.openId && S.openId !== id && !(await askConfirm("ยังไม่ได้ลงบัญชีรายการนี้ จะทิ้งที่แก้ไว้ไหม?", "ทิ้ง"))) return;
+  if (S.openId !== id || !S.draft) { S.openId = id; S.draft = draftFor(S.entryKind, S.date, id); S.dirty = false; }
+  $$("#plist tr.tap").forEach(r => r.classList.toggle("sel", r.dataset.id === id));
+  renderPanel();
+  const at = round ? S.draft.loads.findIndex(x => x.r === +round) : 0;
+  const w = $("#w" + Math.max(0, at)); if (w && (wide() || round)) w.focus();
+}
+async function closePanel(force) {
+  if (!force && S.dirty && !(await askConfirm("ยังไม่ได้ลงบัญชีรายการนี้ จะปิดเลยไหม?", "ปิดเลย"))) return false;
+  S.openId = null; S.draft = null; S.dirty = false;
+  $$("#plist tr.tap").forEach(r => r.classList.remove("sel"));
+  renderPanel(); return true;
+}
+async function saveLine(next) {
+  const k = S.entryKind, id = S.openId, date = S.date, p = partyById(k, id); if (!p) return;
+  const D = S.draft;
+  // ใส่น้ำหนักแต่ไม่มีราคา = ขาย 0 บาท หนี้หายเงียบๆ ไม่ให้ลงจนกว่าจะใส่ราคา
+  const noP = D.loads.findIndex(x => num(x.w) && !num(x.p)), noW = D.loads.findIndex(x => num(x.n) && !num(x.w));
+  if (noP >= 0 || noW >= 0) {
+    const i = noP >= 0 ? noP : noW;
+    toast(noP >= 0 ? `ใส่ราคารอบ ${D.loads[i].r} ก่อนลงบัญชี` : `รอบ ${D.loads[i].r} ใส่จำนวนตัวแล้ว แต่ยังไม่ใส่น้ำหนัก`);
+    const f = $((noP >= 0 ? "#p" : "#w") + i); if (f) f.focus();
+    return;
+  }
+  const line = {
+    loads: D.loads.filter(x => num(x.w) || num(x.n)).map(x => ({ w: r2(num(x.w)), n: num(x.n), p: r2(num(x.p)), t: k === "sale" ? x.t : "ซาก", r: x.r })),
+    paid: r2(num(D.paid)), disc: r2(num(D.disc)), method: D.method || "เงินสด", note: String(D.note || "").trim(),
+  };
+  // รอบประจำที่พ่อกด ✕ ออก จดไว้ว่า "วันนี้ไม่มีรอบนี้" จะได้ไม่โผล่กลับมา
+  if (line.loads.length) for (let r = 1; r <= roundsOf(k, p); r++) if (!D.loads.some(x => x.r === r)) line.loads.push({ w: 0, n: 0, p: 0, t: "ซาก", r, skip: true });
+  line.loads.sort((a, b) => a.r - b.r);
+  const day = S.days[date] || (S.days[date] = { date, lines: {}, buys: {} });
+  day[K[k].key] = Object.assign({}, day[K[k].key], { [id]: line });
+  S.dates = Object.keys(S.days).sort(); S.dirty = false;
+  // เก็บลงกล่องรอส่งทันที ก่อนทำอย่างอื่น ถ้าเน็ตหลุด รายการยังอยู่ในเครื่อง ส่งให้เองทีหลัง
+  const key = queueLine(k, date, id, line, p.name);
+  fillEntryList();
+  if (next) {
+    const list = visibleParties(k, date), i = list.findIndex(x => x.id === id), n = list[i + 1];
+    if (n) { S.openId = null; await openParty(n.id); const w = $("#w0"); if (w) w.focus(); }
+    else await closePanel(true);
+  } else if (!wide()) await closePanel(true);
+  else { S.draft = draftFor(k, date, id); renderPanel(); }
+  await flushOutbox();
+  const left = S.outbox.find(x => x.key === key);
+  if (!left) toast(`ลงบัญชี ${p.name} แล้ว`);
+  else if (left.err) toast(`ลงบัญชี ${p.name} ไม่สำเร็จ: ${left.err}`);
+  else if (!S.needPin) toast(`เน็ตไม่ดี เก็บรายการ ${p.name} ไว้ในเครื่องแล้ว จะส่งให้เองตอนเน็ตกลับมา`);
+  checkNewDay();
+}
+async function changeDate(d) {
+  if (d === S.date) return;
+  if (S.dirty && !(await askConfirm("ยังไม่ได้ลงบัญชีรายการนี้ จะเปลี่ยนวันเลยไหม?", "เปลี่ยนวัน"))) { $("#dateInput").value = S.date; return; }
+  S.date = d; S.dirty = false;
+  if (S.entryKind === "expense") { S.expDraft = null; fillDateBar(); renderExpenses(); return; }
+  if (S.openId) S.draft = draftFor(S.entryKind, d, S.openId);
+  fillEntryList(); renderPanel();
+}
+
+/* ---------- รายจ่าย ---------- */
+function newExpDraft() { return { id: null, cat: S.set.expenseCats[0] || "อื่นๆ", desc: "", amount: "", method: "เงินสด", err: "" }; }
+function renderExpenses() {
+  const d = S.date, [mf, mt] = monthOf(d), list = S.expenses.filter(e => e.date === d);
+  const dayTotal = list.reduce((s, e) => s + num(e.amount), 0);
+  const monthTotal = S.expenses.filter(e => e.date >= mf && e.date <= mt).reduce((s, e) => s + num(e.amount), 0);
+  const E = S.expDraft || (S.expDraft = newExpDraft());
+  const cats = S.set.expenseCats.includes(E.cat) ? S.set.expenseCats : [...S.set.expenseCats, E.cat];
+  $("#expArea").innerHTML = `
+    <div class="sec">${E.id ? "แก้ไขรายจ่าย" : "จดรายจ่าย"}</div>
+    <div class="setgrid">
+      <label for="eCat"><span class="lbl">หมวด</span><select class="fld" id="eCat" data-ef="cat">${cats.map(c => `<option ${c === E.cat ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
+      <label for="eAmt"><span class="lbl">จำนวนเงิน (บาท)</span><input class="fld" id="eAmt" data-ef="amount" inputmode="decimal" placeholder="0" value="${esc(E.amount)}"></label>
+      <label for="eDesc"><span class="lbl">รายละเอียด</span><input class="fld l" id="eDesc" data-ef="desc" value="${esc(E.desc)}" placeholder="เช่น ค่าแรงลูกน้อง 4 คน"></label>
+      <div><span class="lbl">จ่ายเป็น</span><div class="seg" role="group" aria-label="จ่ายเป็น">${METHODS.map(m => `<button data-act="emethod" data-m="${m}" aria-pressed="${E.method === m}">${m}</button>`).join("")}</div></div>
+    </div>
+    <div class="err" id="eErr" ${E.err ? "" : "hidden"}>${esc(E.err)}</div>
+    <div class="actions" style="margin-top:12px"><button class="btn solid" data-act="expSave">${E.id ? "บันทึกที่แก้" : "ลงบัญชีรายจ่าย"}</button>${E.id ? `<button class="btn" data-act="expCancel">ยกเลิก</button><button class="link" data-act="expDelete" style="color:#A12A2A">ลบรายการนี้</button>` : ""}</div>
+    <div class="sec">รายจ่ายวันนี้ <span class="pencil" style="font-weight:400">· ทั้งเดือน ${money(monthTotal)}</span></div>
+    <table class="lined"><colgroup><col style="width:30%"><col style="width:36%"><col style="width:14%"><col style="width:20%"></colgroup>
+      <thead><tr><th>หมวด</th><th>รายละเอียด</th><th class="n">จ่าย</th><th class="n">บาท</th></tr></thead>
+      <tbody>${list.length ? list.map(e => `<tr class="tap" data-act="expEdit" data-id="${esc(e.id)}"><td>${esc(e.cat)}</td><td>${esc(e.desc) || '<span class="pencil">–</span>'}</td><td class="n pencil">${esc(e.method)}</td><td class="n ink">${money(e.amount)}</td></tr>`).join("")
+        : `<tr><td colspan="4" class="pencil">ยังไม่มีรายจ่ายวันนี้</td></tr>`}
+      ${list.length ? `<tr class="tot"><td colspan="3">รวม${dayWord(d)}</td><td class="n"><span class="dbl">${money(dayTotal)}</span></td></tr>` : ""}</tbody></table>`;
+}
+async function saveExpense() {
+  const E = S.expDraft, amt = r2(num(E.amount));
+  if (!amt) { E.err = "ใส่จำนวนเงินก่อนลงบัญชี"; renderExpenses(); $("#eAmt").focus(); return; }
+  const e = { id: E.id || uid("e"), date: S.date, cat: E.cat, desc: String(E.desc || "").trim(), amount: amt, method: E.method };
+  const i = S.expenses.findIndex(x => x.id === e.id);
+  if (i >= 0) S.expenses[i] = e; else S.expenses.push(e);
+  S.expDraft = null; renderExpenses();
+  try { await backend.saveExpense(e); toast(`ลงรายจ่าย ${e.cat} ${money(amt)} แล้ว`); }
+  catch (err) { toast("ลงรายจ่ายไม่สำเร็จ ลองอีกครั้ง"); loadAll(true); }
+}
+
+/* ================= page: ลูกหนี้ ================= */
+function renderDebts() {
+  const t = todayISO();
+  const rows = S.customers.map(c => ({ c, ob: openBills("sale", c.id, "9999-12-31") })).filter(r => r.c.active !== false || r.ob.count);
+  const owing = rows.filter(r => r.ob.count);
+  const total = r2(owing.reduce((s, r) => s + r.ob.total, 0));
+  const [wf, wt] = weekOf(t); let wkPaid = 0; for (let d = wf; d <= wt; d = addDays(d, 1)) wkPaid += daySum("sale", d).paid;
+  setCover("สมุดลูกหนี้", "ลูกหนี้", "ยอด ณ " + thLong(t));
+  let list = S.debtFilter === "owe" ? owing : rows;
+  list = list.slice().sort((a, b) => b.ob.total - a.ob.total);
+  $("#main").innerHTML = `<div class="page">
+    <div class="headline walk"><div><span class="lbl">ลูกหนี้ค้างทั้งหมด</span><div class="big">${money(total)}</div></div>
+      <div class="pencil small">${owing.length} คนค้าง · รับเงินวีคนี้ ${money(wkPaid)}</div></div>
+    <div class="toolbar" style="margin-top:10px"><div class="seg sm" role="group" aria-label="แสดง"><button data-act="dfilter" data-f="owe" aria-pressed="${S.debtFilter === "owe"}">ที่ค้างอยู่</button><button data-act="dfilter" data-f="all" aria-pressed="${S.debtFilter === "all"}">ทุกคน</button></div>
+      <div class="walkway" aria-hidden="true"><span class="walker"><img class="f1" src="stickers/beagle-walk-1.png" alt="" onerror="this.closest('.walkway').remove()"><img class="f2" src="stickers/beagle-walk-2.png" alt=""></span></div></div>
+    <table class="lined"><colgroup><col style="width:28%"><col style="width:42%"><col style="width:30%"></colgroup>
+      <thead><tr><th>ลูกค้า</th><th>ค้างอยู่</th><th class="n">บาท</th></tr></thead>
+      <tbody>${list.length ? list.map(({ c, ob }) => `<tr class="tap" data-act="detail" data-kind="sale" data-id="${esc(c.id)}">
+        <td>${esc(c.name)}</td><td>${ob.count ? `<span class="owe">${oweText(ob)}</span>` : statusHTML(ob)}</td>
+        <td class="n ink">${ob.count ? money(ob.total) : ""}</td></tr>`).join("") : ""}</tbody></table>
+    ${list.length ? "" : `<div class="empty with-sticker">${sticker("bone")}<b>ไม่มีใครค้างเลย</b>ทุกคนจ่ายครบแล้ว</div>`}
+    <p class="note">แตะชื่อเพื่อดูว่าค้างบิลวันไหนบ้าง และคัดลอกยอดส่ง LINE</p></div>`;
+}
+
+/* ---------- หน้าลูกหนี้รายคน ---------- */
+function statement(k, id, from, to) {
+  const opening = balBefore(k, id, from); const rows = []; let b = opening, dr = 0, cr = 0;
+  for (const d of S.dates) {
+    if (d < from) continue; if (d > to) break;
+    const l = lineOf(k, d, id); if (!l) continue;
+    const t = lineTotals(l); if (emptyT(t)) continue;
+    const start = rows.length;
+    if (t.amt) { b += t.amt; dr += t.amt; rows.push({ d, desc: loadsDesc(t, k), dr: t.amt, cr: 0, b: r2(b) }); }
+    if (t.paid) { b -= t.paid; cr += t.paid; rows.push({ d, desc: `${K[k].payLabel} (${t.method})`, dr: 0, cr: t.paid, b: r2(b) }); }
+    if (t.disc) { b -= t.disc; cr += t.disc; rows.push({ d, desc: "ลดให้", dr: 0, cr: t.disc, b: r2(b) }); }
+    if (l.note && rows.length > start) rows[rows.length - 1].note = l.note;
+  }
+  return { opening, rows, dr: r2(dr), cr: r2(cr), closing: r2(b) };
+}
+function stRange() { return S.stMode === "month" ? monthOf(S.stAnchor) : weekOf(S.stAnchor); }
+function openDetail(k, id) { S.detail = { k, id }; S.stMode = "week"; S.stAnchor = todayISO(); S.billOpen = false; $("#drawer").hidden = false; renderDetail(); $("#drawer").scrollTop = 0; }
+function closeDetail() { S.detail = null; S.billOpen = false; $("#drawer").hidden = true; $("#drawer").innerHTML = ""; }
+function billText(k, id) {
+  if (k === "sale" && cutsOf(id).length) {
+    const p0 = partyById(k, id), ob = periodBills(id, "9999-12-31");
+    const L0 = [`สรุปยอดค้าง คุณ${p0.name}`, `ณ วันที่ ${thLong(todayISO())}`, ""];
+    ob.bills.forEach(b => { const bb = { ...b, from: b.date }; L0.push(`${periodName(bb).replace(" (ยังไม่ปิด)", "")} (${periodRange(bb)})  ยอด ${money(b.amt)}  ค้าง ${money(b.left)}`); });
+    L0.push("", ob.count ? `รวมค้างทั้งหมด ${baht(ob.total)}` : "ชำระครบทุกงวดแล้ว");
+    return L0.join("\n");
+  }
+  const p = partyById(k, id), [from, to] = stRange(), st = statement(k, id, from, to);
+  const L = [k === "sale" ? `ใบแจ้งยอด คุณ${p.name}` : `สรุปยอดซื้อ ${p.name}`, `ช่วง ${rangeLabel(from, to)}`, "", `ยอดยกมา ${baht(st.opening)}`];
+  st.rows.forEach(r => L.push(`${thShort(r.d)}  ${r.desc}  ${r.dr ? baht(r.dr) : "−" + baht(r.cr)}`));
+  L.push("", `${k === "sale" ? "ยอดค้างชำระ" : "ยอดค้างจ่าย"} ${baht(st.closing)}`);
+  return L.join("\n");
+}
+const periodName = b => b.opening ? "ยอดยกมา" : b.current ? "งวดนี้ (ยังไม่ปิด)" : b.gap ? "ยอดนอกงวด" : `งวดที่ ${b.no}`;
+const periodRange = b => b.opening ? "ก่อนใช้แอป" : b.current ? `${thShort(b.from)} –` : (b.from === b.to ? thShort(b.to) : `${thShort(b.from)}–${thShort(b.to)}`);
+function throughText(ob) {
+  if (!ob.count) return ob.credit > 0.004 ? `จ่ายเกินมา ${money(ob.credit)} จะหักบิลถัดไปให้` : "จ่ายครบทุกยอดแล้ว";
+  const b0 = ob.bills[0], part = b0.left < b0.amt - 0.004;
+  if (ob.mode === "period") return (ob.paidThrough ? `จ่ายครบถึงงวดที่สิ้นสุด ${thShort(ob.paidThrough)}` : "ยังไม่ได้จ่ายงวดไหนครบ")
+    + (part ? ` · ${periodName({ ...b0, from: b0.date }).replace(" (ยังไม่ปิด)", "")} จ่ายไปแล้ว ${money(b0.amt - b0.left)}` : "");
+  return (ob.paidThrough ? `จ่ายครบถึงยอดวันที่ ${thShort(ob.paidThrough)}` : "ยังไม่ได้จ่ายยอดไหนครบ")
+    + (part ? ` · ยอด${b0.opening ? "ยกมา" : "วันที่ " + thShort(b0.date)} จ่ายไปแล้ว ${money(b0.amt - b0.left)}` : "");
+}
+function billsSection(k, id, ob) {
+  const daily = ob.count && ob.mode !== "period" ? `<div class="sec">ยอดที่ยังค้าง (${ob.count} ยอด)</div>
+      <table class="lined"><colgroup><col style="width:28%"><col style="width:24%"><col style="width:24%"><col style="width:24%"></colgroup>
+        <thead><tr><th>วันที่</th><th class="n">ยอด</th><th class="n">เหลือ</th><th class="n">ค้างมา</th></tr></thead>
+        <tbody>${ob.bills.map(b => `<tr><td>${b.opening ? "ยอดยกมา" : thShort(b.date)}</td><td class="n pencil">${money(b.amt)}</td><td class="n ink">${money(b.left)}</td><td class="n pencil">${b.age} วัน</td></tr>`).join("")}
+        <tr class="tot"><td colspan="2">รวม</td><td class="n"><span class="dbl">${money(ob.total)}</span></td><td></td></tr></tbody></table>` : "";
+  if (k !== "sale") return daily;
+  if (ob.mode !== "period") return daily + `<div class="actions" style="margin-top:10px"><button class="btn" data-act="cutOpen" data-id="${esc(id)}">ปิดงวด</button></div>
+      <p class="note">ลูกค้าที่คิดเงินเป็นงวด กดปิดงวด แล้วยอดตั้งแต่ครั้งก่อนจะรวมเป็น 1 งวด ดูง่ายเหมือนบิล</p>`;
+  const start = Math.max(0, ob.all.length - 8), rows = ob.all.slice(start);
+  return `<div class="sec">งวดบิล</div>
+    <table class="lined"><colgroup><col style="width:31%"><col style="width:29%"><col style="width:20%"><col style="width:20%"></colgroup>
+      <thead><tr><th>งวด</th><th>ช่วง</th><th class="n">ยอด</th><th class="n">ค้าง</th></tr></thead>
+      <tbody>${rows.map((b, i) => `<tr class="tap ${b.current ? "cur" : ""}" data-act="periodBill" data-id="${esc(id)}" data-i="${start + i}"><td>${periodName(b)}</td><td class="pencil">${periodRange(b)}</td>
+        <td class="n">${money(b.amt)}</td><td class="n">${b.left > 0.004 ? `<span class="ink">${money(b.left)}</span>` : `<span class="stamp">ครบ</span>`}</td></tr>`).join("")}
+      <tr class="tot"><td colspan="3">รวมค้าง</td><td class="n"><span class="dbl">${money(ob.total)}</span></td></tr></tbody></table>
+    <div class="actions" style="margin-top:10px"><button class="btn" data-act="cutOpen" data-id="${esc(id)}">ปิดงวด</button><button class="link" data-act="cutUndo" data-id="${esc(id)}" style="color:var(--pencil)">ยกเลิกงวดล่าสุด</button></div>
+    <p class="note">แตะงวดไหนก็ได้ เพื่อคัดลอกบิลงวดนั้นส่ง LINE</p>`;
+}
+function periodBillText(id, b) {
+  const p = partyById("sale", id), L = [`บิล${periodName(b).replace(" (ยังไม่ปิด)", "")} คุณ${p.name}`, b.opening ? "ยอดค้างก่อนเริ่มใช้แอป" : periodRange(b) + (b.current ? " ถึงปัจจุบัน" : ""), ""];
+  if (!b.opening) for (const d of S.dates) {
+    if (d < b.from) continue; if (d > b.to) break;
+    for (const x of ((lineOf("sale", d, id) || {}).loads) || []) if (num(x.w)) L.push(`${thShort(d)}  ${x.t || "ซาก"} ${kg1(num(x.w))} กก. × ${fmtN(num(x.p))} = ${money(num(x.w) * num(x.p))}`);
+  }
+  L.push("", `รวมงวดนี้ ${baht(b.amt)}`, b.left > 0.004 ? `ค้างชำระ ${baht(b.left)}` : "ชำระครบแล้ว");
+  return L.join("\n");
+}
+/* ---------- กล่องปิดงวด ---------- */
+function cutPreview(id, from, to) {
+  let amt = 0, days = 0;
+  for (const d of S.dates) { if (d < from) continue; if (d > to) break; const t = lineTotals(lineOf("sale", d, id)); if (t.amt) { amt += t.amt; days++; } }
+  return { amt: r2(amt), days };
+}
+/** ค่าตั้งต้น: งวดแรกเริ่มที่ยอดเก่าสุดที่ยังไม่ได้จ่าย งวดต่อไปเริ่มวันถัดจากงวดก่อน · สิ้นสุดที่วันขายล่าสุด */
+function cutDefaults(id) {
+  const cuts = cutsOf(id), prevTo = cuts.length ? cuts[cuts.length - 1].date : null, t = todayISO();
+  let from = prevTo ? addDays(prevTo, 1) : null;
+  if (!from) { const b = openBills("sale", id, t).bills.find(x => !x.opening); from = b ? b.date : null; }
+  if (!from) for (const d of S.dates) if (lineTotals(lineOf("sale", d, id)).amt) { from = d; break; }
+  let to = null; for (const d of S.dates) { if (d > t) break; if (from && d >= from && lineTotals(lineOf("sale", d, id)).amt) to = d; }
+  return { prevTo, from: from || t, to: to || t };
+}
+function openCut(id) {
+  const p = partyById("sale", id), n = cutsOf(id).length + 1, df = cutDefaults(id), m = $("#modal");
+  m.innerHTML = `<div class="modal-card cutbox" role="dialog" aria-modal="true" aria-label="ปิดงวด">
+    <p><b>ปิดงวดที่ ${n}</b> · ${esc(p.name)}</p>
+    <div class="cutdates">
+      <label for="cutFrom"><span class="lbl">ตั้งแต่วันที่</span><input type="date" class="fld" id="cutFrom" data-id="${esc(id)}" value="${df.from}"></label>
+      <label for="cutTo"><span class="lbl">ถึงวันที่</span><input type="date" class="fld" id="cutTo" data-id="${esc(id)}" value="${df.to}"></label>
+    </div>
+    <p class="note">${df.prevTo ? `งวดก่อนหน้าปิดถึง ${thShort(df.prevTo)}` : "ตั้งต้นให้เริ่มที่ยอดเก่าสุดที่ยังไม่ได้จ่าย"} · แก้วันได้ตามบิลจริง</p>
+    <div class="sum" id="cutSum"></div><div class="err" id="cutErr" hidden></div>
+    <div class="row"><button class="btn" data-act="cutCancel">ยกเลิก</button><button class="btn solid" data-act="cutConfirm" data-id="${esc(id)}">ปิดงวด</button></div></div>`;
+  m.hidden = false; updateCutSum(id);
+}
+function updateCutSum(id) {
+  const from = $("#cutFrom").value, to = $("#cutTo").value, pv = from && to && from <= to ? cutPreview(id, from, to) : { amt: 0 };
+  $("#cutSum").innerHTML = pv.amt ? `<span>${thShort(from)} – ${thShort(to)} · ขาย ${pv.days} วัน</span><b>${money(pv.amt)} บาท</b>` : `<span class="pencil">ช่วงนี้ยังไม่มียอดขาย</span>`;
+  $("#cutErr").hidden = true;
+}
+async function confirmCut(id) {
+  const from = $("#cutFrom").value, to = $("#cutTo").value, err = $("#cutErr"), cuts = cutsOf(id), prevTo = cuts.length ? cuts[cuts.length - 1].date : null;
+  const fail = msg => { err.textContent = msg; err.hidden = false; };
+  if (!from || !to) return fail("เลือกวันเริ่มและวันสิ้นสุดของงวดก่อน");
+  if (from > to) return fail("วันเริ่มต้องไม่อยู่หลังวันสิ้นสุด");
+  if (prevTo && from <= prevTo) return fail(`วันเริ่มต้องอยู่หลังงวดก่อนหน้า (ปิดถึง ${thShort(prevTo)})`);
+  const pv = cutPreview(id, from, to); if (!pv.amt) return fail("ช่วงนี้ยังไม่มียอดขาย เลือกวันใหม่");
+  const no = cuts.length + 1;
+  (S.cuts[id] = S.cuts[id] || []).push({ date: to, from });
+  $("#modal").hidden = true; $("#modal").innerHTML = ""; renderDetail();
+  try { await backend.saveCut({ id, date: to, no, from, amt: pv.amt }); toast(`ปิดงวดที่ ${no} แล้ว · ${money(pv.amt)} บาท`); }
+  catch (e) { toast("ปิดงวดไม่สำเร็จ ลองอีกครั้ง"); loadAll(true); }
+}
+async function undoCut(id) {
+  const cuts = cutsOf(id); if (!cuts.length) { toast("ยังไม่มีงวดที่ปิด"); return; }
+  const last = cuts[cuts.length - 1].date;
+  if (!(await askConfirm(`ยกเลิกปิดงวดที่ ${cuts.length} (ถึง ${thShort(last)}) ไหม? ยอดของงวดนี้จะกลับไปรวมกับงวดถัดไป`, "ยกเลิกงวด"))) return;
+  S.cuts[id] = (S.cuts[id] || []).filter(c => c.date !== last); renderDetail();
+  try { await backend.saveCut({ id, date: last, deleted: true }); toast("ยกเลิกงวดแล้ว"); } catch (e) { toast("ยกเลิกงวดไม่สำเร็จ"); loadAll(true); }
+}
+function renderDetail() {
+  const { k, id } = S.detail, p = partyById(k, id); if (!p) return closeDetail();
+  const ob = openBills(k, id, "9999-12-31"), [from, to] = stRange(), st = statement(k, id, from, to);
+  const through = throughText(ob);
+  $("#drawer").innerHTML = `<div class="book">
+    <header class="cover"><div class="k">${k === "sale" ? "สมุดลูกหนี้" : "สมุดเจ้าหนี้"}</div><h2>${esc(p.name)}</h2><button class="x" data-act="closeDetail" aria-label="ปิด">✕</button></header>
+    <div class="page">
+      <div class="headline"><div><span class="lbl">${k === "sale" ? "ค้างทั้งหมด" : "ค้างจ่ายทั้งหมด"}</span><div class="big">${money(ob.total)}</div></div>${statusHTML(ob)}</div>
+      <p class="note" style="color:var(--text)">${through}</p>
+      <div class="actions" style="margin:12px 0"><button class="btn solid" data-act="gotoEntry" data-kind="${k}" data-id="${esc(id)}">${k === "sale" ? "รับเงิน / ลงบัญชีวันนี้" : "จ่ายเงิน / ลงบัญชีวันนี้"}</button><button class="btn" data-act="bill">คัดลอกส่ง LINE</button></div>
+      <div id="billBox" ${S.billOpen ? "" : "hidden"}><textarea class="billtext" id="billText" readonly aria-label="ข้อความใบแจ้งยอด">${esc(billText(k, id))}</textarea></div>
+      ${billsSection(k, id, ob)}
+      <div class="sec">บัญชีเดินสะพัด</div>
+      <div class="periodbar"><div class="seg sm" role="group" aria-label="ช่วง"><button data-act="stMode" data-m="week" aria-pressed="${S.stMode === "week"}">วีค</button><button data-act="stMode" data-m="month" aria-pressed="${S.stMode === "month"}">เดือน</button></div>
+        <div class="rangenav"><button class="icon" data-act="stPrev" aria-label="ก่อนหน้า">‹</button><span class="lbl2">${S.stMode === "month" ? thMonth(from) : rangeLabel(from, to)}</span><button class="icon" data-act="stNext" aria-label="ถัดไป">›</button></div></div>
+      <table class="lined"><colgroup><col style="width:17%"><col style="width:35%"><col style="width:16%"><col style="width:16%"><col style="width:16%"></colgroup>
+        <thead><tr><th>วันที่</th><th>รายการ</th><th class="n">${K[k].amountLabel}</th><th class="n">รับ/ลด</th><th class="n">คงเหลือ</th></tr></thead>
+        <tbody><tr><td class="pencil">${thShort(from)}</td><td class="pencil">ยอดยกมา</td><td class="n"></td><td class="n"></td><td class="n ink">${money(st.opening)}</td></tr>
+        ${st.rows.map(r => `<tr class="tap" data-act="gotoEntry" data-kind="${k}" data-id="${esc(id)}" data-date="${r.d}"><td>${thShort(r.d)}</td><td title="${esc(r.note || "")}">${esc(r.desc)}${r.note ? ` <span class="pencil small">· ${esc(r.note)}</span>` : ""}</td>
+          <td class="n ink">${r.dr ? money(r.dr) : ""}</td><td class="n ink">${r.cr ? money(r.cr) : ""}</td><td class="n">${money(r.b)}</td></tr>`).join("")}
+        <tr class="tot"><td colspan="2">ยอดยกไป</td><td class="n">${money(st.dr)}</td><td class="n">${money(st.cr)}</td><td class="n"><span class="dbl">${money(st.closing)}</span></td></tr></tbody></table>
+      <p class="note">แตะแถวเพื่อเปิดแก้รายการของวันนั้น · เงินที่รับมาตัดยอดที่เก่าที่สุดก่อนเสมอ</p>
+    </div></div>`;
+}
+
+/* ================= page: สรุป ================= */
+function sumRange() {
+  if (S.sumMode === "week") return weekOf(S.sumAnchor);
+  if (S.sumMode === "month") return monthOf(S.sumAnchor);
+  return S.sumFrom <= S.sumTo ? [S.sumFrom, S.sumTo] : [S.sumTo, S.sumFrom];
+}
+function renderSummary() {
+  if (S.sumKind === "pl" && !S.set.buyEnabled) S.sumKind = "cash";
+  const [from, to] = sumRange();
+  setCover("Summary", { cash: "รายรับ-รายจ่าย", cust: "สรุปลูกค้า", pl: "กำไรขาดทุน" }[S.sumKind], S.sumMode === "month" ? thMonth(from) : rangeLabel(from, to));
+  const kinds = [["cash", "รายรับ-รายจ่าย"], ["cust", "ลูกค้า"], ...(S.set.buyEnabled ? [["pl", "กำไรขาดทุน"]] : [])];
+  $("#main").innerHTML = `<div class="page">
+    <div class="toolbar"><div class="seg" role="group" aria-label="รายงาน">${kinds.map(([v, t]) => `<button data-act="skind" data-k="${v}" aria-pressed="${S.sumKind === v}">${t}</button>`).join("")}</div>
+      <span class="napper" aria-hidden="true"><img src="stickers/beagle-sleep-noz.png" alt="" onerror="this.parentNode.remove()"><i>z</i><i>z</i><i>Z</i></span>
+      <button class="link" data-act="copyReport">คัดลอกตาราง</button></div>
+    <div class="periodbar">
+      <div class="seg sm" role="group" aria-label="ช่วงเวลา">${[["week", "วีค"], ["month", "เดือน"], ["custom", "กำหนดเอง"]].map(([m, t]) => `<button data-act="sumMode" data-m="${m}" aria-pressed="${S.sumMode === m}">${t}</button>`).join("")}</div>
+      ${S.sumMode === "custom"
+        ? `<div class="custom"><label for="sumFrom"><span class="lbl">ตั้งแต่</span><input type="date" class="fld" id="sumFrom" value="${S.sumFrom}"></label><label for="sumTo"><span class="lbl">ถึง</span><input type="date" class="fld" id="sumTo" value="${S.sumTo}"></label></div>`
+        : `<div class="rangenav"><button class="icon" data-act="sumPrev" aria-label="ก่อนหน้า">‹</button><span class="lbl2">${S.sumMode === "week" ? rangeLabel(from, to) : thMonth(from)}</span><button class="icon" data-act="sumNext" aria-label="ถัดไป">›</button><button class="link" data-act="sumNow">${S.sumMode === "week" ? "วีคนี้" : "เดือนนี้"}</button></div>`}
+    </div>
+    <div id="copyBox" hidden><textarea class="billtext" id="copyText" readonly aria-label="ตารางสำหรับคัดลอก"></textarea></div>
+    ${S.sumKind === "cash" ? cashHTML(from, to) : S.sumKind === "cust" ? custHTML(from, to) : plHTML(from, to)}
+  </div>`;
+}
+function cashHTML(from, to) {
+  const P = periodTotals(from, to);
+  const cats = Object.keys(P.exp.cat).sort((a, b) => P.exp.cat[b] - P.exp.cat[a]);
+  const net = m => r2((P.sale.m[m] || 0) - (P.buy.m[m] || 0) - (P.exp.m[m] || 0));
+  return `
+  <div class="sec">ขาย</div>
+  <table class="lined"><colgroup><col style="width:24%"><col style="width:13%"><col style="width:20%"><col style="width:19%"><col style="width:24%"></colgroup>
+    <thead><tr><th>ชนิด</th><th class="n">ตัว</th><th class="n">กก.</th><th class="n">เฉลี่ย ฿/กก.</th><th class="n">บาท</th></tr></thead>
+    <tbody>${TYPES.map(ty => { const b = P.sale.by[ty] || { n: 0, kg: 0, amt: 0 }; return `<tr><td>${ty}</td><td class="n">${fmtN(b.n, 0)}</td><td class="n">${kg1(b.kg)}</td><td class="n pencil">${b.kg ? fmtN(b.amt / b.kg) : "–"}</td><td class="n ink">${money(b.amt)}</td></tr>`; }).join("")}
+    <tr><td>ลดให้ลูกค้า</td><td class="n pencil" colspan="3">${P.sale.discN} ครั้ง</td><td class="n ink">−${money(P.sale.disc)}</td></tr>
+    <tr class="tot"><td>ขายสุทธิ</td><td class="n">${fmtN(P.sale.n, 0)}</td><td class="n">${kg1(P.sale.kg)}</td><td></td><td class="n"><span class="dbl">${money(P.saleNet)}</span></td></tr></tbody></table>
+  <div class="sec">เงินเข้า-ออกจริง</div>
+  <table class="lined"><colgroup><col style="width:28%"><col style="width:18%"><col style="width:18%"><col style="width:16%"><col style="width:20%"></colgroup>
+    <thead><tr><th></th>${METHODS.map(m => `<th class="n">${m}</th>`).join("")}<th class="n">รวม</th></tr></thead>
+    <tbody><tr><td>รับจากลูกค้า</td>${METHODS.map(m => `<td class="n">${money(P.sale.m[m] || 0)}</td>`).join("")}<td class="n ink">${money(P.sale.paid)}</td></tr>
+    ${S.set.buyEnabled ? `<tr><td>จ่ายฟาร์ม</td>${METHODS.map(m => `<td class="n">${P.buy.m[m] ? "−" + money(P.buy.m[m]) : "0"}</td>`).join("")}<td class="n ink">−${money(P.buy.paid)}</td></tr>` : ""}
+    <tr><td>จ่ายค่าใช้จ่าย</td>${METHODS.map(m => `<td class="n">${P.exp.m[m] ? "−" + money(P.exp.m[m]) : "0"}</td>`).join("")}<td class="n ink">−${money(P.exp.total)}</td></tr>
+    <tr class="tot"><td>คงเหลือ</td>${METHODS.map(m => `<td class="n">${money(net(m))}</td>`).join("")}<td class="n"><span class="dbl">${money(P.sale.paid - (S.set.buyEnabled ? P.buy.paid : 0) - P.exp.total)}</span></td></tr></tbody></table>
+  <div class="sec">รายจ่ายตามหมวด</div>
+  <table class="lined"><colgroup><col style="width:70%"><col style="width:30%"></colgroup>
+    <tbody>${cats.length ? cats.map(c => `<tr><td>${esc(c)}</td><td class="n ink">${money(P.exp.cat[c])}</td></tr>`).join("") : `<tr><td class="pencil" colspan="2">ยังไม่มีรายจ่ายในช่วงนี้</td></tr>`}
+    <tr class="tot"><td>รวม</td><td class="n"><span class="dbl">${money(P.exp.total)}</span></td></tr></tbody></table>
+  <p class="note">"ขาย" นับตามวันที่ขาย ส่วน "เงินเข้า-ออก" นับตามวันที่ได้รับหรือจ่ายเงินจริง</p>`;
+}
+function custRows(from, to) {
+  return S.customers.map(c => ({ c, s: stats("sale", c.id, from, to) })).filter(r => r.c.active !== false || r.s.days || Math.abs(r.s.closing) > 0.004);
+}
+function custHTML(from, to) {
+  const rows = custRows(from, to);
+  const T = rows.reduce((a, { s }) => { for (const f of ["opening", "amt", "paid", "disc", "closing"]) a[f] += s[f]; return a; }, { opening: 0, amt: 0, paid: 0, disc: 0, closing: 0 });
+  let weeks = "";
+  if (S.sumMode === "month") {
+    const ws = []; let [w0] = weekOf(from);
+    while (w0 <= to) { ws.push([w0, addDays(w0, 6)]); w0 = addDays(w0, 7); }
+    weeks = `<div class="sec">แยกรายวีค</div>
+      <table class="lined"><colgroup><col style="width:34%"><col style="width:22%"><col style="width:22%"><col style="width:22%"></colgroup>
+      <thead><tr><th>วีค</th><th class="n">ขาย</th><th class="n">รับเงิน</th><th class="n">ลดให้</th></tr></thead>
+      <tbody>${ws.map(([a, b]) => { let amt = 0, paid = 0, disc = 0; for (let d = a; d <= b; d = addDays(d, 1)) { const s = daySum("sale", d); amt += s.amt; paid += s.paid; disc += s.disc; }
+        return `<tr class="tap" data-act="gotoWeek" data-d="${a}"><td>${rangeLabel(a, b)}</td><td class="n ink">${money(amt)}</td><td class="n ink">${money(paid)}</td><td class="n pencil">${money(disc)}</td></tr>`; }).join("")}</tbody></table>
+      <p class="note">วีคที่คร่อมเดือนนับเต็มวีค เหมือนในไฟล์ Excel เดิม</p>`;
+  }
+  return `<div class="tblwrap" style="overflow-x:auto"><table class="lined" style="min-width:520px"><colgroup><col style="width:18%"><col style="width:17%"><col style="width:17%"><col style="width:17%"><col style="width:14%"><col style="width:17%"></colgroup>
+    <thead><tr><th>ลูกค้า</th><th class="n">ยกมา</th><th class="n">ขาย</th><th class="n">รับเงิน</th><th class="n">ลดให้</th><th class="n">คงค้าง</th></tr></thead>
+    <tbody>${rows.map(({ c, s }) => `<tr class="tap" data-act="detail" data-kind="sale" data-id="${esc(c.id)}"><td>${esc(c.name)}</td><td class="n pencil">${money(s.opening)}</td><td class="n ink">${money(s.amt)}</td><td class="n ink">${money(s.paid)}</td><td class="n pencil">${money(s.disc)}</td><td class="n ink">${money(s.closing)}</td></tr>`).join("")}
+    <tr class="tot"><td>รวม</td><td class="n">${money(T.opening)}</td><td class="n">${money(T.amt)}</td><td class="n">${money(T.paid)}</td><td class="n">${money(T.disc)}</td><td class="n"><span class="dbl">${money(T.closing)}</span></td></tr></tbody></table></div>${weeks}`;
+}
+function plHTML(from, to) {
+  const P = periodTotals(from, to), cats = Object.keys(P.exp.cat);
+  const row = (l, v, cls = "") => `<tr class="${cls}"><td>${l}</td><td class="n ink">${v < 0 ? "(" + money(-v) + ")" : money(v)}</td></tr>`;
+  return `<table class="lined"><colgroup><col style="width:68%"><col style="width:32%"></colgroup><tbody>
+    ${row("ขายหมู", P.sale.amt)}${row("หัก ลดให้ลูกค้า", -P.sale.disc)}${row("ขายสุทธิ", P.saleNet, "tot")}
+    ${row("ซื้อหมูจากฟาร์ม", P.buy.amt)}${row("หัก ส่วนลดจากฟาร์ม", -P.buy.disc)}${row("ต้นทุนสุทธิ", P.buyNet, "tot")}
+    ${row("กำไรขั้นต้น", P.gross, "tot")}${cats.map(c => row(esc(c), P.exp.cat[c])).join("")}${row("รวมค่าใช้จ่าย", P.exp.total, "tot")}
+    <tr class="tot"><td>กำไร (ขาดทุน) สุทธิ</td><td class="n"><span class="dbl">${P.net < 0 ? "(" + money(-P.net) + ")" : money(P.net)}</span></td></tr></tbody></table>
+    <p class="note">% ซาก (กก.ที่ขาย ÷ กก.มีชีวิตที่ซื้อ) ${P.buy.kg ? fmtN(P.sale.kg / P.buy.kg * 100, 1) + "%" : "–"} · คิดตามวันที่ขาย/ซื้อ ถือว่าไม่มีสต๊อกค้างข้ามงวด</p>`;
+}
+function reportTsv() {
+  const [f, t] = sumRange(), L = [];
+  if (S.sumKind === "cust") {
+    L.push([`สรุปลูกค้า ${rangeLabel(f, t)}`], ["ลูกค้า", "ยกมา", "ขาย", "รับเงิน", "ลดให้", "คงค้าง"]);
+    custRows(f, t).forEach(({ c, s }) => L.push([c.name, s.opening, s.amt, s.paid, s.disc, s.closing]));
+  } else {
+    const P = periodTotals(f, t);
+    L.push([`รายรับ-รายจ่าย ${rangeLabel(f, t)}`]);
+    TYPES.forEach(ty => { const b = P.sale.by[ty] || { n: 0, kg: 0, amt: 0 }; L.push([`ขาย${ty}`, b.n + " ตัว", b.kg + " กก.", r2(b.amt)]); });
+    L.push(["ลดให้ลูกค้า", "", "", -P.sale.disc], ["ขายสุทธิ", "", "", P.saleNet], ["รับเงิน", ...METHODS.map(m => `${m} ${P.sale.m[m] || 0}`), P.sale.paid]);
+    Object.keys(P.exp.cat).forEach(c => L.push([c, "", "", P.exp.cat[c]]));
+    L.push(["รวมรายจ่าย", "", "", P.exp.total]);
+  }
+  return L.map(r => r.join("\t")).join("\n");
+}
+
+/* ================= page: ตั้งค่า ================= */
+function renderSettings() {
+  setCover("Kai Account", "ตั้งค่า", "");
+  const rows = k => partiesOf(k).map((p, i, arr) => `<tr>
+    <td><input class="fld l" id="nm-${esc(p.id)}" data-pk="${k}" data-id="${esc(p.id)}" data-cf="name" value="${esc(p.name)}" aria-label="ชื่อ"></td>
+    <td class="n"><input class="fld" id="op-${esc(p.id)}" data-pk="${k}" data-id="${esc(p.id)}" data-cf="opening" inputmode="decimal" value="${p.opening || 0}" aria-label="ยอดยกมา"></td>
+    ${k === "sale" ? `<td class="n"><input class="fld" id="rd-${esc(p.id)}" data-pk="sale" data-id="${esc(p.id)}" data-cf="rounds" inputmode="numeric" value="${roundsOf("sale", p)}" aria-label="รอบประจำ"></td>` : ""}
+    <td class="n"><input type="checkbox" id="ac-${esc(p.id)}" data-pk="${k}" data-id="${esc(p.id)}" data-cf="active" ${p.active !== false ? "checked" : ""} aria-label="ใช้งาน" style="width:26px;height:26px;accent-color:var(--ink)"></td>
+    <td class="n"><button class="xbtn" data-act="move" data-pk="${k}" data-i="${i}" data-dir="-1" aria-label="เลื่อนขึ้น" ${i ? "" : "hidden"}>↑</button><button class="xbtn" data-act="move" data-pk="${k}" data-i="${i}" data-dir="1" aria-label="เลื่อนลง" ${i < arr.length - 1 ? "" : "hidden"}>↓</button></td></tr>`).join("");
+  const table = (k, head) => k === "sale"
+    ? `<table class="lined"><colgroup><col style="width:32%"><col style="width:26%"><col style="width:12%"><col style="width:13%"><col style="width:17%"></colgroup>
+      <thead><tr><th>ชื่อ</th><th class="n">${head}</th><th class="n">รอบ</th><th class="n">ใช้งาน</th><th class="n"></th></tr></thead><tbody>${rows(k)}</tbody></table>`
+    : `<table class="lined"><colgroup><col style="width:38%"><col style="width:30%"><col style="width:14%"><col style="width:18%"></colgroup>
+      <thead><tr><th>ชื่อ</th><th class="n">${head}</th><th class="n">ใช้งาน</th><th class="n"></th></tr></thead><tbody>${rows(k)}</tbody></table>`;
+  $("#main").innerHTML = `<div class="page">
+    <div class="sec">การคิดยอด</div>
+    <div class="setgrid">
+      <label for="sRound"><span class="lbl">ขึ้นปุ่ม "ลดให้ ปิดยอด" เมื่อเหลือไม่เกิน (บาท)</span><input class="fld" id="sRound" data-sf="roundOffMax" inputmode="decimal" value="${S.set.roundOffMax}"></label>
+      <label for="sWeek"><span class="lbl">วีคเริ่มวัน</span><select class="fld" id="sWeek" data-sf="weekStart">${DOW.map((d, i) => `<option value="${i}" ${i === S.set.weekStart ? "selected" : ""}>${d}</option>`).join("")}</select></label>
+      <label for="sOpen"><span class="lbl">ยอดยกมา ณ วันที่</span><input class="fld" type="date" id="sOpen" data-sf="openingDate" value="${S.set.openingDate}"></label>
+    </div>
+    <div class="sec">ลูกค้า (${S.customers.length})</div>
+    ${table("sale", "หนี้ยกมา")}
+    <div class="toolbar" style="margin-top:8px"><input class="fld l" id="newCust" placeholder="ชื่อลูกค้าใหม่" aria-label="ชื่อลูกค้าใหม่" style="max-width:260px"><button class="btn" data-act="addParty" data-pk="sale">เพิ่มลูกค้า</button></div>
+    <p class="note">รอบ = จำนวนรอบส่งประจำ เช่น สำโรงส่ง 3 ที่ ใส่ 3 หน้าบันทึกจะมีรอบ 1–3 ให้เลย แต่ละรอบจำราคาแยกกัน แต่หนี้รวมเป็นยอดเดียว · ปิด "ใช้งาน" แล้วชื่อจะหายจากหน้าบันทึก แต่ประวัติยังอยู่ครบ</p>
+    <div class="sec">หมวดรายจ่าย</div>
+    <label for="sCats"><span class="lbl">คั่นแต่ละหมวดด้วยจุลภาค (,)</span><input class="fld l" id="sCats" data-sf="expenseCats" value="${esc(S.set.expenseCats.join(", "))}"></label>
+    <div class="sec">ซื้อหมูจากฟาร์ม</div>
+    <label for="sBuyOn" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sBuyOn" data-sf="buyEnabled" ${S.set.buyEnabled ? "checked" : ""} style="width:26px;height:26px;accent-color:var(--ink)"> เปิดใช้ฝั่งซื้อหมู (บันทึกซื้อ, เจ้าหนี้ฟาร์ม, กำไรขาดทุน)</label>
+    ${S.set.buyEnabled ? `${S.farms.length ? table("buy", "ค้างจ่ายยกมา") : `<p class="note">ยังไม่มีฟาร์ม</p>`}
+      <div class="toolbar" style="margin-top:8px"><input class="fld l" id="newFarm" placeholder="ชื่อฟาร์มใหม่" aria-label="ชื่อฟาร์มใหม่" style="max-width:260px"><button class="btn" data-act="addParty" data-pk="buy">เพิ่มฟาร์ม</button></div>` : `<p class="note">ปิดไว้ก่อน เปิดเมื่อพร้อมใช้</p>`}
+    <div class="sec">ข้อมูล</div>
+    <p class="note">${S.demo ? "โหมดตัวอย่าง: ไม่ได้เชื่อมกับ Google Sheet" : "ข้อมูลทั้งหมดอยู่ใน Google Sheet ทุกการลงบัญชีมีบันทึกในแท็บ ประวัติการแก้ไข"}</p>
+    <div class="actions" style="margin-top:8px">${S.sheetUrl ? `<a class="btn" href="${esc(S.sheetUrl)}" target="_blank" rel="noopener">เปิด Google Sheet</a>` : ""}<button class="btn" data-act="reload">โหลดข้อมูลล่าสุด</button>${S.pinRequired ? `<button class="btn" data-act="logout">ออกจากระบบเครื่องนี้</button>` : ""}</div>
+  </div>`;
+}
+function saveConfigToast(ok) { backend.saveConfig().then(() => toast(ok)).catch(() => { toast("บันทึกการตั้งค่าไม่สำเร็จ"); loadAll(true); }); }
+
+/* ================= toast, confirm, copy ================= */
+let toastT;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2600); }
+function askConfirm(msg, ok = "ยืนยัน") {
+  return new Promise(res => {
+    const m = $("#modal");
+    m.innerHTML = `<div class="modal-card" role="alertdialog" aria-modal="true"><p>${esc(msg)}</p><div class="row"><button class="btn" id="mNo">ยกเลิก</button><button class="btn solid" id="mYes">${esc(ok)}</button></div></div>`;
+    m.hidden = false; $("#mNo").focus();
+    const done = v => { m.hidden = true; m.innerHTML = ""; res(v); };
+    $("#mYes").onclick = () => done(true); $("#mNo").onclick = () => done(false);
+  });
+}
+async function copyFrom(ta, okMsg) {
+  ta.focus(); ta.select();
+  try { await navigator.clipboard.writeText(ta.value); toast(okMsg); }
+  catch (err) { try { if (document.execCommand("copy")) { toast(okMsg); return; } } catch (e2) { /* ignore */ } toast("กดค้างที่ข้อความเพื่อคัดลอก"); }
+}
+
+/* ================= events ================= */
+async function leaveEntryOk() { return !(S.tab === "entry" && S.dirty) || await closePanel(); }
+document.addEventListener("click", async e => {
+  if (e.target.id === "dateInput" && e.target.showPicker) { try { e.target.showPicker(); } catch (err) { /* picker blocked */ } }
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const act = b.dataset.act;
+  switch (act) {
+    case "tab": if (!(await leaveEntryOk())) return; closeDetail(); S.tab = b.dataset.tab; S.openId = null; S.draft = null; render(); window.scrollTo(0, 0); break;
+    case "pin": { const v = $("#pinInput").value.trim(); if (!v) return; S.pin = v; S.needPin = false; S.loaded = false; S.loadError = null; render(); loadAll(false); break; }
+    case "flush": if (S.saving || S.demo && !S.outbox.length) return; await retryNow(true); break;
+    case "reload": S.loadError = null; if (!S.loaded) render(); await loadAll(false); if (S.loaded) toast("โหลดข้อมูลล่าสุดแล้ว"); break;
+    case "logout": if (S.outbox.length && !(await askConfirm(`ยังมี ${S.outbox.length} รายการที่ยังไม่ได้ส่งขึ้นชีต ออกจากระบบตอนนี้รายการจะยังอยู่ในเครื่อง แต่จะส่งได้หลังใส่รหัสใหม่ ออกเลยไหม?`, "ออกเลย"))) return;
+      setPin(""); lsSet(LS_CACHE, null); S.cachedAt = null; S.pin = ""; S.pinMsg = ""; S.needPin = true; S.loaded = false; render(); break;
+    case "prevDay": changeDate(addDays(S.date, -1)); break;
+    case "nextDay": changeDate(addDays(S.date, 1)); break;
+    case "today": changeDate(todayISO()); break;
+    case "ekind": {
+      if (b.dataset.kind === S.entryKind) return;
+      if (S.dirty && !(await closePanel())) return;
+      S.entryKind = b.dataset.kind; S.openId = null; S.draft = null; S.expDraft = null; render(); break;
+    }
+    case "open": openParty(b.dataset.id, b.dataset.round); break;
+    case "close": closePanel(); break;
+    case "ltype": {
+      const i = +b.dataset.i, x = S.draft.loads[i], ty = b.dataset.t; if (x.t === ty) return;
+      x.t = ty; x.p = String(partyPrice("sale", S.openId, x.r - 1, ty, S.date).p || ""); S.dirty = true; renderPanel(); break;
+    }
+    case "addload": {
+      // เอารอบที่ลบไปกลับมาก่อน (เช่น ลบรอบ 2 ไป กดเพิ่มได้รอบ 2 คืน) ไม่งั้นต่อท้าย
+      const L = S.draft.loads, last = L[L.length - 1], ty = last ? last.t : "ซาก";
+      let r = 1; while (L.some(x => x.r === r)) r++;
+      const nl = blankLoad(S.entryKind, S.openId, S.date, r, ty); if (!num(nl.p) && last) nl.p = last.p;
+      L.push(nl); L.sort((a, b) => a.r - b.r); S.dirty = true;
+      renderPanel(); const w = $("#w" + L.indexOf(nl)); if (w) w.focus(); break;
+    }
+    case "rmload": {
+      const x = S.draft.loads[+b.dataset.i];
+      if ((num(x.w) || num(x.n)) && !(await askConfirm(`ลบรอบ ${x.r} (${num(x.w) ? kg1(num(x.w)) + " กก." : num(x.n) + " ตัว"}) ออก?`, "ลบรอบนี้"))) return;
+      S.draft.loads.splice(+b.dataset.i, 1); S.dirty = true; renderPanel(); break;
+    }
+    case "method": S.draft.method = b.dataset.m; S.dirty = true; $$('[data-act="method"]').forEach(x => x.setAttribute("aria-pressed", String(x.dataset.m === S.draft.method))); break;
+    case "payAll": { const t = draftTotals(); S.draft.paid = String(Math.max(0, r2(balBefore(S.entryKind, S.openId, S.date) + t.amt - t.disc))); $("#pPaid").value = S.draft.paid; S.dirty = true; updatePanelCalc(); break; }
+    case "roundOff": {
+      const t = draftTotals(), remain = r2(balBefore(S.entryKind, S.openId, S.date) + t.amt - t.paid);
+      if (remain <= 0) return;
+      S.draft.disc = String(remain); S.draft.showDisc = true; $("#pDisc").value = S.draft.disc; S.dirty = true; updatePanelCalc(); toast(`ลดให้ ${money(remain)} ปิดยอดแล้ว กดลงบัญชีเพื่อบันทึก`); break;
+    }
+    case "showDisc": S.draft.showDisc = true; updatePanelCalc(); $("#pDisc").focus(); break;
+    case "clearDisc": S.draft.disc = ""; S.draft.showDisc = false; $("#pDisc").value = ""; S.dirty = true; updatePanelCalc(); break;
+    case "clear": {
+      if (!(await askConfirm(`ล้างรายการของคนนี้ใน${dayWord(S.date)}ทั้งหมด?`, "ล้าง"))) return;
+      S.draft = { loads: blankLoads(S.entryKind, S.openId, S.date, 0, roundsOf(S.entryKind, partyById(S.entryKind, S.openId))), paid: "", disc: "", method: S.draft.method, note: "", showDisc: false };
+      await saveLine(false); break;
+    }
+    case "save": saveLine(false); break;
+    case "savenext": saveLine(true); break;
+    case "emethod": S.expDraft.method = b.dataset.m; $$('[data-act="emethod"]').forEach(x => x.setAttribute("aria-pressed", String(x.dataset.m === S.expDraft.method))); break;
+    case "expSave": saveExpense(); break;
+    case "expCancel": S.expDraft = null; renderExpenses(); break;
+    case "expEdit": { const x = S.expenses.find(y => y.id === b.dataset.id); if (!x) return; S.expDraft = { id: x.id, cat: x.cat, desc: x.desc || "", amount: String(x.amount), method: x.method || "เงินสด", err: "" }; renderExpenses(); window.scrollTo(0, 0); break; }
+    case "expDelete": {
+      const id = S.expDraft && S.expDraft.id; if (!id || !(await askConfirm("ลบรายจ่ายนี้?", "ลบ"))) return;
+      S.expenses = S.expenses.filter(x => x.id !== id); S.expDraft = null; renderExpenses();
+      backend.saveExpense({ id, deleted: true }).then(() => toast("ลบรายจ่ายแล้ว")).catch(() => { toast("ลบไม่สำเร็จ"); loadAll(true); }); break;
+    }
+    case "dfilter": S.debtFilter = b.dataset.f; renderDebts(); break;
+    case "detail": openDetail(b.dataset.kind || "sale", b.dataset.id); break;
+    case "closeDetail": closeDetail(); break;
+    case "cutOpen": openCut(b.dataset.id); break;
+    case "cutCancel": $("#modal").hidden = true; $("#modal").innerHTML = ""; break;
+    case "cutConfirm": confirmCut(b.dataset.id); break;
+    case "cutUndo": undoCut(b.dataset.id); break;
+    case "periodBill": {
+      const bk = periodBills(b.dataset.id, "9999-12-31").all[+b.dataset.i]; if (!bk) return;
+      S.billOpen = true; const box = $("#billBox"), ta = $("#billText");
+      ta.value = periodBillText(b.dataset.id, bk); box.hidden = false; box.scrollIntoView({ block: "nearest" });
+      copyFrom(ta, "คัดลอกบิลงวดนี้แล้ว วางใน LINE ได้เลย"); break;
+    }
+    case "stMode": S.stMode = b.dataset.m; S.billOpen = false; renderDetail(); break;
+    case "stPrev": case "stNext": {
+      const dir = act === "stPrev" ? -1 : 1;
+      if (S.stMode === "week") S.stAnchor = addDays(S.stAnchor, 7 * dir); else { const d = parseISO(S.stAnchor); S.stAnchor = iso(new Date(d.getFullYear(), d.getMonth() + dir, 1)); }
+      S.billOpen = false; renderDetail(); break;
+    }
+    case "bill": S.billOpen = true; $("#billText").value = billText(S.detail.k, S.detail.id); $("#billBox").hidden = false; copyFrom($("#billText"), "คัดลอกแล้ว วางในแชท LINE ได้เลย"); break;
+    case "gotoEntry": {
+      if (!(await leaveEntryOk())) return;
+      const k = b.dataset.kind, id = b.dataset.id, d = b.dataset.date || todayISO();
+      closeDetail(); S.tab = "entry"; S.entryKind = k; S.date = d; S.openId = null; S.dirty = false; render(); openParty(id); break;
+    }
+    case "skind": S.sumKind = b.dataset.k; render(); break;
+    case "sumMode": S.sumMode = b.dataset.m; render(); break;
+    case "sumPrev": case "sumNext": {
+      const dir = act === "sumPrev" ? -1 : 1;
+      if (S.sumMode === "week") S.sumAnchor = addDays(S.sumAnchor, 7 * dir); else { const d = parseISO(S.sumAnchor); S.sumAnchor = iso(new Date(d.getFullYear(), d.getMonth() + dir, 1)); }
+      render(); break;
+    }
+    case "sumNow": S.sumAnchor = todayISO(); render(); break;
+    case "gotoWeek": S.sumMode = "week"; S.sumAnchor = b.dataset.d; render(); break;
+    case "copyReport": { $("#copyBox").hidden = false; const ta = $("#copyText"); ta.value = reportTsv(); copyFrom(ta, "คัดลอกแล้ว วางใน Excel, Sheet หรือ LINE ได้"); break; }
+    case "move": {
+      const list = partiesOf(b.dataset.pk), i = +b.dataset.i, j = i + (+b.dataset.dir);
+      if (j < 0 || j >= list.length) return;
+      [list[i], list[j]] = [list[j], list[i]]; render(); saveConfigToast("บันทึกลำดับแล้ว"); break;
+    }
+    case "addParty": {
+      const k = b.dataset.pk, inp = $(k === "sale" ? "#newCust" : "#newFarm"), name = inp.value.trim();
+      if (!name) { inp.focus(); return; }
+      partiesOf(k).push({ id: uid(k === "sale" ? "c" : "f"), name, opening: 0, active: true });
+      render(); saveConfigToast(`เพิ่ม ${name} แล้ว`); break;
+    }
+  }
+});
+$("#drawer").addEventListener("click", e => { if (e.target.id === "drawer") closeDetail(); });
+document.addEventListener("keydown", e => {
+  const id = e.target.id;
+  if (e.key === "Escape") { if (!$("#modal").hidden) return; if (!$("#drawer").hidden) closeDetail(); else if (S.openId) closePanel(); }
+  if (e.key === "Enter" && (id === "newCust" || id === "newFarm")) { e.preventDefault(); $(`[data-act="addParty"][data-pk="${id === "newCust" ? "sale" : "buy"}"]`).click(); }
+  if (e.key === "Enter" && id === "pinInput") { e.preventDefault(); $('[data-act="pin"]').click(); }
+});
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.closest("#panel") && S.draft && t.dataset.f) {
+    if (t.dataset.i != null) S.draft.loads[+t.dataset.i][t.dataset.f] = t.value; else S.draft[t.dataset.f] = t.value;
+    S.dirty = true; updatePanelCalc();
+  } else if (t.dataset.ef && S.expDraft) {
+    S.expDraft[t.dataset.ef] = t.value;
+    if (t.dataset.ef === "amount" && S.expDraft.err) { S.expDraft.err = ""; $("#eErr").hidden = true; }
+  }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "cutFrom" || t.id === "cutTo") { updateCutSum(t.dataset.id); return; }
+  if (t.id === "dateInput" && t.value) changeDate(t.value);
+  else if (t.dataset.price) {
+    const ty = t.dataset.price, k = ty === "buy" ? "buy" : "sale", pk = k === "buy" ? "buyPrice" : priceKey("sale", ty), p = r2(num(t.value));
+    if (!p) { t.value = priceOn(k, S.date, ty) || ""; return; }
+    const day = S.days[S.date] || (S.days[S.date] = { date: S.date, lines: {}, buys: {} });
+    day[pk] = p; S.dates = Object.keys(S.days).sort();
+    if (S.draft) { S.draft.loads.forEach(x => { if (!num(x.w) && (k === "buy" || x.t === ty)) x.p = String(p); }); renderPanel(); }
+    backend.writePrice(S.date, { [pk]: p }).then(() => toast(`ราคา${k === "buy" ? "ซื้อ" : ty}วันนี้ ${fmtN(p)} บาท/กก.`)).catch(() => toast("บันทึกราคาไม่สำเร็จ"));
+  }
+  else if (t.id === "sumFrom" || t.id === "sumTo") { if (t.value) { S[t.id] = t.value; render(); } }
+  else if (t.dataset.ef === "cat" && S.expDraft) S.expDraft.cat = t.value;
+  else if (t.dataset.sf) {
+    const f = t.dataset.sf;
+    if (f === "expenseCats") { const cats = t.value.split(",").map(x => x.trim()).filter(Boolean); if (!cats.length) { t.value = S.set.expenseCats.join(", "); return; } S.set.expenseCats = cats; }
+    else if (f === "openingDate") { if (!t.value) return; S.set.openingDate = t.value; }
+    else if (f === "weekStart") S.set.weekStart = +t.value;
+    else if (f === "buyEnabled") { S.set.buyEnabled = t.checked; if (!t.checked && S.entryKind === "buy") S.entryKind = "sale"; render(); }
+    else { const v = r2(num(t.value)); if (f === "defaultPrice" && !v) { t.value = S.set[f]; return; } S.set[f] = v; }
+    saveConfigToast("บันทึกการตั้งค่าแล้ว");
+  }
+  else if (t.dataset.cf) {
+    const p = partyById(t.dataset.pk, t.dataset.id); if (!p) return;
+    const f = t.dataset.cf;
+    if (f === "name") { const v = t.value.trim(); if (!v) { t.value = p.name; return; } p.name = v; }
+    else if (f === "active") p.active = t.checked;
+    else if (f === "rounds") { const v = Math.min(5, Math.max(1, Math.round(num(t.value)) || 1)); t.value = v; p.rounds = v; }
+    else p[f] = r2(num(t.value));
+    saveConfigToast("บันทึกแล้ว");
+  }
+});
+
+/* ================= boot ================= */
+function boot() {
+  // gas = เปิดผ่านลิงก์ Apps Script · api = แอปบนมือถือ (GitHub Pages) · demo = เปิดไฟล์ตรงๆ
+  S.mode = (window.google && google.script && google.script.run) ? "gas" : API_URL ? "api" : "demo";
+  S.demo = S.mode === "demo";
+  // ลิงก์ตั้งค่าเครื่อง: .../#k=รหัส → จำรหัสไว้ในเครื่อง แล้วลบออกจากแถบที่อยู่ ไม่ต้องพิมพ์
+  const hk = location.hash.match(/^#k=(.+)$/);
+  if (hk && !S.demo) { setPin(decodeURIComponent(hk[1])); try { history.replaceState(null, "", location.pathname + location.search); } catch (e) { /* ignore */ } }
+  S.pin = S.demo ? "" : getPin();
+  if (!S.demo) S.outbox = (lsGet(LS_OUT, []) || []).filter(x => x && x.key && x.line);
+  buildTabs(); setSync();
+  if (S.demo) { DEMO = buildDemo(); $("#demoBar").hidden = false; }
+  render(); loadAll(false);
+  if (S.mode === "api" && "serviceWorker" in navigator && location.protocol === "https:") {
+    navigator.serviceWorker.register("sw.js").catch(() => { /* app still works without offline shell */ });
+  }
+}
+boot();
+})();
+</script>
