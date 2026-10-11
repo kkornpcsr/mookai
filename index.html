@@ -81,6 +81,8 @@ a{color:var(--ink)}
 .lined td,.lined th{height:var(--row);border-bottom:1px solid var(--rule);padding:0 6px 4px;vertical-align:bottom;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lined th{font-size:12px;font-weight:600;color:#B54444;text-align:right;border-bottom:1.5px solid var(--margin)}
 .lined th:first-child,.lined td:first-child{text-align:left}
+.lined.daily td{font-size:14.5px;padding:0 3px 4px}
+.lined.daily td:first-child{padding-left:6px}
 .lined .n{text-align:right;border-left:1px solid var(--colrule);font-variant-numeric:tabular-nums}
 .lined tr.tap{cursor:pointer}
 .lined tr.tap:hover td{background:var(--tint)}
@@ -172,6 +174,10 @@ select.fld{text-align:left}
 .prices .fld{width:64px;height:34px;font-size:17px}
 .daysum{font-size:14px;color:var(--pencil);border-bottom:1px solid var(--rule);padding:6px 0;margin-bottom:4px}
 .daysum b{color:var(--ink);font-variant-numeric:tabular-nums}
+.dsrow{display:flex;align-items:baseline;gap:10px;padding:1px 0}
+.dsrow .dsty{flex:0 0 auto;min-width:64px;color:var(--ink)}
+.dsrow .dsamt{margin-left:auto;white-space:nowrap}
+.dsrow.tot{border-top:1px dashed var(--rule);margin-top:3px;padding-top:4px}
 
 /* ---------- entry panel ---------- */
 .panel{display:none}
@@ -314,7 +320,8 @@ function lineTotals(l) {
     const w = num(x.w), n = num(x.n), a = loadAmt(x), ty = x.t === "หมูเป็น" ? "หมูเป็น" : "ซาก";
     t.kg += w; t.n += n; t.amt += a; t.lab += labOf(x); t.dd += num(x.dd);
     if (num(x.dd) && x.ddn) t.ddn.push(x.ddn);
-    const b = t.by[ty] || (t.by[ty] = { kg: 0, n: 0, amt: 0 }); b.kg += w; b.n += n; b.amt += a;
+    // meat = ค่าเนื้ออย่างเดียว (น้ำหนัก × ราคา) ไว้คิดราคาเฉลี่ย/กก. ไม่ให้ค่าทำ-ลดตำหนิมาปน
+    const b = t.by[ty] || (t.by[ty] = { kg: 0, n: 0, amt: 0, meat: 0 }); b.kg += w; b.n += n; b.amt += a; b.meat += w * num(x.p);
   }
   t.kg = r2(t.kg); t.amt = r2(t.amt); t.lab = r2(t.lab); t.dd = r2(t.dd);
   return t;
@@ -482,7 +489,7 @@ function daySum(k, d) {
     const t = lineTotals(m[id]); if (emptyT(t)) continue;
     s.amt += t.amt; s.paid += t.paid; s.disc += t.disc; s.kg += t.kg; s.n += t.n; if (t.amt) s.cnt++; if (t.disc) s.discN++;
     if (t.paid) s.m[t.method] = (s.m[t.method] || 0) + t.paid;
-    for (const ty in t.by) { const b = s.by[ty] || (s.by[ty] = { kg: 0, n: 0, amt: 0 }); b.kg += t.by[ty].kg; b.n += t.by[ty].n; b.amt += t.by[ty].amt; }
+    for (const ty in t.by) { const b = s.by[ty] || (s.by[ty] = { kg: 0, n: 0, amt: 0, meat: 0 }); b.kg += t.by[ty].kg; b.n += t.by[ty].n; b.amt += t.by[ty].amt; b.meat += t.by[ty].meat; }
   }
   return s;
 }
@@ -495,7 +502,7 @@ function periodTotals(from, to) {
       const s = daySum(k, d), x = P[k];
       for (const f of ["amt", "paid", "disc", "discN", "kg", "n"]) x[f] += s[f];
       for (const mm in s.m) x.m[mm] = (x.m[mm] || 0) + s.m[mm];
-      for (const ty in s.by) { const b = x.by[ty] || (x.by[ty] = { kg: 0, n: 0, amt: 0 }); b.kg += s.by[ty].kg; b.n += s.by[ty].n; b.amt += s.by[ty].amt; }
+      for (const ty in s.by) { const b = x.by[ty] || (x.by[ty] = { kg: 0, n: 0, amt: 0, meat: 0 }); b.kg += s.by[ty].kg; b.n += s.by[ty].n; b.amt += s.by[ty].amt; b.meat += s.by[ty].meat; }
     }
   }
   for (const e of S.expenses) {
@@ -852,7 +859,11 @@ function fillEntryList() {
   const k = S.entryKind, d = S.date;
   fillDateBar();
   const s = daySum(k, d);
-  $("#daySum").innerHTML = `รวม${dayWord(d)} <b>${fmtN(s.n, 0)}</b> ตัว · <b>${kg1(s.kg)}</b> กก. · ${K[k].amountLabel} <b>${money(s.amt)}</b> · ${K[k].payLabel} <b>${money(s.paid)}</b>`;
+  // สรุปย่อยของวัน: แยกซาก/หมูเป็น ว่าขายกี่ตัว กี่กิโล เป็นเงินเท่าไร แล้วปิดด้วยยอดรวม + เงินที่รับ
+  const tys = k === "sale" ? TYPES.filter(ty => s.by[ty] && (s.by[ty].kg || s.by[ty].n)) : [];
+  $("#daySum").innerHTML = tys.map(ty => { const b = s.by[ty];
+      return `<div class="dsrow"><span class="dsty">${ty}</span><span><b>${fmtN(b.n, 0)}</b> ตัว · <b>${kg1(b.kg)}</b> กก.</span><b class="dsamt">${money(b.amt)}</b></div>`; }).join("")
+    + `<div class="dsrow tot"><span class="dsty">รวม${dayWord(d)}</span><span>${tys.length ? "" : `<b>${fmtN(s.n, 0)}</b> ตัว · <b>${kg1(s.kg)}</b> กก. · `}${K[k].payLabel} <b>${money(s.paid)}</b></span><b class="dsamt">${money(s.amt)}</b></div>`;
   if (!partiesOf(k).length) {
     $("#plist").innerHTML = `<div class="empty"><b>ยังไม่มีรายชื่อ${K[k].party}</b>เพิ่มได้ที่แท็บตั้งค่า</div>`; return;
   }
@@ -1297,9 +1308,10 @@ function cashHTML(from, to) {
   <div class="sec">ขาย</div>
   <table class="lined"><colgroup><col style="width:24%"><col style="width:13%"><col style="width:20%"><col style="width:19%"><col style="width:24%"></colgroup>
     <thead><tr><th>ชนิด</th><th class="n">ตัว</th><th class="n">กก.</th><th class="n">เฉลี่ย ฿/กก.</th><th class="n">บาท</th></tr></thead>
-    <tbody>${TYPES.map(ty => { const b = P.sale.by[ty] || { n: 0, kg: 0, amt: 0 }; return `<tr><td>${ty}</td><td class="n">${fmtN(b.n, 0)}</td><td class="n">${kg1(b.kg)}</td><td class="n pencil">${b.kg ? fmtN(b.amt / b.kg) : "–"}</td><td class="n ink">${money(b.amt)}</td></tr>`; }).join("")}
+    <tbody>${TYPES.map(ty => { const b = P.sale.by[ty] || { n: 0, kg: 0, amt: 0 }; return `<tr><td>${ty}</td><td class="n">${fmtN(b.n, 0)}</td><td class="n">${kg1(b.kg)}</td><td class="n pencil">${b.kg ? fmtN(b.meat / b.kg) : "–"}</td><td class="n ink">${money(b.amt)}</td></tr>`; }).join("")}
     <tr><td>ลดให้ลูกค้า</td><td class="n pencil" colspan="3">${P.sale.discN} ครั้ง</td><td class="n ink">−${money(P.sale.disc)}</td></tr>
     <tr class="tot"><td>ขายสุทธิ</td><td class="n">${fmtN(P.sale.n, 0)}</td><td class="n">${kg1(P.sale.kg)}</td><td></td><td class="n"><span class="dbl">${money(P.saleNet)}</span></td></tr></tbody></table>
+  ${dailyHTML(from, to)}
   <div class="sec">เงินเข้า-ออกจริง</div>
   <table class="lined"><colgroup><col style="width:28%"><col style="width:18%"><col style="width:18%"><col style="width:16%"><col style="width:20%"></colgroup>
     <thead><tr><th></th>${METHODS.map(m => `<th class="n">${m}</th>`).join("")}<th class="n">รวม</th></tr></thead>
@@ -1312,6 +1324,23 @@ function cashHTML(from, to) {
     <tbody>${cats.length ? cats.map(c => `<tr><td>${esc(c)}</td><td class="n ink">${money(P.exp.cat[c])}</td></tr>`).join("") : `<tr><td class="pencil" colspan="2">ยังไม่มีรายจ่ายในช่วงนี้</td></tr>`}
     <tr class="tot"><td>รวม</td><td class="n"><span class="dbl">${money(P.exp.total)}</span></td></tr></tbody></table>
   <p class="note">"ขาย" นับตามวันที่ขาย ส่วน "เงินเข้า-ออก" นับตามวันที่ได้รับหรือจ่ายเงินจริง</p>`;
+}
+/** ขายแยกรายวัน: วันละแถว กี่ตัว กี่กิโล ขายได้เท่าไร รับเงินเท่าไร (บาทเต็ม ไม่โชว์สตางค์ จอมือถือจะได้ไม่ล้น) แตะแถว = ไปหน้าบันทึกของวันนั้น */
+const DOW_S = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+function dailyHTML(from, to) {
+  const rows = [], T = { n: 0, kg: 0, amt: 0, paid: 0 }, b0 = x => fmtN(Math.round(x), 0);
+  for (let d = from; d <= to; d = addDays(d, 1)) {
+    const s = daySum("sale", d); if (!s.amt && !s.paid && !s.n) continue;
+    T.n += s.n; T.kg += s.kg; T.amt += s.amt; T.paid += s.paid;
+    rows.push(`<tr class="tap" data-act="gotoDay" data-d="${d}"><td>${DOW_S[parseISO(d).getDay()]} ${thShort(d)}</td><td class="n">${fmtN(s.n, 0)}</td><td class="n">${b0(s.kg)}</td><td class="n ink">${b0(s.amt)}</td><td class="n pencil">${b0(s.paid)}</td></tr>`);
+  }
+  if (!rows.length) return "";
+  return `<div class="sec">ขายแยกรายวัน</div>
+  <table class="lined daily"><colgroup><col style="width:24%"><col style="width:11%"><col style="width:19%"><col style="width:23%"><col style="width:23%"></colgroup>
+    <thead><tr><th>วันที่</th><th class="n">ตัว</th><th class="n">กก.</th><th class="n">ขาย</th><th class="n">รับเงิน</th></tr></thead>
+    <tbody>${rows.join("")}
+    <tr class="tot"><td>รวม</td><td class="n">${fmtN(T.n, 0)}</td><td class="n">${b0(T.kg)}</td><td class="n"><span class="dbl">${b0(T.amt)}</span></td><td class="n">${b0(T.paid)}</td></tr></tbody></table>
+  <p class="note">แตะวันไหน เพื่อไปดู/แก้รายการของวันนั้นในหน้าบันทึก · ตัวเลขในตารางนี้ปัดเป็นจำนวนเต็ม</p>`;
 }
 function custRows(from, to) {
   return S.customers.map(c => ({ c, s: stats("sale", c.id, from, to) })).filter(r => r.c.active !== false || r.s.days || Math.abs(r.s.closing) > 0.004);
@@ -1527,6 +1556,7 @@ document.addEventListener("click", async e => {
     }
     case "sumNow": S.sumAnchor = todayISO(); render(); break;
     case "gotoWeek": S.sumMode = "week"; S.sumAnchor = b.dataset.d; render(); break;
+    case "gotoDay": S.tab = "entry"; S.entryKind = "sale"; S.date = b.dataset.d; S.openId = null; S.draft = null; S.dirty = false; render(); window.scrollTo(0, 0); break;
     case "copyReport": { $("#copyBox").hidden = false; const ta = $("#copyText"); ta.value = reportTsv(); copyFrom(ta, "คัดลอกแล้ว วางใน Excel, Sheet หรือ LINE ได้"); break; }
     case "move": {
       const list = partiesOf(b.dataset.pk), i = +b.dataset.i, j = i + (+b.dataset.dir);
