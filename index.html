@@ -186,6 +186,14 @@ select.fld{text-align:left}
 .lhead{display:flex;align-items:center;gap:10px;min-height:34px}
 .lhead .amt{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--ink);font-weight:700;white-space:nowrap}
 .lgrid{display:grid;grid-template-columns:1.25fr .8fr 1fr;gap:10px}
+.lextra{display:flex;align-items:flex-end;gap:10px;margin-top:8px}
+.lextra label{flex:0 0 34%}
+.lextra label + label{flex:1 1 auto}
+.lextra .pencil{padding-bottom:10px}
+.ddlink{font-size:13.5px;color:var(--pencil);margin-top:4px;min-height:32px}
+.pkeep{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-height:32px;font-size:12.5px;color:var(--pencil);cursor:pointer}
+.pkeep[hidden]{display:none}
+.pkeep input{width:18px;height:18px;margin:0;accent-color:var(--ink);flex:none}
 .xbtn{border:0;background:none;color:var(--pencil);width:40px;height:40px;margin:-5px -8px -5px 0;font-size:18px;line-height:1;padding:0}
 .frow{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:var(--row);border-bottom:1px solid var(--rule);padding:2px 0}
 .frow .v{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;white-space:nowrap}
@@ -295,21 +303,47 @@ const partyById = (k, id) => partiesOf(k).find(p => p.id === id);
 const lineOf = (k, d, id) => { const day = S.days[d]; const m = day && day[K[k].key]; return m ? m[id] : undefined; };
 
 /* ================= accounting logic ================= */
+// เงินของแต่ละรอบ = น้ำหนัก × ราคา + ค่าทำต่อตัว (เฉพาะหมูเป็น) − ลดตำหนิ (หมูขาหัก ไม่สมประกอบ)
+const isLive = x => !!x && x.t === "หมูเป็น";
+const labOf = x => isLive(x) ? num(x.n) * num(x.lab) : 0;
+const loadAmt = x => num(x.w) * num(x.p) + labOf(x) - num(x.dd);
 function lineTotals(l) {
-  const t = { kg: 0, n: 0, amt: 0, paid: num(l && l.paid), disc: num(l && l.disc), method: (l && l.method) || "เงินสด", by: {} };
+  const t = { kg: 0, n: 0, amt: 0, lab: 0, dd: 0, ddn: [], paid: num(l && l.paid), disc: num(l && l.disc), method: (l && l.method) || "เงินสด", by: {} };
   for (const x of (l && l.loads) || []) {
     if (x.skip) continue;
-    const w = num(x.w), n = num(x.n), a = w * num(x.p), ty = x.t === "หมูเป็น" ? "หมูเป็น" : "ซาก";
-    t.kg += w; t.n += n; t.amt += a;
+    const w = num(x.w), n = num(x.n), a = loadAmt(x), ty = x.t === "หมูเป็น" ? "หมูเป็น" : "ซาก";
+    t.kg += w; t.n += n; t.amt += a; t.lab += labOf(x); t.dd += num(x.dd);
+    if (num(x.dd) && x.ddn) t.ddn.push(x.ddn);
     const b = t.by[ty] || (t.by[ty] = { kg: 0, n: 0, amt: 0 }); b.kg += w; b.n += n; b.amt += a;
   }
-  t.kg = r2(t.kg); t.amt = r2(t.amt);
+  t.kg = r2(t.kg); t.amt = r2(t.amt); t.lab = r2(t.lab); t.dd = r2(t.dd);
   return t;
 }
 const emptyT = t => !t.kg && !t.n && !t.amt && !t.paid && !t.disc;
 function loadsDesc(t, k) {
   const parts = Object.keys(t.by).map(ty => `${k === "sale" ? ty + " " : ""}${fmtN(t.by[ty].n, 0)} ตัว ${kg1(t.by[ty].kg)} กก.`);
+  if (t.lab) parts.push(`ค่าทำ ${money(t.lab)}`);
+  if (t.dd) parts.push(`ลดตำหนิ${t.ddn.length ? ` (${t.ddn.join(", ")})` : ""} −${money(t.dd)}`);
   return parts.join(" · ");
+}
+/** ชนิดที่ลูกค้าคนนี้ซื้อครั้งล่าสุดในรอบนี้ (คนซื้อหมูเป็นประจำ จะได้ไม่ต้องกดเปลี่ยนทุกวัน) */
+function partyType(id, idx, date) {
+  for (let i = S.dates.length - 1; i >= 0; i--) {
+    const d = S.dates[i]; if (d >= date) continue;
+    const loads = ((lineOf("sale", d, id) || {}).loads) || [], x = loadOfRound(loads, idx + 1) || loads.find(y => !y.skip && num(y.w));
+    if (x && num(x.w)) return isLive(x) ? "หมูเป็น" : "ซาก";
+  }
+  return "ซาก";
+}
+/** ค่าทำต่อตัวของลูกค้าคนนี้: ใช้ค่าล่าสุดที่เคยคิด (รอบเดียวกันก่อน) แบบเดียวกับราคา */
+function partyLab(id, idx, date) {
+  for (const same of [true, false]) for (let i = S.dates.length - 1; i >= 0; i--) {
+    const d = S.dates[i]; if (d >= date) continue;
+    const loads = ((lineOf("sale", d, id) || {}).loads) || [];
+    const x = same ? loadOfRound(loads, idx + 1) : loads.find(y => isLive(y) && num(y.lab));
+    if (isLive(x) && num(x.lab)) return { lab: num(x.lab), from: d };
+  }
+  return { lab: 0, from: null };
 }
 /** ราคาของวัน: ถ้าวันนั้นไม่ได้ตั้ง ใช้ราคาล่าสุดก่อนหน้า ถ้าไม่เคยตั้งเลยใช้ค่าเริ่มต้น */
 function priceKey(k, ty) { return k === "buy" ? "buyPrice" : ty === "หมูเป็น" ? "livePrice" : "price"; }
@@ -716,9 +750,9 @@ function buildDemo() {
       if (rnd() < b.prob) {
         const loads = [], cp = price + b.off, heads = n => rnd() < 0.2 ? 0 : n;
         if (b.id === "c18") [price - 2, price, price + 3].forEach(p => { if (rnd() < 0.85) loads.push({ w: r1(72 + rnd() * 14), n: heads(1), p, t: "ซาก" }); else loads.push({ w: 0, n: 0, p, t: "ซาก" }); });
-        else if (live.has(b.id) && rnd() < 0.6) loads.push({ w: r1(95 + rnd() * 20), n: 1, p: livePrice + b.off, t: "หมูเป็น" });
+        else if (live.has(b.id) && rnd() < 0.6) loads.push({ w: r1(95 + rnd() * 20), n: 1, p: livePrice + b.off, t: "หมูเป็น", lab: b.id === "c13" ? 200 : 150, ...(rnd() < 0.15 ? { dd: 300, ddn: "ขาหัก" } : {}) });
         else { const n = b.heads + (rnd() < 0.25 ? 1 : 0); loads.push({ w: r1(n * (72 + rnd() * 14)), n: heads(n), p: cp, t: "ซาก" }); }
-        today$ = loads.reduce((s, x) => s + x.w * x.p, 0); bal[b.id] += today$;
+        today$ = loads.reduce((s, x) => s + loadAmt(x), 0); bal[b.id] += today$;
         line = { loads, paid: 0, disc: 0, method: "เงินสด", note: "" };
       }
       let pay = 0;
@@ -843,7 +877,7 @@ function fillEntryList() {
       for (const rn of roundsToShow(loads, R)) {
         const i = rn - 1, x = loadOfRound(loads, rn) || {}, w = num(x.w);
         subs += `<tr class="tap subrow" data-act="open" data-id="${id}" data-round="${i + 1}"><td>รอบ ${i + 1}</td><td class="n">${priceCell(i)}</td>
-          <td class="n ink">${w ? kg1(w) : ""}</td><td class="n ink">${num(x.n) || ""}</td><td class="n ink">${w ? money(w * num(x.p)) : ""}</td><td class="n"></td></tr>`;
+          <td class="n ink">${w ? kg1(w) : ""}</td><td class="n ink">${num(x.n) || ""}</td><td class="n ink">${w ? money(loadAmt(x)) : ""}</td><td class="n"></td></tr>`;
       }
       return main + subs;
     }).join("")}</tbody></table>`;
@@ -853,13 +887,16 @@ function blankLoads(k, id, date, from, to) {
   for (let i = from; i < to; i++) out.push(blankLoad(k, id, date, i + 1, "ซาก"));
   return out;
 }
-const blankLoad = (k, id, date, r, ty) => ({ w: "", n: "", p: String(partyPrice(k, id, r - 1, ty, date).p || ""), t: ty, r });
+// ช่องราคาเริ่มว่าง: ถ้าจะใช้ราคาเดิมค่อยติ๊ก "ราคาเดิม" (พ่อขอเอง กันลืมเปลี่ยนราคาต้นวีค)
+const blankLoad = (k, id, date, r, ty) => ({ w: "", n: "", p: "", t: ty, r,
+  lab: k === "sale" && ty === "หมูเป็น" ? String(partyLab(id, r - 1, date).lab || "") : "", dd: "", ddn: "" });
 function draftFor(k, date, id) {
   const l = lineOf(k, date, id), R = roundsOf(k, partyById(k, id)), has = l && !emptyT(lineTotals(l));
   const raw = (l && l.loads) || [];
-  const loads = has ? raw.map((x, i) => ({ w: x.w ? String(x.w) : "", n: x.n ? String(x.n) : "", p: String(x.p ?? ""), t: x.t === "หมูเป็น" ? "หมูเป็น" : "ซาก", r: roundNo(x, i), skip: !!x.skip })).filter(x => !x.skip) : [];
+  const loads = has ? raw.map((x, i) => ({ w: x.w ? String(x.w) : "", n: x.n ? String(x.n) : "", p: String(x.p ?? ""), t: x.t === "หมูเป็น" ? "หมูเป็น" : "ซาก", r: roundNo(x, i), skip: !!x.skip,
+    lab: x.lab ? String(x.lab) : "", dd: x.dd ? String(x.dd) : "", ddn: x.ddn || "", showDd: !!num(x.dd) })).filter(x => !x.skip) : [];
   // รอบประจำที่ยังไม่ได้กรอก เติมช่องว่างให้ (ช่องว่างไม่ถูกบันทึก) ยกเว้นรอบที่กด ✕ ไว้แล้ว
-  for (const r of roundsToShow(has ? raw : [], R)) if (!loadOfRound(loads, r)) loads.push(blankLoad(k, id, date, r, "ซาก"));
+  for (const r of roundsToShow(has ? raw : [], R)) if (!loadOfRound(loads, r)) loads.push(blankLoad(k, id, date, r, k === "sale" ? partyType(id, r - 1, date) : "ซาก"));
   loads.sort((a, b) => a.r - b.r);
   return { loads, paid: has && l.paid ? String(l.paid) : "", disc: has && l.disc ? String(l.disc) : "",
     method: (l && l.method) || "โอน", note: (l && l.note) || "", showDisc: !!(has && num(l.disc)) };
@@ -885,8 +922,9 @@ function renderPanel() {
         <div class="lgrid">
           <label for="w${i}"><span class="lbl">น้ำหนัก (กก.)</span><input class="fld" id="w${i}" data-i="${i}" data-f="w" inputmode="decimal" placeholder="0" value="${esc(x.w)}"></label>
           <label for="n${i}"><span class="lbl">จำนวน (ตัว)</span><input class="fld" id="n${i}" data-i="${i}" data-f="n" inputmode="numeric" placeholder="0" value="${esc(x.n)}"></label>
-          <label for="p${i}"><span class="lbl">ราคา (฿/กก.)</span><input class="fld" id="p${i}" data-i="${i}" data-f="p" inputmode="decimal" placeholder="0" value="${esc(x.p)}"><span class="lbl" id="ps${i}" style="text-align:right"></span></label>
-        </div></div>`).join("")}
+          <div><label for="p${i}"><span class="lbl">ราคา (฿/กก.)</span><input class="fld" id="p${i}" data-i="${i}" data-f="p" inputmode="decimal" placeholder="0" value="${esc(x.p)}"></label>
+            <label class="pkeep" id="pkl${i}" hidden><input type="checkbox" id="pk${i}" data-act="pkeep" data-i="${i}"><span id="ps${i}"></span></label></div>
+        </div>${k === "sale" ? loadExtras(x, i) : ""}</div>`).join("")}
       <div class="frow"><button class="link" data-act="addload">＋ เพิ่มรอบ</button><span class="pencil small" id="avgW"></span></div>
       <div class="frow"><span>${KK.amountLabel}${dayWord(S.date)}</span><span class="v" id="pAmt"></span></div>
       <div class="frow"><span>รวมต้อง${k === "sale" ? "ชำระ" : "จ่าย"}</span><span class="v" id="pDue"></span></div>
@@ -905,19 +943,32 @@ function renderPanel() {
     </div>`;
   updatePanelCalc();
 }
+// ใต้แต่ละรอบ: หมูเป็นมีช่องค่าทำต่อตัว · ลดตำหนิซ่อนไว้ กดลิงก์ถึงจะโผล่ (หน้าจอไม่รก)
+function loadExtras(x, i) {
+  const lab = isLive(x) ? `<div class="lextra"><label for="lab${i}"><span class="lbl">ค่าทำ (฿/ตัว)</span><input class="fld" id="lab${i}" data-i="${i}" data-f="lab" inputmode="decimal" placeholder="0" value="${esc(x.lab)}"></label><span class="pencil small" id="labs${i}"></span></div>` : "";
+  const dd = x.showDd || num(x.dd)
+    ? `<div class="lextra"><label for="dd${i}"><span class="lbl">ลดตำหนิ (บาท)</span><input class="fld" id="dd${i}" data-i="${i}" data-f="dd" inputmode="decimal" placeholder="0" value="${esc(x.dd)}"></label><label for="ddn${i}"><span class="lbl">ตำหนิ</span><input class="fld l" id="ddn${i}" data-i="${i}" data-f="ddn" placeholder="เช่น ขาหัก" value="${esc(x.ddn)}"></label><button class="link" data-act="ddClear" data-i="${i}" style="color:var(--pencil)">ยกเลิก</button></div>`
+    : `<button class="link ddlink" data-act="ddShow" data-i="${i}">ลดตำหนิ</button>`;
+  return lab + dd;
+}
 function draftTotals() {
   const D = S.draft; let kg = 0, n = 0, amt = 0;
-  D.loads.forEach(x => { const w = num(x.w); kg += w; n += num(x.n); amt += w * num(x.p); });
+  D.loads.forEach(x => { const w = num(x.w); kg += w; n += num(x.n); amt += loadAmt(x); });
   return { kg: r2(kg), n, amt: r2(amt), paid: num(D.paid), disc: num(D.disc) };
 }
 function updatePanelCalc() {
   if (!S.openId || !$("#pBefore")) return;
   const k = S.entryKind, D = S.draft;
   D.loads.forEach((x, i) => {
-    const o = $("#la" + i); if (o) o.textContent = num(x.w) ? "= " + money(num(x.w) * num(x.p)) : "";
+    const o = $("#la" + i); if (o) o.textContent = num(x.w) ? "= " + money(loadAmt(x)) : "";
+    const ls = $("#labs" + i);
+    if (ls) ls.textContent = !num(x.lab) ? "" : num(x.n) ? `+ ค่าทำ ${fmtN(num(x.n), 0)} ตัว = ${money(labOf(x))}` : "ใส่จำนวนตัว เพื่อคิดค่าทำ";
+    // ติ๊ก "ราคาเดิม": ติ๊กอยู่ = ใช้ราคาครั้งก่อนของคนนี้ · เอาติ๊กออก = ล้างช่องให้พิมพ์ราคาใหม่ · พิมพ์ราคาอื่นเอง ติ๊กหลุดเอง
     const ps = $("#ps" + i); if (!ps) return;
     const ref = partyPrice(k, S.openId, x.r - 1, x.t, S.date);
-    ps.textContent = !num(x.p) ? "" : num(x.p) !== ref.p ? "ราคาใหม่" : ref.from ? `ราคาเดิม (${thShort(ref.from)})` : "ราคาเริ่มต้น";
+    $("#pkl" + i).hidden = !ref.p;
+    $("#pk" + i).checked = !!ref.p && num(x.p) === ref.p;
+    ps.textContent = ref.p ? `ราคาเดิม ${fmtN(ref.p)}${ref.from ? ` (${thShort(ref.from)})` : ""}` : "";
   });
   const t = draftTotals(), before = balBefore(k, S.openId, S.date), due = r2(before + t.amt), after = r2(due - t.paid - t.disc);
   $("#avgW").textContent = t.n && t.kg ? `เฉลี่ย ${fmtN(t.kg / t.n, 1)} กก./ตัว` : "";
@@ -958,14 +1009,15 @@ async function saveLine(next) {
   const D = S.draft;
   // ใส่น้ำหนักแต่ไม่มีราคา = ขาย 0 บาท หนี้หายเงียบๆ ไม่ให้ลงจนกว่าจะใส่ราคา
   const noP = D.loads.findIndex(x => num(x.w) && !num(x.p)), noW = D.loads.findIndex(x => num(x.n) && !num(x.w));
-  if (noP >= 0 || noW >= 0) {
-    const i = noP >= 0 ? noP : noW;
-    toast(noP >= 0 ? `ใส่ราคารอบ ${D.loads[i].r} ก่อนลงบัญชี` : `รอบ ${D.loads[i].r} ใส่จำนวนตัวแล้ว แต่ยังไม่ใส่น้ำหนัก`);
-    const f = $((noP >= 0 ? "#p" : "#w") + i); if (f) f.focus();
-    return;
-  }
+  // หมูเป็นที่มีค่าทำ ต้องรู้จำนวนตัว ไม่งั้นค่าทำหายเงียบๆ
+  const noN = k === "sale" ? D.loads.findIndex(x => isLive(x) && num(x.w) && num(x.lab) && !num(x.n)) : -1;
+  const bad = [[noP, "#p", x => `รอบ ${x.r} ยังไม่มีราคา พิมพ์ราคา หรือติ๊ก "ราคาเดิม"`], [noW, "#w", x => `รอบ ${x.r} ใส่จำนวนตัวแล้ว แต่ยังไม่ใส่น้ำหนัก`],
+    [noN, "#n", x => `หมูเป็นรอบ ${x.r} มีค่าทำ ใส่จำนวนตัวด้วย`]].find(([i]) => i >= 0);
+  if (bad) { const [i, f, msg] = bad; toast(msg(D.loads[i])); const el = $(f + i); if (el) el.focus(); return; }
   const line = {
-    loads: D.loads.filter(x => num(x.w) || num(x.n)).map(x => ({ w: r2(num(x.w)), n: num(x.n), p: r2(num(x.p)), t: k === "sale" ? x.t : "ซาก", r: x.r })),
+    loads: D.loads.filter(x => num(x.w) || num(x.n)).map(x => ({ w: r2(num(x.w)), n: num(x.n), p: r2(num(x.p)), t: k === "sale" ? x.t : "ซาก", r: x.r,
+      ...(k === "sale" && isLive(x) && num(x.lab) ? { lab: r2(num(x.lab)) } : {}),
+      ...(k === "sale" && num(x.dd) ? { dd: r2(num(x.dd)), ddn: String(x.ddn || "").trim() } : {}) })),
     paid: r2(num(D.paid)), disc: r2(num(D.disc)), method: D.method || "เงินสด", note: String(D.note || "").trim(),
   };
   // รอบประจำที่พ่อกด ✕ ออก จดไว้ว่า "วันนี้ไม่มีรอบนี้" จะได้ไม่โผล่กลับมา
@@ -1124,7 +1176,12 @@ function periodBillText(id, b) {
   const p = partyById("sale", id), L = [`บิล${periodName(b).replace(" (ยังไม่ปิด)", "")} คุณ${p.name}`, b.opening ? "ยอดค้างก่อนเริ่มใช้แอป" : periodRange(b) + (b.current ? " ถึงปัจจุบัน" : ""), ""];
   if (!b.opening) for (const d of S.dates) {
     if (d < b.from) continue; if (d > b.to) break;
-    for (const x of ((lineOf("sale", d, id) || {}).loads) || []) if (num(x.w)) L.push(`${thShort(d)}  ${x.t || "ซาก"} ${kg1(num(x.w))} กก. × ${fmtN(num(x.p))} = ${money(num(x.w) * num(x.p))}`);
+    for (const x of ((lineOf("sale", d, id) || {}).loads) || []) {
+      if (x.skip || !num(x.w)) continue;
+      L.push(`${thShort(d)}  ${x.t || "ซาก"} ${kg1(num(x.w))} กก. × ${fmtN(num(x.p))} = ${money(num(x.w) * num(x.p))}`);
+      if (labOf(x)) L.push(`   + ค่าทำ ${fmtN(num(x.n), 0)} ตัว × ${fmtN(num(x.lab))} = ${money(labOf(x))}`);
+      if (num(x.dd)) L.push(`   − ลดตำหนิ${x.ddn ? ` (${x.ddn})` : ""} ${money(num(x.dd))}`);
+    }
   }
   L.push("", `รวมงวดนี้ ${baht(b.amt)}`, b.left > 0.004 ? `ค้างชำระ ${baht(b.left)}` : "ชำระครบแล้ว");
   return L.join("\n");
@@ -1385,13 +1442,24 @@ document.addEventListener("click", async e => {
     case "close": closePanel(); break;
     case "ltype": {
       const i = +b.dataset.i, x = S.draft.loads[i], ty = b.dataset.t; if (x.t === ty) return;
-      x.t = ty; x.p = String(partyPrice("sale", S.openId, x.r - 1, ty, S.date).p || ""); S.dirty = true; renderPanel(); break;
+      x.t = ty; x.p = ""; // เปลี่ยนชนิด ราคาคนละตัว ล้างไว้ให้ติ๊กหรือพิมพ์ใหม่
+      if (ty === "หมูเป็น" && !num(x.lab)) x.lab = String(partyLab(S.openId, x.r - 1, S.date).lab || "");
+      S.dirty = true; renderPanel(); break;
     }
+    case "pkeep": {
+      const i = +b.dataset.i, x = S.draft.loads[i], f = $("#p" + i);
+      x.p = b.checked ? String(partyPrice(S.entryKind, S.openId, x.r - 1, x.t, S.date).p || "") : "";
+      f.value = x.p; S.dirty = true; updatePanelCalc();
+      if (!b.checked) f.focus();
+      break;
+    }
+    case "ddShow": { const x = S.draft.loads[+b.dataset.i]; x.showDd = true; renderPanel(); const f = $("#dd" + b.dataset.i); if (f) f.focus(); break; }
+    case "ddClear": { const x = S.draft.loads[+b.dataset.i]; x.showDd = false; x.dd = ""; x.ddn = ""; S.dirty = true; renderPanel(); break; }
     case "addload": {
       // เอารอบที่ลบไปกลับมาก่อน (เช่น ลบรอบ 2 ไป กดเพิ่มได้รอบ 2 คืน) ไม่งั้นต่อท้าย
       const L = S.draft.loads, last = L[L.length - 1], ty = last ? last.t : "ซาก";
       let r = 1; while (L.some(x => x.r === r)) r++;
-      const nl = blankLoad(S.entryKind, S.openId, S.date, r, ty); if (!num(nl.p) && last) nl.p = last.p;
+      const nl = blankLoad(S.entryKind, S.openId, S.date, r, ty);
       L.push(nl); L.sort((a, b) => a.r - b.r); S.dirty = true;
       renderPanel(); const w = $("#w" + L.indexOf(nl)); if (w) w.focus(); break;
     }
