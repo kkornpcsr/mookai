@@ -182,6 +182,7 @@ select.fld{text-align:left}
 .dsrow .dsmid{min-width:0}
 .dsavg{display:inline-block;color:var(--pencil);font-size:13px;white-space:nowrap}
 .dsrow.tot{border-top:1px dashed var(--rule);margin-top:3px;padding-top:4px}
+.dayshare{display:flex;justify-content:flex-end;margin-top:8px}
 
 /* ---------- entry panel ---------- */
 .panel{display:none}
@@ -231,7 +232,8 @@ select.fld{text-align:left}
 .pwho .sb span{white-space:nowrap}
 .pamt{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink);white-space:nowrap;font-size:16px}
 .pbtn{flex:none;min-height:40px;padding:0 12px;font-size:14.5px}
-.paybox{max-width:420px;gap:12px}
+/* หน้าต่างรับเงินยาวได้ (มีรายการให้เลือก) ยึดขอบบนไว้ เลือกแล้วหน้าต่างไม่ขยับ นิ้วจะได้ไม่จิ้มพลาดแถว · ยาวเกินจอเลื่อนได้ */
+.paybox{max-width:420px;gap:12px;align-self:start;margin:2vh 0}
 .paygrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
 .paygrid label:first-child{grid-column:1/-1}
 .paygrid #payAmt{font-size:24px;height:48px}
@@ -243,6 +245,36 @@ select.fld{text-align:left}
 .ps1.big2{font-size:16px;border-top:1px solid var(--rule);padding-top:4px}
 .ps1.big2 b{font-size:20px}
 .ps2{font-size:14px;color:var(--ink)}
+/* เลือกยอดที่ลูกค้าจ่าย + น้ำหนัก × ราคา ใต้แต่ละวัน */
+.cb{display:inline-block;width:20px;height:20px;border:1.5px solid var(--ink);border-radius:4px;vertical-align:-4px;margin-right:8px;background:var(--paper);flex:none}
+tr.on .cb,.cb.on{background:var(--ink)}
+tr.on .cb::after,.cb.on::after{content:"";display:block;width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translate(6px,2px) rotate(45deg)}
+.lined tr.on td{background:#EEF3FC}
+.lined tr.tick td{border-bottom:0}
+.lined tr.calc td{height:auto;white-space:normal;font-size:12.5px;line-height:1.45;color:var(--pencil);padding:0 6px 6px 34px;vertical-align:top}
+.lined td.tickcell{text-align:center;padding:0 0 4px}
+.lined td.tickcell .cb{margin:0}
+.lined.periods td{height:auto;padding-top:6px}
+.lined td.pn{white-space:normal;line-height:1.3}
+.lined td.pn .small{display:block}
+.tickbar{position:sticky;bottom:0;z-index:3;margin-top:10px;background:var(--paper);border:1.5px solid var(--ink);border-radius:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:grid;gap:8px;box-shadow:0 -6px 16px rgb(30 40 60 / .12)}
+.tickbar .tbl{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:15px}
+.tickbar .tbl b{color:var(--ink);font-size:18px;font-variant-numeric:tabular-nums}
+.tickbar .link{justify-self:start}
+.tickbar .btn{min-height:44px}
+.tickinfo{background:#EEF3FC;border-radius:6px;padding:6px 10px;display:grid;gap:2px;font-size:14px}
+/* หน้าต่างรับเงิน: รายการยอดค้างให้เลือก (เลื่อนในกล่องได้ ลูกค้าค้างหลายวันจะได้ไม่ยาวทั้งหน้าต่าง) */
+.paypick{display:grid;gap:6px}
+.pph{display:flex;justify-content:space-between;align-items:baseline;gap:4px 8px;flex-wrap:wrap}
+.pph b{color:var(--ink);font-variant-numeric:tabular-nums}
+.pplist{max-height:min(34vh,300px);overflow:auto;border:1px solid var(--rule);border-radius:6px;-webkit-overflow-scrolling:touch}
+.pprow{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:6px 10px;border:0;border-bottom:1px solid var(--rule);background:var(--paper);text-align:left;font:inherit;color:inherit;cursor:pointer}
+.pprow:last-child{border-bottom:0}
+.pprow.on{background:#EEF3FC}
+.pprow .cb{margin:0}
+.ppd{flex:1;min-width:0;display:grid;line-height:1.3}
+.ppd .small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ppa{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
 /* กดค้างที่ชื่อในหน้าบันทึกแล้วลาก = ย้ายลำดับ */
 #plist tr.tap{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 #plist tr.dragging td{transform:translateY(var(--dy,0));background:#EEF2FA;position:relative;z-index:2;box-shadow:0 1px 0 var(--rule)}
@@ -281,12 +313,12 @@ select.fld{text-align:left}
 .billout{max-width:440px}
 .billprev{max-height:58vh;overflow:auto;border:1px solid var(--rule);border-radius:4px}
 .billprev img{display:block;width:100%;height:auto}
-.billtext{width:100%;min-height:200px;border:1.5px dotted #8A9BC4;border-radius:4px;background:var(--tint);padding:10px;font-family:var(--f);font-size:15px;resize:vertical;margin-top:8px}
+.pgtag{position:sticky;top:0;z-index:1;background:var(--ink);color:#fff;font-size:12.5px;font-weight:700;padding:3px 10px}
 .setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px 18px}
 .pinbox{max-width:360px;display:grid;gap:12px;padding:20px 0}
 .pinbox .fld{text-align:center;letter-spacing:.3em;font-size:22px}
 .err{color:#A12A2A;font-size:14px}
-.modal{position:fixed;inset:0;z-index:60;background:rgb(20 28 40 / .45);display:grid;place-items:center;padding:16px}
+.modal{position:fixed;inset:0;z-index:60;background:rgb(20 28 40 / .45);display:grid;place-items:center;padding:16px;overflow:auto;overscroll-behavior:contain}
 .modal-card{background:var(--paper);border-radius:6px;padding:20px;max-width:380px;width:100%;display:grid;gap:16px;border-top:6px solid var(--cover)}
 .modal-card p{margin:0;font-size:16.5px;white-space:pre-line}
 .modal-card .row{display:flex;gap:8px;justify-content:flex-end}
@@ -353,7 +385,7 @@ const S = {
   rev: null, saving: 0, offline: false, staleRev: false, outbox: [], cachedAt: null, today: todayISO(),
   customers: [], farms: [], set: clone(DEFAULT_SET), days: {}, dates: [], expenses: [], cuts: {},
   tab: "entry", entryKind: "sale", date: todayISO(), openId: null, draft: null, dirty: false, expDraft: null,
-  debtFilter: "owe", detail: null, stMode: "week", stAnchor: todayISO(), billOpen: false,
+  debtFilter: "owe", detail: null, tick: null, stMode: "week", stAnchor: todayISO(), billOpen: false,
   sumKind: "cash", orderView: "day", sumMode: "month", sumAnchor: todayISO(), sumFrom: addDays(todayISO(), -6), sumTo: todayISO(),
   pendingRender: false,
 };
@@ -473,6 +505,37 @@ function stats(k, id, from, to) {
  * ยอดที่ยังค้าง: เงินที่รับ + ส่วนลด ตัดยอดขายที่เก่าที่สุดก่อน (FIFO)
  * ได้รายการบิลที่ยังค้าง, วันที่จ่ายครบถึง, และเครดิต (ถ้าจ่ายเกิน)
  */
+// วันที่พ่อเลือกไว้ตอนรับเงิน (alloc) · "open" = ยอดยกมา
+const allocOf = l => (l && Array.isArray(l.alloc) ? l.alloc : []).filter(x => x === "open" || /^\d{4}-\d{2}-\d{2}$/.test(x));
+/**
+ * ตัดยอด: ไล่เงินรับทีละก้อนตามวันที่รับ (เหมือนที่พ่อลงจริง) · ก้อนที่เลือกวันไว้ ตัดวันที่เลือกก่อน (ลูกค้าขอจ่ายข้ามวัน)
+ * ที่เหลือ/ก้อนที่ไม่ได้เลือก ตัดยอดเก่าสุดก่อน (FIFO) · ตัดเฉพาะส่วนที่ยังค้างของวันนั้น วันที่จ่ายครบไปแล้วจะไม่กลับมาค้าง
+ * debits: [{ amt, dm: { วันที่: ยอดขายวันนั้น } }] เรียงเก่า→ใหม่ · pays: [{ c, alloc }] เรียงตามวันที่รับ
+ * ใส่ x.left ให้ทุกยอด แล้วคืนเงินที่เหลือ (จ่ายเกิน)
+ */
+function settle(debits, pays) {
+  const dayLeft = {};
+  for (const x of debits) { x.left = x.amt; for (const d in x.dm) dayLeft[d] = x.dm[d]; }
+  const take = (x, d, c) => { const t = Math.min(c, dayLeft[d], x.left); if (t <= 0) return 0; dayLeft[d] -= t; x.left -= t; return t; };
+  let extra = 0;
+  for (const p of pays) {
+    let c = p.c;
+    if (p.alloc.length) { const want = new Set(p.alloc); for (const x of debits) for (const d in x.dm) { if (c <= 0.004) break; if (want.has(d)) c -= take(x, d, c); } }
+    for (const x of debits) for (const d in x.dm) { if (c <= 0.004) break; c -= take(x, d, c); }
+    extra += c;
+  }
+  for (const x of debits) x.left = x.left <= 0.004 ? 0 : r2(x.left);
+  return r2(extra);
+}
+// เงินในวันนั้นที่เป็นก้อน "เลือกวัน" (allocAmt) · ไม่มี allocAmt = ทั้งวัน · ส่วนที่เหลือของวันนั้นตัดยอดเก่าสุดก่อน
+const allocAmtOf = (l, c) => l && l.allocAmt != null && l.allocAmt !== "" ? Math.min(num(l.allocAmt), c) : c;
+// เงินรับของวันนั้น (รวมลดให้): ส่วนที่ไม่ได้เลือกวัน (รับไว้ก่อน) ตัดเก่าสุดก่อน แล้วค่อยก้อนที่เลือกวันไว้
+function addPay(pays, l, t) {
+  const c = t.paid + t.disc, a = allocOf(l); if (!c) return;
+  const ta = a.length ? allocAmtOf(l, c) : 0;
+  if (c - ta > 0.004) pays.push({ c: c - ta, alloc: [] });
+  if (ta > 0.004) pays.push({ c: ta, alloc: a });
+}
 /* ---------- งวดบิล: พ่อเลือกเองว่างวดเริ่ม–จบวันไหน ยอดขายในช่วงนั้นรวมเป็น 1 งวด เงินที่รับตัดยอดเก่าสุดก่อน ---------- */
 const cutsOf = id => ((S.cuts && S.cuts[id]) || []).slice().sort((a, b) => a.date < b.date ? -1 : 1);
 function periodList(id) {
@@ -481,36 +544,38 @@ function periodList(id) {
 }
 function periodBuckets(id, asOf) {
   const per = periodList(id), p = partyById("sale", id), op = num(p && p.opening);
-  const list = []; let credits = 0;
-  if (op > 0) list.push({ opening: true, from: S.set.openingDate, to: S.set.openingDate, amt: op }); else credits += -op;
-  const pb = per.map(x => ({ no: x.no, from: x.from, to: x.to, amt: 0, days: 0, first: null }));
-  const gaps = {}, cur = { current: true, no: per.length + 1, from: null, to: null, amt: 0, days: 0 };
+  const list = [], pays = [];
+  if (op > 0) list.push({ opening: true, from: S.set.openingDate, to: S.set.openingDate, amt: op, dm: { open: op } }); else if (op < 0) pays.push({ c: -op, alloc: [] }); // ยกมาแบบจ่ายเกิน = เงินก้อนแรก
+  const pb = per.map(x => ({ no: x.no, from: x.from, to: x.to, amt: 0, days: 0, first: null, dm: {} }));
+  const gaps = {}, cur = { current: true, no: per.length + 1, from: null, to: null, amt: 0, days: 0, dm: {} };
   const lastTo = per.length ? per[per.length - 1].to : null;
   for (const d of S.dates) {
     if (d > asOf) break;
     if (!inBooks(d)) continue;
     const l = lineOf("sale", d, id); if (!l) continue;
-    const t = lineTotals(l); credits += t.paid + t.disc; if (!t.amt) continue;
+    const t = lineTotals(l); addPay(pays, l, t); if (!t.amt) continue;
     let b = pb.find(x => (!x.from || d >= x.from) && d <= x.to);
     if (!b) {
       if (!lastTo || d > lastTo) b = cur;
-      else { const gi = per.filter(x => x.to < d).length; b = gaps[gi] || (gaps[gi] = { gap: true, from: d, to: d, amt: 0, days: 0 }); }
+      else { const gi = per.filter(x => x.to < d).length; b = gaps[gi] || (gaps[gi] = { gap: true, from: d, to: d, amt: 0, days: 0, dm: {} }); }
     }
-    b.amt += t.amt; b.days++; if (!b.first) b.first = d;
+    b.amt += t.amt; b.dm[d] = t.amt; b.days++; if (!b.first) b.first = d;
     if (b.current || b.gap) { if (!b.from) b.from = d; b.to = d; }
   }
   pb.forEach(b => { if (!b.from) b.from = b.first; });
   list.push(...[...pb, ...Object.values(gaps)].sort((a, b) => (a.from || "") < (b.from || "") ? -1 : 1), cur);
-  let rem = credits;
-  for (const b of list) { b.amt = r2(b.amt); if (rem >= b.amt - 0.004) { b.left = 0; rem -= b.amt; } else { b.left = r2(b.amt - rem); rem = 0; } }
+  list.forEach(b => { b.amt = r2(b.amt); });
+  const rem = settle(list, pays);
   const shown = list.filter(b => b.amt > 0.004);
   return { buckets: shown, credit: shown.every(b => b.left <= 0.004) ? r2(rem) : 0 };
 }
 function periodBills(id, asOf) {
   const pb = periodBuckets(id, asOf), open = pb.buckets.filter(b => b.left > 0.004), ageRef = asOf > todayISO() ? todayISO() : asOf;
-  const paid = pb.buckets.filter(b => b.left <= 0.004);
-  return { mode: "period", all: pb.buckets, credit: open.length ? 0 : pb.credit,
-    bills: open.map(b => ({ date: b.from, to: b.to, amt: b.amt, left: b.left, opening: !!b.opening, current: !!b.current, no: b.no, age: Math.max(0, daysBetween(b.from, ageRef)) })),
+  // จ่ายครบถึง = งวดสุดท้ายที่ครบต่อเนื่องจากงวดแรก · งวดใหม่กว่าที่ลูกค้าขอจ่ายข้ามไปก่อน เก็บไว้ใน skipped
+  const fo = pb.buckets.findIndex(b => b.left > 0.004), paid = fo < 0 ? pb.buckets : pb.buckets.slice(0, fo);
+  const skipped = fo < 0 ? [] : pb.buckets.slice(fo).filter(b => b.left <= 0.004).map(b => ({ date: b.from, to: b.to, opening: !!b.opening, current: !!b.current, gap: !!b.gap, no: b.no }));
+  return { mode: "period", all: pb.buckets, credit: open.length ? 0 : pb.credit, skipped,
+    bills: open.map(b => ({ date: b.from, to: b.to, amt: b.amt, left: b.left, opening: !!b.opening, current: !!b.current, no: b.no, keys: Object.keys(b.dm), age: Math.max(0, daysBetween(b.from, ageRef)) })),
     total: r2(open.reduce((s, b) => s + b.left, 0)), count: open.length, closedOpen: open.filter(b => !b.current).length,
     cur: (open.find(b => b.current) || {}).left || 0, paidThrough: paid.length ? paid[paid.length - 1].to : null, oldest: open.length ? open[0].from : null };
 }
@@ -521,25 +586,26 @@ function oweText(ob) {
 function openBills(k, id, asOf) {
   if (k === "sale" && cutsOf(id).length) return periodBills(id, asOf);
   const p = partyById(k, id), op = num(p && p.opening);
-  const debits = []; let credits = 0;
-  if (op > 0) debits.push({ date: S.set.openingDate, amt: op, opening: true }); else credits += -op;
+  const debits = [], pays = [];
+  if (op > 0) debits.push({ date: S.set.openingDate, amt: op, opening: true, dm: { open: op } }); else if (op < 0) pays.push({ c: -op, alloc: [] }); // ยกมาแบบจ่ายเกิน = เงินก้อนแรก
   for (const d of S.dates) {
     if (d > asOf) break;
     if (!inBooks(d)) continue;
     const l = lineOf(k, d, id); if (!l) continue;
     const t = lineTotals(l);
-    if (t.amt) debits.push({ date: d, amt: t.amt });
-    credits += t.paid + t.disc;
+    if (t.amt) debits.push({ date: d, amt: t.amt, dm: { [d]: t.amt } });
+    addPay(pays, l, t);
   }
-  const bills = []; let rem = credits, paidThrough = null;
+  const rem = settle(debits, pays);
+  const bills = [], skipped = []; let paidThrough = null;
   const ageRef = asOf > todayISO() ? todayISO() : asOf;
   for (const x of debits) {
-    if (rem >= x.amt - 0.004) { rem -= x.amt; paidThrough = x.date; continue; }
-    bills.push({ date: x.date, amt: x.amt, left: r2(x.amt - rem), opening: !!x.opening, age: Math.max(0, daysBetween(x.date, ageRef)) });
-    rem = 0;
+    // จ่ายครบถึง = ยอดสุดท้ายที่ครบต่อเนื่องจากยอดเก่าสุด · ยอดใหม่กว่าที่ลูกค้าขอจ่ายข้ามไปก่อน เก็บไว้ใน skipped
+    if (x.left <= 0.004) { if (bills.length) skipped.push({ date: x.date, opening: !!x.opening }); else paidThrough = x.date; continue; }
+    bills.push({ date: x.date, amt: x.amt, left: x.left, opening: !!x.opening, keys: x.opening ? ["open"] : [x.date], age: Math.max(0, daysBetween(x.date, ageRef)) });
   }
   const total = r2(bills.reduce((s, b) => s + b.left, 0));
-  return { bills, total, count: bills.length, credit: bills.length ? 0 : r2(rem), paidThrough, oldest: bills.length ? bills[0].date : null };
+  return { bills, skipped, total, count: bills.length, credit: bills.length ? 0 : r2(rem), paidThrough, oldest: bills.length ? bills[0].date : null };
 }
 function statusHTML(ob, short) {
   if (!ob.count) return ob.credit > 0.004 ? `<span class="stamp">จ่ายเกิน${short ? "" : " " + money(ob.credit)}</span>` : `<span class="stamp">ครบ</span>`;
@@ -946,7 +1012,8 @@ function fillEntryList() {
   $("#daySum").innerHTML = tys.map(ty => { const b = s.by[ty];
       return `<div class="dsrow"><span class="dsty">${ty}</span><span class="dsmid"><b>${fmtN(b.n, 0)}</b> ตัว · <b>${kg1(b.kg)}</b> กก.${avg(b)}</span><b class="dsamt">${money(b.amt)}</b></div>`; }).join("")
     + `<div class="dsrow tot"><span class="dsty">รวม${dayWord(d)}</span><span class="dsmid"><b>${fmtN(s.n, 0)}</b> ตัว · <b>${kg1(s.kg)}</b> กก.${tys.length ? "" : avg(s)}</span><b class="dsamt">${money(s.amt)}</b></div>`
-    + (k === "sale" ? "" : `<div class="dsrow"><span class="dsty">${K[k].payLabel}</span><span></span><b class="dsamt">${money(s.paid)}</b></div>`);
+    + (k === "sale" ? `<div class="dayshare"><button class="btn" data-act="dayImg">ส่งรูปบัญชี${dayWord(d)}เข้า LINE</button></div>`
+      : `<div class="dsrow"><span class="dsty">${K[k].payLabel}</span><span></span><b class="dsamt">${money(s.paid)}</b></div>`);
   if (!partiesOf(k).length) {
     $("#plist").innerHTML = `<div class="empty"><b>ยังไม่มีรายชื่อ${K[k].party}</b>เพิ่มได้ที่แท็บตั้งค่า</div>`; return;
   }
@@ -1127,6 +1194,9 @@ async function saveLine(skipConfirm) {
   // รอบประจำที่พ่อกด ✕ ออก จดไว้ว่า "วันนี้ไม่มีรอบนี้" จะได้ไม่โผล่กลับมา
   if (line.loads.length) for (let r = 1; r <= roundsOf(k, p); r++) if (!D.loads.some(x => x.r === r)) line.loads.push({ w: 0, n: 0, p: 0, t: "ซาก", r, skip: true });
   line.loads.sort((a, b) => a.r - b.r);
+  // วันนั้นมีรับเงินที่เลือกวันไว้ เก็บไว้เหมือนเดิม
+  const pl = lineOf(k, date, id), pa = allocOf(pl);
+  if (pa.length && (line.paid || line.disc)) { line.alloc = pa; if (pl.allocAmt != null) line.allocAmt = pl.allocAmt; }
   // กันเผลอแก้ตัวเลขของวันก่อนๆ: ถ้ายอดเปลี่ยน ให้ดูก่อน→หลัง แล้วกดยืนยันเอง
   // ฝั่งขาย ดูเฉพาะยอดขาย (วันที่มีแค่รับเงิน แล้วมาลงขายเพิ่ม ไม่ต้องถาม)
   const old = lineOf(k, date, id), oldT = old && lineTotals(old);
@@ -1249,30 +1319,68 @@ function obWith(id, date, line) {
   try { return openBills("sale", id, "9999-12-31"); }
   finally { if (had) S.days[date] = day; else delete S.days[date]; S.dates = dates; }
 }
-function openPay(id, date, edit) {
+// sel = ยอดที่เลือกไว้ (billId) จากหน้าบัญชีลูกค้า → เปิดมาพร้อมเลือกไว้แล้ว · เลือกเพิ่ม/เอาออกในหน้าต่างนี้ได้อีก
+function openPay(id, date, edit, sel) {
   const p = partyById("sale", id); if (!p) return;
   const d = date || todayISO(), old = payLineOf(id, d);
   S.pay = { id, date: d, edit: !!edit, amt: edit && num(old.paid) ? String(old.paid) : "", disc: edit && num(old.disc) ? String(old.disc) : "",
-    method: (num(old.paid) && old.method) || "โอน", note: edit ? old.note || "" : "", showNote: !!(edit && old.note) };
-  renderPay(); const f = $("#payAmt"); if (f) f.focus();
+    method: (num(old.paid) && old.method) || "โอน", note: edit ? old.note || "" : "", showNote: !!(edit && old.note),
+    sel: !edit && sel ? sel.slice() : [], amtAuto: true, clearAlloc: false };
+  if (S.pay.sel.length) S.pay.amt = String(paySel(S.pay).sum);
+  renderPay(); const f = $("#payAmt"); if (f) { f.focus(); if (S.pay.sel.length) f.select(); }
+}
+// ยอดที่เลือกในหน้าต่างรับเงิน: บิลไหน, วันที่ที่จะตัด (keys), รวมยอดที่เหลือของบิลเหล่านั้น
+function paySel(P) {
+  const ob = openBills("sale", P.id, "9999-12-31"), bills = ob.bills.filter(b => P.sel.includes(billId(b)));
+  return { ob, bills, keys: [...new Set(bills.flatMap(b => b.keys))], sum: r2(bills.reduce((s, b) => s + b.left, 0)) };
+}
+// ป้ายวันที่ที่เลือก: ไม่เกิน 4 วันบอกทีละวัน · มากกว่านั้นบอกเป็นช่วง + จำนวนวัน
+function allocLabel(keys) {
+  const o = keys.includes("open") ? ["ยอดยกมา"] : [], ds = keys.filter(x => x !== "open").sort();
+  if (ds.length > 4) o.push(`${thShort(ds[0])}–${thShort(ds[ds.length - 1])} (${ds.length} วัน)`); else o.push(...ds.map(thShort));
+  return o.join(", ");
+}
+const billLabel = (b, per) => b.opening ? "ยอดยกมา" : per ? periodName({ ...b, from: b.date }).replace(" (ยังไม่ปิด)", "") : thShort(b.date);
+// รายการยอดค้างให้เลือกในหน้าต่างรับเงิน (ไม่เลือก = ตัดยอดเก่าสุดก่อนเหมือนเดิม)
+function payPickHTML(P) {
+  const { ob, bills, sum } = paySel(P); if (!ob.count) return "";
+  const per = ob.mode === "period", unit = per ? "งวด" : "ยอด", last = bills.length ? ob.bills.indexOf(bills[bills.length - 1]) : -1;
+  const older = last > 0 ? ob.bills.slice(0, last).filter(b => !bills.includes(b)).length : 0;
+  const rows = ob.bills.map(b => {
+    const on = bills.includes(b), sub = per ? periodRange({ ...b, from: b.date }) : calcLines(P.id, b).join(" · ");
+    return `<button type="button" class="pprow${on ? " on" : ""}" data-act="payPick" data-key="${esc(billId(b))}" role="checkbox" aria-checked="${on}">
+      <span class="cb${on ? " on" : ""}" aria-hidden="true"></span><span class="ppd"><b>${esc(billLabel(b, per))}</b>${sub ? `<span class="pencil small">${sub}</span>` : ""}</span><span class="ppa">${money(b.left)}</span></button>`;
+  }).join("");
+  return `<div class="paypick"><div class="pph"><span class="lbl">เลือก${unit}ที่ลูกค้าจ่าย</span>
+      <span class="small">${bills.length ? `เลือก ${bills.length} ${unit} · รวม <b>${money(sum)}</b> <button class="link" data-act="payPickClear">ล้าง</button>` : `<span class="pencil">ไม่เลือก = ตัด${unit}เก่าสุดก่อน</span>`}</span></div>
+    <div class="pplist" id="payPick">${rows}</div>
+    ${older ? `<button class="link" data-act="payPickOlder" style="justify-self:start">＋ เลือก${unit}ที่เก่ากว่านี้ด้วย (${older} ${unit})</button>` : ""}
+    ${bills.length ? `<span class="pencil small">แก้จำนวนเงินด้านบนให้ตรงกับยอดโอนจริงได้</span>` : ""}</div>`;
 }
 function renderPay() {
   const P = S.pay, p = partyById("sale", P.id), old = payLineOf(P.id, P.date), m = $("#modal");
-  const had = num(old.paid) || num(old.disc);
+  const had = num(old.paid) || num(old.disc), oldA = P.clearAlloc ? [] : allocOf(old);
+  // แก้ยอดเดิมที่เคยเลือกวันไว้ = บอกวันเดิม กดเปลี่ยนเป็นตัดเก่าสุดก่อนได้
+  const oldC = r2(num(old.paid) + num(old.disc)), oldTA = oldA.length ? allocAmtOf(old, oldC) : 0;
+  const editInfo = P.edit && oldA.length ? `<div class="tickinfo"><span>${oldTA < oldC - 0.004 ? `เงิน ${money(oldTA)} ` : ""}ตัดยอดที่เลือกไว้: <b>${esc(allocLabel(oldA))}</b></span><button class="link" data-act="payUntick" style="justify-self:start">เปลี่ยนเป็นตัดยอดเก่าสุดก่อน</button></div>` : "";
+  const y0 = $("#payPick") ? $("#payPick").scrollTop : 0;
   m.innerHTML = `<div class="modal-card paybox" role="dialog" aria-modal="true" aria-label="รับเงิน">
     <p><b>${P.edit ? "แก้ยอดรับเงิน" : "รับเงิน"}</b> · ${esc(p.name)}</p>
+    ${editInfo}
     <div class="paygrid">
       <label for="payAmt"><span class="lbl">จำนวนเงิน (บาท)</span><input class="fld" id="payAmt" data-pf="amt" inputmode="decimal" placeholder="0" value="${esc(P.amt)}"></label>
-      <label for="payDate"><span class="lbl">วันที่รับ</span><input type="date" class="fld" id="payDate" data-pf="date" value="${P.date}" ${P.edit ? "disabled" : ""}></label>
+      <label for="payDate"><span class="lbl">วันที่เงินเข้า</span><input type="date" class="fld" id="payDate" data-pf="date" value="${P.date}" ${P.edit ? "disabled" : ""}></label>
       <label for="payMethod"><span class="lbl">ช่องทาง</span><select class="fld" id="payMethod" data-pf="method">${METHODS.map(x => `<option ${x === P.method ? "selected" : ""}>${x}</option>`).join("")}</select></label>
     </div>
     ${had && !P.edit ? `<div class="pencil small">วันที่นี้ลงรับไว้แล้ว ${money(num(old.paid))}${num(old.disc) ? ` · ลดให้ ${money(num(old.disc))}` : ""} · ยอดที่ใส่จะบวกเพิ่ม <button class="link" data-act="payEdit">แก้ยอดเดิม</button></div>` : ""}
+    ${P.edit ? "" : payPickHTML(P)}
     <div class="paysum" id="paySum"></div>
     <div class="hint" id="payRo" hidden><span id="payRoText"></span><button class="btn" data-act="payRoundOff">ลดให้ ปิดยอด</button></div>
     <div class="frow" id="payDiscRow" ${num(P.disc) ? "" : "hidden"}><span>ลดให้</span><span class="v" id="payDiscV"></span><button class="link" data-act="payDiscClear">ยกเลิก</button></div>
     ${P.showNote ? `<label for="payNote"><span class="lbl">หมายเหตุ</span><input class="fld l" id="payNote" data-pf="note" value="${esc(P.note)}"></label>` : `<button class="link ddlink" data-act="payNoteShow" style="justify-self:start">＋ หมายเหตุ</button>`}
     <div class="err" id="payErr" hidden></div>
     <div class="row">${P.edit && had ? `<button class="link" data-act="payDelete" style="color:#A12A2A;margin-right:auto">ลบยอดนี้</button>` : ""}<button class="btn" data-act="payCancel">ยกเลิก</button><button class="btn solid" data-act="paySave">${P.edit ? "บันทึกที่แก้" : "ลงรับเงิน"}</button></div></div>`;
+  if ($("#payPick")) $("#payPick").scrollTop = y0;
   m.hidden = false; updatePaySum();
 }
 // รายการของวันนั้นหลังลงรับเงินนี้ (บวกเพิ่ม หรือ แทนยอดเดิมถ้ากำลังแก้)
@@ -1282,6 +1390,14 @@ function payResult() {
   line.disc = P.edit ? disc : r2(num(line.disc) + disc);
   line.method = P.method;
   if (P.showNote) line.note = String(P.note || "").trim();
+  // วันที่เลือก: รับเพิ่มแบบเลือกวัน = รวมวันกับที่เลือกไว้เดิม และนับเงินก้อนนี้เข้า allocAmt (เงินที่รับไว้ก่อนในวันเดียวกันยังตัดเก่าสุดก่อน)
+  // แก้ยอดเดิม = allocAmt ไม่เกินยอดใหม่ · ไม่มีเงินรับแล้ว หรือกดเปลี่ยนเป็นตัดเก่าสุดก่อน = ล้าง
+  const old = payLineOf(P.id, P.date), oldC = r2(num(old.paid) + num(old.disc)), newC = r2(num(line.paid) + num(line.disc));
+  const a = P.clearAlloc ? [] : allocOf(old);
+  let ta = a.length ? allocAmtOf(old, oldC) : 0;
+  if (!P.edit && P.sel.length) { paySel(P).keys.forEach(x => { if (!a.includes(x)) a.push(x); }); ta = r2(ta + amt + disc); }
+  ta = Math.min(ta, newC);
+  if (a.length && ta > 0.004) { line.alloc = a.sort(); line.allocAmt = r2(ta); } else { delete line.alloc; delete line.allocAmt; }
   return line;
 }
 function updatePaySum() {
@@ -1289,6 +1405,12 @@ function updatePaySum() {
   const now = openBills("sale", P.id, "9999-12-31"), amt = num(P.amt), disc = num(P.disc);
   const ob = obWith(P.id, P.date, payResult());
   let html = `<div class="ps1"><span>ค้างอยู่ตอนนี้</span><b>${money(now.total)}</b></div>`;
+  if (!P.edit && P.sel.length && (amt || disc)) {
+    // ยอดที่เลือกไว้ หลังรับเงินนี้ ยังเหลือวันไหนบ้าง · เงินเกินจากที่เลือก ไปตัดยอดเก่าสุด
+    const ps = paySel(P), want = new Set(ps.keys), rest = ob.bills.filter(b => (b.keys || []).some(x => want.has(x))), over = r2(amt + disc - ps.sum);
+    html += `<div class="ps2">${rest.length ? `ยอดที่เลือก ยังเหลือ ${rest.slice(0, 2).map(b => `${billLabel(b, ob.mode === "period")} ${money(b.left)}`).join(" · ")}${rest.length > 2 ? ` · อีก ${rest.length - 2} ยอด` : ""}`
+      : "✓ ยอดที่เลือก ตัดครบ"}${over > 0.004 ? ` · เกินที่เลือก ${money(over)} ไปตัดยอดเก่าสุดก่อน` : ""}</div>`;
+  }
   if (amt || disc || P.edit) {
     html += `<div class="ps2">→ ${esc(throughText(ob))}</div>`
       + `<div class="ps1 big2"><span>${ob.count ? "ยังค้าง" : "หลังรับเงินนี้"}</span><b>${ob.count ? money(ob.total) : ob.credit > 0.004 ? "จ่ายเกิน " + money(ob.credit) : "ครบ"}</b></div>`;
@@ -1310,7 +1432,7 @@ async function savePay(del) {
   if (del) { P.amt = ""; P.disc = ""; }
   const line = payResult(), date = P.date, id = P.id, amt = num(P.amt);
   if (del && !(await askConfirm(`ลบยอดรับเงินของ ${p.name} วันที่ ${thShort(date)}?`, "ลบ"))) { renderPay(); return; }
-  closePay();
+  closePay(); if (S.tick && S.tick.id === id) S.tick = null; // รับเงินแล้ว ล้างที่เลือกไว้
   const day = S.days[date] || (S.days[date] = { date, lines: {}, buys: {} });
   day.lines = Object.assign({}, day.lines, { [id]: line });
   S.dates = Object.keys(S.days).sort();
@@ -1342,7 +1464,7 @@ function statement(k, id, from, to) {
   return { opening, rows, dr: r2(dr), cr: r2(cr), closing: r2(b) };
 }
 function stRange() { return S.stMode === "month" ? monthOf(S.stAnchor) : weekOf(S.stAnchor); }
-function openDetail(k, id) { S.detail = { k, id }; S.stMode = "week"; S.stAnchor = todayISO(); S.billOpen = false; $("#drawer").hidden = false; renderDetail(); $("#drawer").scrollTop = 0; }
+function openDetail(k, id) { S.detail = { k, id }; S.tick = null; S.stMode = "week"; S.stAnchor = todayISO(); S.billOpen = false; $("#drawer").hidden = false; renderDetail(); $("#drawer").scrollTop = 0; }
 function closeDetail() { S.detail = null; S.billOpen = false; S.log = null; $("#drawer").hidden = true; $("#drawer").innerHTML = ""; }
 /* ---------- ประวัติการแก้ไข: เปิดจากหน้าตั้งค่า · ใหม่สุดก่อน · ดูได้ว่าแก้อะไร เมื่อไหร่ จากเครื่องไหน ---------- */
 async function openLog(limit) {
@@ -1408,18 +1530,6 @@ function billModel(k, id, sel) {
     foot: [{ l: k === "sale" ? "ยอดค้างชำระ" : "ยอดค้างจ่าย", r: baht(st.closing), strong: true }] });
   return m;
 }
-function billTextOf(m) {
-  const L = [m.title, m.sub, ""];
-  m.blocks.forEach((b, i) => {
-    if (i) L.push("");
-    if (b.head) L.push(b.head);
-    b.rows.forEach(r => L.push(`${r.sub ? "   " : ""}${r.l}${r.eq ? " = " : "  "}${r.r}`));
-    if (b.rows.length) L.push("");
-    b.foot.forEach(f => L.push(f.r ? `${f.l} ${f.r}` : f.l));
-  });
-  if (m.grand) L.push("", `${m.grand.l} ${m.grand.r}`);
-  return L.join("\n");
-}
 /** วาดบิลเป็นรูป (สมุดบัญชีหัวน้ำเงิน) ใช้ฟอนต์ Sarabun ตัวเดียวกับแอป */
 async function billCanvas(m) {
   try { await Promise.all(["400", "700"].map(w => document.fonts.load(`${w} 32px Sarabun`))); } catch (e) { /* ใช้ฟอนต์เครื่องแทน */ }
@@ -1475,78 +1585,213 @@ async function billCanvas(m) {
       g.font = F(40, 700); g.fillStyle = INK; g.fillText(o.f.l, P, o.y + 16); right(o.f.r, W - P, o.y + 16, F(40, 700), INK);
     }
   }
-  g.font = F(24); g.fillStyle = "#9AA3B5"; const ft = `หมูไก่ · ${thLong(todayISO())}`; g.fillText(ft, (W - g.measureText(ft).width) / 2, H - 52);
+  g.font = F(24); g.fillStyle = "#9AA3B5"; const ft = thLong(todayISO()); g.fillText(ft, (W - g.measureText(ft).width) / 2, H - 52);
   return cv;
 }
-const canvasBlob = (cv, type, q) => new Promise(res => cv.toBlob(res, type, q));
-/** PDF หน้าเดียว ใส่รูปบิลเต็มหน้า (ไม่ต้องใช้ไลบรารีเพิ่ม) */
-async function jpegPdf(cv) {
-  const jpg = new Uint8Array(await (await canvasBlob(cv, "image/jpeg", 0.92)).arrayBuffer());
-  const W = 595.28, H = +(W * cv.height / cv.width).toFixed(2), enc = new TextEncoder(), parts = [], offs = [];
-  let len = 0; const push = x => { const b = typeof x === "string" ? enc.encode(x) : x; parts.push(b); len += b.length; };
-  const obj = (n, f) => { offs[n] = len; push(`${n} 0 obj\n`); f(); push("\nendobj\n"); };
-  push("%PDF-1.4\n"); push(new Uint8Array([0x25, 0xE2, 0xE3, 0xCF, 0xD3, 0x0A]));
-  obj(1, () => push("<< /Type /Catalog /Pages 2 0 R >>"));
-  obj(2, () => push("<< /Type /Pages /Kids [3 0 R] /Count 1 >>"));
-  obj(3, () => push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`));
-  obj(4, () => { push(`<< /Type /XObject /Subtype /Image /Width ${cv.width} /Height ${cv.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`); push(jpg); push("\nendstream"); });
-  const cs = `q ${W} 0 0 ${H} 0 0 cm /Im0 Do Q`;
-  obj(5, () => push(`<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`));
-  const xref = len;
-  push(`xref\n0 6\n0000000000 65535 f \n${[1, 2, 3, 4, 5].map(n => String(offs[n]).padStart(10, "0") + " 00000 n \n").join("")}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
-  return new Blob(parts, { type: "application/pdf" });
+/* ---------- รูปบัญชีประจำวัน: ตารางขายแบบหน้าบันทึก + ตัดยอดรายคน (ยกมา + ขาย − รับ = คงเหลือ) ส่งเข้า LINE ---------- */
+function leftText(ob) {
+  if (!ob.count) return ob.credit > 0.004 ? `จ่ายเกินมา ${money(ob.credit)}` : "จ่ายครบแล้ว";
+  const lab = b => b.opening ? "ยอดยกมา" : b.to && b.to !== b.date ? `${thShort(b.date)}–${thShort(b.to)}` : thShort(b.date);
+  const bs = ob.bills.map(b => `${lab(b)} ${money(b.left)}${b.left < b.amt - 0.004 ? ` (เหลือจาก ${money(b.amt)})` : ""}`);
+  return "ค้าง: " + (bs.length > 4 ? bs.slice(0, 4).join(" · ") + ` · อีก ${bs.length - 4} ยอด` : bs.join(" · "));
 }
-/** โชว์บิลให้ดูก่อน แล้วกด "ส่ง / แชร์" (บน iPhone เปิดหน้าแชร์ เลือก LINE ได้เลย) หรือบันทึกไฟล์ */
-function showBillFile(blob, filename, previewUrl, label) {
-  const file = new File([blob], filename, { type: blob.type }), url = URL.createObjectURL(blob), m = $("#modal");
-  const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] }));
+function dayModel(d) {
+  const s = daySum("sale", d), sales = [], debts = [];
+  for (const p of visibleParties("sale", d)) {
+    const l = lineOf("sale", d, p.id), t = lineTotals(l);
+    if (!t.kg && !t.n && !t.amt) continue;
+    const loads = ((l && l.loads) || []).map((x, i) => ({ x, r: roundNo(x, i) })).filter(o => !o.x.skip && (num(o.x.w) || num(o.x.n)));
+    const one = loads.length === 1 ? loads[0].x : null, tys = Object.keys(t.by);
+    const note = [t.lab ? `ค่าทำ ${money(t.lab)}` : "", t.dd ? `ลดตำหนิ${t.ddn.length ? ` (${t.ddn.join(", ")})` : ""} −${money(t.dd)}` : ""].filter(Boolean).join(" · ");
+    sales.push({ name: p.name + (tys.length === 1 && tys[0] === "หมูเป็น" ? " (หมูเป็น)" : ""), p: one ? num(one.p) : 0, kg: t.kg, n: t.n, amt: t.amt, note,
+      subs: loads.length > 1 ? loads.map(o => ({ name: `รอบ ${o.r}${isLive(o.x) && tys.length > 1 ? " หมูเป็น" : ""}`, p: num(o.x.p), kg: num(o.x.w), n: num(o.x.n), amt: loadAmt(o.x) })) : [] });
+  }
+  if (inBooks(d)) for (const p of S.customers) {
+    const t = lineTotals(lineOf("sale", d, p.id)), close = balBefore("sale", p.id, addDays(d, 1));
+    if (!t.amt && !t.paid && !t.disc && Math.abs(close) < 0.005) continue;
+    const ob = openBills("sale", p.id, d);
+    debts.push({ name: p.name, open: balBefore("sale", p.id, d), amt: t.amt, got: r2(t.paid + t.disc), close, total: ob.total,
+      note: leftText(ob) + (t.disc ? ` · รับรวมลดให้ ${money(t.disc)}` : "") });
+  }
+  return { d, s, sales, debts, books: inBooks(d), owe: r2(debts.reduce((a, x) => a + x.total, 0)) };
+}
+async function dayPages(m) {
+  try { await Promise.all(["400", "700"].map(w => document.fonts.load(`${w} 32px Sarabun`))); } catch (e) { /* ใช้ฟอนต์เครื่องแทน */ }
+  const logo = await new Promise(res => { const im = new Image(); const t = setTimeout(() => res(null), 1500); im.onload = () => { clearTimeout(t); res(im); }; im.onerror = () => { clearTimeout(t); res(null); }; im.src = "apple-touch-icon.png"; });
+  const W = 1080, P = 64, HEAD = 200, IW = W - 2 * P, INK = "#1D3E9A", PEN = "#6A6A6A", TXT = "#222222", RULE = "#E3E8F4";
+  const F = (s, w = 400) => `${w} ${s}px Sarabun, "Noto Sans Thai", Tahoma, sans-serif`;
+  const cv = document.createElement("canvas"); let g = cv.getContext("2d");
+  const seg = window.Intl && Intl.Segmenter ? new Intl.Segmenter("th", { granularity: "word" }) : null;
+  const wrap = (txt, font, maxW) => {
+    g.font = font; if (g.measureText(txt).width <= maxW) return [txt];
+    // ตัดบรรทัดที่ " · " ก่อน วันที่อย่าง "9 ต.ค." จะได้ไม่ขาดกลางคำ
+    const toks = txt.includes(" · ") ? txt.split(/( · )/) : seg ? [...seg.segment(txt)].map(s => s.segment) : txt.split(/(\s+)/), out = []; let cur = "";
+    for (const t of toks) { if (cur.trim() && g.measureText(cur + t).width > maxW) { out.push(cur.trimEnd()); cur = t.trimStart(); } else cur += t; }
+    if (cur.trim()) out.push(cur); return out;
+  };
+  const { d, s } = m;
+  // แยกเป็นหน้าๆ ส่ง LINE แล้วอ่านง่าย: หน้า 1 ขาย · หน้า 2 รับเงิน / ตัดยอด (วันที่ก่อนเริ่มนับหนี้ มีแค่หน้าขาย)
+  // แต่ละหน้าวาด 2 รอบ: รอบแรกแค่วัดความสูง รอบสองวาดจริง
+  const paint = (draw, part) => {
+    let y = HEAD + 40;
+    const text = (str, x, yy, font, col, right) => { if (!draw) return; g.font = font; g.fillStyle = col; g.fillText(str, right ? x - g.measureText(str).width : x, yy); };
+    const bar = (yy, col, h) => { if (draw) { g.fillStyle = col; g.fillRect(P - 34, yy, IW + 34, h); } };
+    const title = t => { text(t, P, y, F(38, 700), INK); y += 60; };
+    const grey = t => { for (const ln of wrap(t, F(28), IW)) { text(ln, P, y, F(28), PEN); y += 40; } y += 8; };
+    const kv = (l, r, big) => { const f = F(big ? 40 : 32, big ? 700 : 400), c = big ? INK : TXT; text(l, P, y, f, c); text(r, W - P, y, f, c, true); y += big ? 60 : 48; };
+    const table = (cols, head, rows) => {
+      let x = P; const xs = cols.map(w => { const o = { x, w }; x += w; return o; });
+      const cell = (i, str, yy, font, col) => i === 0 ? text(str, xs[0].x, yy, font, col) : text(str, xs[i].x + xs[i].w, yy, font, col, true);
+      head.forEach((h, i) => cell(i, h, y, F(27, 700), INK)); y += 42; bar(y, INK, 3); y += 16;
+      for (const r of rows) {
+        const sz = r.sub ? 27 : 32;
+        r.cells.forEach((c, i) => { if (c) cell(i, c, y, F(sz, r.strong && i === r.cells.length - 1 ? 700 : 400), r.sub ? PEN : r.strong && i === r.cells.length - 1 ? INK : TXT); });
+        y += sz + 12;
+        if (r.note) for (const ln of wrap(r.note, F(25), IW - 28)) { text(ln, P + 28, y, F(25), PEN); y += 36; }
+        y += 4; bar(y, RULE, 2); y += 12;
+      }
+      y += 10;
+    };
+    if (part === "sale") {
+      title("ขาย");
+      if (m.sales.length) {
+        const rows = [];
+        for (const x of m.sales) {
+          rows.push({ cells: [x.name, x.p ? fmtN(x.p) : "", x.kg ? kg1(x.kg) : "", x.n ? fmtN(x.n, 0) : "", money(x.amt)], note: x.note });
+          for (const u of x.subs) rows.push({ sub: true, cells: ["   " + u.name, u.p ? fmtN(u.p) : "", u.kg ? kg1(u.kg) : "", u.n ? fmtN(u.n, 0) : "", money(u.amt)] });
+        }
+        table([330, 130, 170, 90, 240], ["ลูกค้า", "ราคา", "กก.", "ตัว", "ยอดขาย"], rows);
+        const tys = TYPES.filter(ty => s.by[ty] && (s.by[ty].kg || s.by[ty].n));
+        if (tys.length > 1) for (const ty of tys) kv(`${ty} ${fmtN(s.by[ty].n, 0)} ตัว · ${kg1(s.by[ty].kg)} กก.`, money(s.by[ty].amt));
+        kv(`รวมขาย ${fmtN(s.n, 0)} ตัว · ${kg1(s.kg)} กก.`, money(s.amt), true);
+      } else grey("ไม่มีรายการขาย");
+      if (!m.books) { y += 20; grey("วันนี้อยู่ก่อน \"วันเริ่มนับหนี้\" ในหน้าตั้งค่า จึงไม่มีส่วนตัดยอด"); }
+    } else {
+      title("รับเงิน / ตัดยอด");
+      if (m.debts.length) table([250, 180, 165, 165, 200], ["ลูกค้า", "ยกมา", "ขาย", "รับ", "คงเหลือ"],
+        m.debts.map(x => ({ strong: true, note: x.note, cells: [x.name, money(x.open), x.amt ? money(x.amt) : "–", x.got ? money(x.got) : "–", money(x.close)] })));
+      else grey("ไม่มีใครค้าง");
+      const ms = Object.keys(s.m).map(k => `${k} ${money(s.m[k])}`).join(" · ");
+      kv("รับเงินวันนี้" + (ms ? ` (${ms})` : ""), money(s.paid));
+      if (s.disc) kv("ลดให้วันนี้", money(s.disc));
+      y += 10; if (draw) { g.fillStyle = "#EEF2FA"; g.fillRect(P - 20, y - 4, IW + 40, 84); } y += 16;
+      kv("ลูกหนี้ค้างทั้งหมด", baht(m.owe), true); y += 10;
+    }
+    return y;
+  };
+  const parts = m.books ? ["sale", "debt"] : ["sale"];
+  return parts.map((part, i) => pageCanvas(part, i, parts.length));
+  // ตัววาดเดียวกันทุกหน้า แค่สลับผืนผ้าใบ (g) เป็นของหน้านั้น
+  function pageCanvas(part, i, n) {
+    const c = i ? document.createElement("canvas") : cv, g0 = g;
+    g = c.getContext("2d"); c.width = W; c.height = 10;
+    const H = Math.ceil(paint(false, part) + 80);
+    c.width = W; c.height = H; g.textBaseline = "top";
+    g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, W, H);
+    g.fillStyle = INK; g.fillRect(0, 0, W, HEAD);
+    g.strokeStyle = "#F1B5B5"; g.lineWidth = 2; g.beginPath(); g.moveTo(P - 34, HEAD); g.lineTo(P - 34, H); g.stroke();
+    if (logo) { g.save(); g.beginPath(); g.arc(W - P - 70, HEAD / 2, 70, 0, Math.PI * 2); g.clip(); g.drawImage(logo, W - P - 140, HEAD / 2 - 70, 140, 140); g.restore(); }
+    g.fillStyle = "#FFFFFF"; g.font = F(54, 700); g.fillText("บัญชีประจำวัน", P, 46);
+    g.font = F(32); g.fillStyle = "#C9D4F2"; g.fillText(`วัน${DOW[parseISO(d).getDay()]}ที่ ${thLong(d)}`, P, 120);
+    paint(true, part);
+    const ft = n > 1 ? `หน้า ${i + 1}/${n} · ${thLong(d)}` : thLong(d);
+    g.font = F(24); g.fillStyle = "#9AA3B5"; g.fillText(ft, (W - g.measureText(ft).width) / 2, H - 52);
+    g = g0; return c;
+  }
+}
+const canvasBlob = (cv, type, q) => new Promise(res => cv.toBlob(res, type, q));
+/** โชว์รูปให้ดูก่อน (หลายหน้า = เรียงลงมา มีป้ายหน้า 1/2) แล้วกด "ส่ง / แชร์" ส่งทุกหน้าพร้อมกัน (บน iPhone เลือก LINE ได้เลย) หรือบันทึกไฟล์ */
+function showBillFiles(items, label) {
+  const files = items.map(x => new File([x.blob], x.name, { type: x.blob.type })), urls = items.map(x => URL.createObjectURL(x.blob)), m = $("#modal");
+  const canShare = !!(navigator.canShare && navigator.canShare({ files }));
+  const many = items.length > 1;
   m.innerHTML = `<div class="modal-card billout" role="dialog" aria-modal="true" aria-label="${esc(label)}">
-    <p><b>${esc(label)}</b> พร้อมส่งแล้ว</p><div class="billprev"><img src="${previewUrl}" alt="ตัวอย่างบิล"></div>
+    <p><b>${esc(label)}</b> พร้อมส่งแล้ว${many ? ` <span class="pencil small">· ${items.length} หน้า</span>` : ""}</p>
+    <div class="billprev">${urls.map((u, i) => `${many ? `<div class="pgtag">หน้า ${i + 1}/${items.length}</div>` : ""}<img src="${u}" alt="ตัวอย่างหน้า ${i + 1}">`).join("")}</div>
     <div class="row"><button class="btn" id="boClose">ปิด</button><button class="btn solid" id="boGo">${canShare ? "ส่ง / แชร์" : "บันทึกไฟล์"}</button></div></div>`;
   m.hidden = false;
-  const save = () => { const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); toast("บันทึกไฟล์แล้ว"); };
-  const done = () => { m.hidden = true; m.innerHTML = ""; setTimeout(() => { URL.revokeObjectURL(url); if (previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl); }, 1000); };
+  const save = () => { urls.forEach((u, i) => { const a = document.createElement("a"); a.href = u; a.download = items[i].name; document.body.appendChild(a); a.click(); a.remove(); }); toast("บันทึกไฟล์แล้ว"); };
+  const done = () => { m.hidden = true; m.innerHTML = ""; setTimeout(() => urls.forEach(u => URL.revokeObjectURL(u)), 1000); };
   $("#boClose").onclick = done;
   $("#boGo").onclick = async () => {
-    if (canShare) { try { await navigator.share({ files: [file], title: label }); done(); } catch (e) { if (!e || e.name !== "AbortError") save(); } }
+    if (canShare) { try { await navigator.share({ files, title: label }); done(); } catch (e) { if (!e || e.name !== "AbortError") save(); } }
     else { save(); done(); }
   };
 }
 const curBillModel = () => billModel(S.detail.k, S.detail.id, S.billSel);
 function billBoxHTML(k, id) {
-  const per = isPeriodCust(k, id), all = per ? periodBills(id, "9999-12-31").all : [], m = billModel(k, id, S.billSel), none = per && !(S.billSel || []).length;
+  const per = isPeriodCust(k, id), all = per ? periodBills(id, "9999-12-31").all : [], none = per && !(S.billSel || []).length;
   return `${per ? `<div class="billpick"><span class="lbl">เลือกงวดที่จะใส่ในบิล</span>${all.map((b, i) => `<label class="pickrow"><input type="checkbox" data-act="billPick" data-i="${i}" ${(S.billSel || []).includes(i) ? "checked" : ""}>
       <span>${periodName(b)} <span class="pencil small">${periodRange(b)}</span></span><b>${b.left > 0.004 ? "ค้าง " + money(b.left) : `<span class="stamp">ครบ</span>`}</b></label>`).join("")}</div>`
       : `<p class="note">ใบแจ้งยอดช่วง ${(() => { const [f, t] = stRange(); return rangeLabel(f, t); })()} · เปลี่ยนช่วงได้ที่ "บัญชีเดินสะพัด" ด้านล่าง</p>`}
-    <textarea class="billtext" id="billText" readonly aria-label="ข้อความบิล">${esc(none ? "" : billTextOf(m))}</textarea>
-    <div class="actions billacts"><button class="btn" data-act="billCopy" ${none ? "disabled" : ""}>คัดลอกข้อความ</button><button class="btn solid" data-act="billImg" ${none ? "disabled" : ""}>ส่งเป็นรูป</button><button class="btn" data-act="billPdf" ${none ? "disabled" : ""}>PDF</button><button class="link" data-act="billClose" style="color:var(--pencil)">ปิด</button></div>`;
+    <div class="actions billacts"><button class="btn solid" data-act="billImg" ${none ? "disabled" : ""}>ส่งเป็นรูป</button><button class="link" data-act="billClose" style="color:var(--pencil)">ปิด</button></div>`;
 }
 const periodName = b => b.opening ? "ยอดยกมา" : b.current ? "งวดนี้ (ยังไม่ปิด)" : b.gap ? "ยอดนอกงวด" : `งวดที่ ${b.no}`;
 const periodRange = b => b.opening ? "ก่อนใช้แอป" : b.current ? `${thShort(b.from)} –` : (b.from === b.to ? thShort(b.to) : `${thShort(b.from)}–${thShort(b.to)}`);
 function throughText(ob) {
   if (!ob.count) return ob.credit > 0.004 ? `จ่ายเกินมา ${money(ob.credit)} จะหักบิลถัดไปให้` : "จ่ายครบทุกยอดแล้ว";
-  const b0 = ob.bills[0], part = b0.left < b0.amt - 0.004;
-  if (ob.mode === "period") return (ob.paidThrough ? `จ่ายครบถึงงวดที่สิ้นสุด ${thShort(ob.paidThrough)}` : "ยังไม่ได้จ่ายงวดไหนครบ")
-    + (part ? ` · ${periodName({ ...b0, from: b0.date }).replace(" (ยังไม่ปิด)", "")} จ่ายไปแล้ว ${money(b0.amt - b0.left)}` : "");
-  return (ob.paidThrough ? `จ่ายครบถึงยอดวันที่ ${thShort(ob.paidThrough)}` : "ยังไม่ได้จ่ายยอดไหนครบ")
-    + (part ? ` · ยอด${b0.opening ? "ยกมา" : "วันที่ " + thShort(b0.date)} จ่ายไปแล้ว ${money(b0.amt - b0.left)}` : "");
+  const per = ob.mode === "period", sk = ob.skipped || [];
+  // ยอดที่ลูกค้าจ่ายข้ามไปก่อน (เลือกไว้ตอนรับเงิน) บอกสั้นๆ ว่าวันไหนครบแล้ว
+  const skTxt = sk.length ? ` · จ่ายข้ามไปแล้ว ${sk.length > 3 ? sk.length + (per ? " งวด" : " ยอด") : sk.map(b => b.opening ? "ยอดยกมา" : per ? periodName({ ...b, from: b.date }).replace(" (ยังไม่ปิด)", "") : thShort(b.date)).join(", ")}` : "";
+  const part = ob.bills.filter(b => b.left < b.amt - 0.004);
+  const partTxt = part.map(b => per ? ` · ${periodName({ ...b, from: b.date }).replace(" (ยังไม่ปิด)", "")} จ่ายไปแล้ว ${money(b.amt - b.left)}` : ` · ยอด${b.opening ? "ยกมา" : "วันที่ " + thShort(b.date)} จ่ายไปแล้ว ${money(b.amt - b.left)}`).slice(0, 2).join("");
+  if (per) return (ob.paidThrough ? `จ่ายครบถึงงวดที่สิ้นสุด ${thShort(ob.paidThrough)}` : "ยังไม่ได้จ่ายงวดไหนครบ") + partTxt + skTxt;
+  return (ob.paidThrough ? `จ่ายครบถึงยอดวันที่ ${thShort(ob.paidThrough)}` : sk.length ? "ยอดเก่าสุดยังไม่ครบ" : "ยังไม่ได้จ่ายยอดไหนครบ") + partTxt + skTxt;
+}
+/* ---------- เลือกยอดที่ลูกค้าจ่าย: เลือกวัน (หรืองวด) ที่ลูกค้าบอกว่าจ่าย แล้วกดรับเงิน เงินก้อนนั้นตัดวันที่เลือกก่อน ---------- */
+const billId = b => b.opening ? "open" : b.date;
+function tickedBills(id, ob) {
+  const sel = S.tick && S.tick.id === id ? S.tick.sel : [];
+  return ob.bills.filter(b => sel.includes(billId(b)));
+}
+// น้ำหนัก × ราคา ของวันนั้น ให้พ่อเทียบกับยอดได้เลย (หลายรอบ = บรรทัดละรอบ)
+function calcLines(id, b) {
+  if (b.opening) return ["ยอดค้างก่อนเริ่มใช้แอป"];
+  const L = [], loads = (((lineOf("sale", b.date, id) || {}).loads) || []).filter(x => !x.skip && num(x.w));
+  const many = loads.length > 1 || loads.some(x => labOf(x) || num(x.dd));
+  for (const x of loads) {
+    L.push(`${isLive(x) ? "หมูเป็น " : ""}${kg1(num(x.w))} กก. × ${fmtN(num(x.p))}${many ? ` = ${money(num(x.w) * num(x.p))}` : ""}`);
+    if (labOf(x)) L.push(`+ ค่าทำ ${fmtN(num(x.n), 0)} ตัว × ${fmtN(num(x.lab))} = ${money(labOf(x))}`);
+    if (num(x.dd)) L.push(`− ลดตำหนิ${x.ddn ? ` (${esc(x.ddn)})` : ""} ${money(num(x.dd))}`);
+  }
+  if (b.left < b.amt - 0.004) L.push(`จ่ายไปแล้ว ${money(b.amt - b.left)}`);
+  return L;
+}
+function tickBar(id, ob) {
+  const tb = tickedBills(id, ob); if (!tb.length) return "";
+  const sum = r2(tb.reduce((s, b) => s + b.left, 0)), last = ob.bills.indexOf(tb[tb.length - 1]);
+  const older = ob.bills.slice(0, last).filter(b => !tb.includes(b)).length, unit = ob.mode === "period" ? "งวด" : "ยอด";
+  return `<div class="tickbar"><div class="tbl"><span>เลือก ${tb.length} ${unit} · รวม <b>${money(sum)}</b></span><button class="link" data-act="tickClear">ล้าง</button></div>
+    ${older ? `<button class="link" data-act="tickOlder">＋ เลือก${unit}ที่เก่ากว่านี้ด้วย (${older} ${unit})</button>` : ""}
+    <button class="btn solid" data-act="tickPay">รับเงินยอดที่เลือก</button></div>`;
 }
 function billsSection(k, id, ob) {
-  const daily = ob.count && ob.mode !== "period" ? `<div class="sec">ยอดที่ยังค้าง (${ob.count} ยอด)</div>
-      <table class="lined"><colgroup><col style="width:34%"><col style="width:33%"><col style="width:33%"></colgroup>
+  const tk = k === "sale", sel = tk ? tickedBills(id, ob) : [];
+  const daily = ob.count && ob.mode !== "period" ? `<div class="sec">ยอดที่ยังค้าง (${ob.count} ยอด)${tk ? ` <span class="pencil small">· เลือกวันที่ลูกค้าจ่าย</span>` : ""}</div>
+      <table class="lined bills"><colgroup><col style="width:40%"><col style="width:30%"><col style="width:30%"></colgroup>
         <thead><tr><th>วันที่</th><th class="n">ยอด</th><th class="n">เหลือ</th></tr></thead>
-        <tbody>${ob.bills.map(b => `<tr><td>${b.opening ? "ยอดยกมา" : thShort(b.date)}</td><td class="n pencil">${money(b.amt)}</td><td class="n ink">${money(b.left)}</td></tr>`).join("")}
-        <tr class="tot"><td colspan="2">รวม</td><td class="n"><span class="dbl">${money(ob.total)}</span></td></tr></tbody></table>` : "";
+        <tbody>${ob.bills.map(b => {
+          const on = sel.includes(b), act = tk ? `class="tap tick${on ? " on" : ""}" data-act="tickBill" data-key="${esc(billId(b))}"` : "", cl = tk ? calcLines(id, b) : [];
+          return `<tr ${act} ${tk ? `role="checkbox" aria-checked="${on}"` : ""}><td>${tk ? `<span class="cb" aria-hidden="true"></span>` : ""}${b.opening ? "ยอดยกมา" : thShort(b.date)}</td><td class="n pencil">${money(b.amt)}</td><td class="n ink">${money(b.left)}</td></tr>`
+            + (cl.length ? `<tr ${tk ? `class="tap calc${on ? " on" : ""}" data-act="tickBill" data-key="${esc(billId(b))}"` : `class="calc"`}><td colspan="3">${cl.join("<br>")}</td></tr>` : "");
+        }).join("")}
+        <tr class="tot"><td colspan="2">รวม</td><td class="n"><span class="dbl">${money(ob.total)}</span></td></tr></tbody></table>
+      ${tk ? tickBar(id, ob) : ""}` : "";
   if (k !== "sale") return daily;
   if (ob.mode !== "period") return daily + `<div class="actions" style="margin-top:10px"><button class="btn" data-act="cutOpen" data-id="${esc(id)}">ปิดงวด</button></div>
       <p class="note">ลูกค้าที่คิดเงินเป็นงวด กดปิดงวด แล้วยอดตั้งแต่ครั้งก่อนจะรวมเป็น 1 งวด ดูง่ายเหมือนบิล</p>`;
   const start = Math.max(0, ob.all.length - 8), rows = ob.all.slice(start);
-  return `<div class="sec">งวดบิล</div>
-    <table class="lined"><colgroup><col style="width:31%"><col style="width:29%"><col style="width:20%"><col style="width:20%"></colgroup>
-      <thead><tr><th>งวด</th><th>ช่วง</th><th class="n">ยอด</th><th class="n">ค้าง</th></tr></thead>
-      <tbody>${rows.map((b, i) => `<tr class="tap ${b.current ? "cur" : ""}" data-act="periodBill" data-id="${esc(id)}" data-i="${start + i}"><td>${periodName(b)}</td><td class="pencil">${periodRange(b)}</td>
-        <td class="n">${money(b.amt)}</td><td class="n">${b.left > 0.004 ? `<span class="ink">${money(b.left)}</span>` : `<span class="stamp">ครบ</span>`}</td></tr>`).join("")}
+  const selIds = sel.map(billId);
+  // ช่องเลือกแยกเป็นคอลัมน์แรก (แตะส่วนอื่นของแถว = ทำบิลงวดนั้น เหมือนเดิม) · งวดที่ครบแล้วไม่มีช่องเลือก
+  return `<div class="sec">งวดบิล${ob.count ? ` <span class="pencil small">· เลือกงวดที่ลูกค้าจ่าย</span>` : ""}</div>
+    <table class="lined periods"><colgroup><col style="width:10%"><col style="width:30%"><col style="width:30%"><col style="width:30%"></colgroup>
+      <thead><tr><th></th><th>งวด · ช่วง</th><th class="n">ยอด</th><th class="n">ค้าง</th></tr></thead>
+      <tbody>${rows.map((b, i) => { const open = b.left > 0.004, on = open && selIds.includes(billId({ opening: b.opening, date: b.from }));
+        return `<tr class="tap ${b.current ? "cur" : ""}${on ? " on" : ""}" data-act="periodBill" data-id="${esc(id)}" data-i="${start + i}">
+        <td class="tickcell" ${open ? `data-act="tickBill" data-key="${esc(b.opening ? "open" : b.from)}" role="checkbox" aria-checked="${on}" aria-label="เลือก${esc(periodName(b))}"` : ""}>${open ? `<span class="cb${on ? " on" : ""}" aria-hidden="true"></span>` : ""}</td><td class="pn">${periodName(b)}<span class="pencil small">${periodRange(b)}</span></td>
+        <td class="n">${money(b.amt)}</td><td class="n">${open ? `<span class="ink">${money(b.left)}</span>` : `<span class="stamp">ครบ</span>`}</td></tr>`; }).join("")}
       <tr class="tot"><td colspan="3">รวมค้าง</td><td class="n"><span class="dbl">${money(ob.total)}</span></td></tr></tbody></table>
+    ${tickBar(id, ob)}
     <div class="actions" style="margin-top:10px"><button class="btn" data-act="cutOpen" data-id="${esc(id)}">ปิดงวด</button><button class="link" data-act="cutUndo" data-id="${esc(id)}" style="color:var(--pencil)">ยกเลิกงวดล่าสุด</button></div>
     <p class="note">แตะงวดเพื่อทำบิล เลือกได้หลายงวด ส่งเป็นข้อความ รูป หรือ PDF</p>`;
 }
@@ -1624,7 +1869,7 @@ function renderDetail() {
         ${st.rows.map(r => `<tr class="tap" ${k === "sale" && !r.dr ? `data-act="payOpen" data-edit="1"` : `data-act="gotoEntry" data-kind="${k}"`} data-id="${esc(id)}" data-date="${r.d}"><td>${thShort(r.d)}</td><td title="${esc(r.note || "")}">${esc(r.desc)}${r.note ? ` <span class="pencil small">· ${esc(r.note)}</span>` : ""}</td>
           <td class="n ink">${r.dr ? money(r.dr) : ""}</td><td class="n ink">${r.cr ? money(r.cr) : ""}</td><td class="n">${money(r.b)}</td></tr>`).join("")}
         <tr class="tot"><td colspan="2">ยอดยกไป</td><td class="n">${money(st.dr)}</td><td class="n">${money(st.cr)}</td><td class="n"><span class="dbl">${money(st.closing)}</span></td></tr></tbody></table>
-      <p class="note">แตะแถวเพื่อแก้รายการของวันนั้น (แถวขาย = เปิดหน้าบันทึก · แถวรับเงิน = แก้ยอดรับเงิน) · เงินที่รับมาตัดยอดที่เก่าที่สุดก่อนเสมอ</p>
+      <p class="note">แตะแถวเพื่อแก้รายการของวันนั้น (แถวขาย = เปิดหน้าบันทึก · แถวรับเงิน = แก้ยอดรับเงิน) · เงินที่รับมาตัดยอดที่เก่าที่สุดก่อน ยกเว้นตอนเลือกวันไว้</p>
     </div></div>`;
 }
 
@@ -2068,7 +2313,29 @@ document.addEventListener("click", async e => {
     }
     case "dfilter": S.debtFilter = b.dataset.f; renderDebts(); break;
     case "payOpen": openPay(b.dataset.id, b.dataset.date, b.dataset.edit === "1"); break;
-    case "payEdit": { const old = payLineOf(S.pay.id, S.pay.date); Object.assign(S.pay, { edit: true, amt: num(old.paid) ? String(old.paid) : "", disc: num(old.disc) ? String(old.disc) : "", method: old.method || S.pay.method, note: old.note || "", showNote: !!old.note }); renderPay(); $("#payAmt").focus(); break; }
+    case "tickBill": case "tickOlder": case "tickClear": {
+      const { id } = S.detail, ob = openBills("sale", id, "9999-12-31"), y0 = $("#drawer").scrollTop;
+      const sel = new Set(S.tick && S.tick.id === id ? S.tick.sel : []);
+      if (act === "tickBill") { const key = b.dataset.key; if (sel.has(key)) sel.delete(key); else sel.add(key); }
+      if (act === "tickOlder") { const tb = tickedBills(id, ob), last = ob.bills.indexOf(tb[tb.length - 1]); ob.bills.slice(0, last).forEach(x => sel.add(billId(x))); }
+      S.tick = act === "tickClear" || !sel.size ? null : { id, sel: [...sel] };
+      renderDetail(); $("#drawer").scrollTop = y0; break;
+    }
+    case "tickPay": {
+      const { id } = S.detail, tb = tickedBills(id, openBills("sale", id, "9999-12-31")); if (!tb.length) break;
+      openPay(id, todayISO(), false, tb.map(billId)); break;
+    }
+    case "payPick": case "payPickOlder": case "payPickClear": {
+      // เลือกยอดในหน้าต่างรับเงิน · ถ้าพ่อยังไม่ได้พิมพ์จำนวนเงินเอง ใส่ยอดรวมที่เลือกให้
+      const P = S.pay, sel = new Set(P.sel);
+      if (act === "payPick") { const key = b.dataset.key; if (sel.has(key)) sel.delete(key); else sel.add(key); }
+      if (act === "payPickOlder") { const { ob, bills } = paySel(P), last = ob.bills.indexOf(bills[bills.length - 1]); ob.bills.slice(0, last).forEach(x => sel.add(billId(x))); }
+      P.sel = act === "payPickClear" ? [] : [...sel];
+      if (P.amtAuto) P.amt = P.sel.length ? String(paySel(P).sum) : "";
+      renderPay(); break;
+    }
+    case "payUntick": S.pay.clearAlloc = true; renderPay(); break;
+    case "payEdit": { const old = payLineOf(S.pay.id, S.pay.date); Object.assign(S.pay, { sel: [], edit: true, amt: num(old.paid) ? String(old.paid) : "", disc: num(old.disc) ? String(old.disc) : "", method: old.method || S.pay.method, note: old.note || "", showNote: !!old.note }); renderPay(); $("#payAmt").focus(); break; }
     case "payCancel": closePay(); break;
     case "paySave": savePay(false); break;
     case "payDelete": savePay(true); break;
@@ -2096,14 +2363,23 @@ document.addEventListener("click", async e => {
       S.billSel = [...sel].sort((x, y) => x - y); const box = $("#billBox"), y0 = $("#drawer").scrollTop; box.innerHTML = billBoxHTML(S.detail.k, S.detail.id); $("#drawer").scrollTop = y0; break;
     }
     case "billClose": S.billOpen = false; $("#billBox").hidden = true; $("#billBox").innerHTML = ""; break;
-    case "billCopy": copyFrom($("#billText"), "คัดลอกแล้ว วางในแชท LINE ได้เลย"); break;
-    case "billImg": case "billPdf": {
+    case "billImg": {
       b.disabled = true; const old = b.textContent; b.textContent = "กำลังทำ…";
       try {
-        const m = curBillModel(), cv = await billCanvas(m), png = await canvasBlob(cv, "image/png"), prev = URL.createObjectURL(png);
-        if (act === "billImg") showBillFile(png, `บิล-${m.file}.png`, prev, "รูปบิล");
-        else showBillFile(await jpegPdf(cv), `บิล-${m.file}.pdf`, prev, "PDF บิล");
+        const m = curBillModel(), cv = await billCanvas(m), png = await canvasBlob(cv, "image/png");
+        showBillFiles([{ blob: png, name: `บิล-${m.file}.png` }], "รูปบิล");
       } catch (e) { toast("ทำไฟล์ไม่สำเร็จ ลองอีกครั้ง"); }
+      finally { b.disabled = false; b.textContent = old; }
+      break;
+    }
+    case "dayImg": {
+      // รูปทำจากยอดที่ลงบัญชีแล้วเท่านั้น ถ้ายังกรอกค้างอยู่ให้ถามก่อน
+      if (S.dirty && !(await askConfirm("ยังมีรายการที่กรอกค้างอยู่ ยังไม่ได้ลงบัญชี รูปจะไม่มีรายการนี้ ทำรูปเลยไหม?", "ทำรูปเลย"))) return;
+      b.disabled = true; const old = b.textContent; b.textContent = "กำลังทำรูป…";
+      try {
+        const pages = await dayPages(dayModel(S.date)), blobs = await Promise.all(pages.map(c => canvasBlob(c, "image/png")));
+        showBillFiles(blobs.map((blob, i) => ({ blob, name: `บัญชี-${S.date}${blobs.length > 1 ? "-" + (i + 1) : ""}.png` })), `รูปบัญชี${dayWord(S.date)}`);
+      } catch (e) { toast("ทำรูปไม่สำเร็จ ลองอีกครั้ง"); }
       finally { b.disabled = false; b.textContent = old; }
       break;
     }
@@ -2170,7 +2446,7 @@ document.addEventListener("input", e => {
     if (t.dataset.i != null) S.draft.loads[+t.dataset.i][t.dataset.f] = t.value; else S.draft[t.dataset.f] = t.value;
     S.dirty = true; updatePanelCalc();
   } else if (t.dataset.pf && S.pay && t.dataset.pf !== "date") {
-    S.pay[t.dataset.pf] = t.value; updatePaySum();
+    S.pay[t.dataset.pf] = t.value; if (t.dataset.pf === "amt") S.pay.amtAuto = false; updatePaySum();
   } else if (t.dataset.ef && S.expDraft) {
     S.expDraft[t.dataset.ef] = t.value;
     if (t.dataset.ef === "amount" && S.expDraft.err) { S.expDraft.err = ""; $("#eErr").hidden = true; }
