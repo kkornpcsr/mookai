@@ -232,49 +232,68 @@ select.fld{text-align:left}
 .pwho .sb span{white-space:nowrap}
 .pamt{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink);white-space:nowrap;font-size:16px}
 .pbtn{flex:none;min-height:40px;padding:0 12px;font-size:14.5px}
-/* หน้าต่างรับเงินยาวได้ (มีรายการให้เลือก) ยึดขอบบนไว้ เลือกแล้วหน้าต่างไม่ขยับ นิ้วจะได้ไม่จิ้มพลาดแถว · ยาวเกินจอเลื่อนได้ */
-.paybox{max-width:420px;gap:12px;align-self:start;margin:2vh 0}
-.paygrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
-.paygrid label:first-child{grid-column:1/-1}
-.paygrid #payAmt{font-size:24px;height:48px}
-.paygrid input[type=date]{font-size:16px;text-align:left}
-.paygrid select{font-size:16px}
-.paysum{background:var(--tint);border-radius:6px;padding:8px 12px;display:grid;gap:4px}
-.ps1{display:flex;justify-content:space-between;gap:10px;font-size:14.5px}
-.ps1 b{font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
-.ps1.big2{font-size:16px;border-top:1px solid var(--rule);padding-top:4px}
-.ps1.big2 b{font-size:20px}
+/* หน้าต่างรับเงิน: หัว (ชื่อ ยอดค้าง) กับท้าย (ยอดรวม + ปุ่มลงรับเงิน) อยู่กับที่ ตรงกลางเลื่อนได้ ปุ่มไม่หลุดจอ */
+.modal.paymodal{padding:8px;place-items:start center}
+.modal-card.paybox{max-width:440px;padding:0;gap:0;display:flex;flex-direction:column;max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);overflow:hidden}
+/* มือถือ: หน้าต่างสูงคงที่ แตะวันแล้วแถวอื่นกับปุ่มลงรับเงินไม่เลื่อนหนี */
+@media (max-width:600px){.modal-card.paybox{height:calc(100vh - 16px);height:calc(100dvh - 16px)}}
+.payhead{display:flex;align-items:flex-start;gap:8px;padding:12px 14px 10px;border-bottom:1px solid var(--rule)}
+.pht{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:17px}
+.pchip{font-size:13px;font-weight:600;color:var(--ink);background:var(--tint);border:1px solid var(--rule);border-radius:999px;padding:1px 10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pold{flex-basis:100%;font-size:13px;color:var(--pencil)}
+.paybody{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:10px 14px 16px;display:grid;grid-auto-rows:max-content;gap:10px;align-content:start}
+.ptot .fld{font-size:26px;height:50px}
+.ptot .fld::placeholder{font-size:15px;font-weight:400;color:#9AA5BD}
+.prow2{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.prow2 > .lbl{width:52px;flex:none}
+.prow2 .seg button{min-height:38px}
+.pdate{width:auto;flex:1 1 130px;height:38px;font-size:15px;text-align:left;color:var(--pencil);font-weight:500}
+.pdate.on{color:var(--ink);font-weight:700}
+.pph{display:flex;justify-content:space-between;align-items:baseline;gap:2px 8px;flex-wrap:wrap;margin-top:4px}
+.pplist{border:1px solid var(--rule);border-radius:6px}
+.pp:first-child{border-radius:6px 6px 0 0}
+.pp:last-child{border-radius:0 0 6px 6px}
+.pp{border-bottom:1px solid var(--rule);background:var(--paper)}
+.pp:last-child{border-bottom:0}
+.pp.on{background:#EEF3FC}
+.pprow{display:flex;align-items:flex-start;gap:10px;width:100%;min-height:52px;padding:10px;border:0;background:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.pprow .cb{margin:1px 0 0}
+.ppd{flex:1;min-width:0;display:grid;line-height:1.4}
+.ppd .small{color:var(--pencil)}
+.ppa{display:grid;justify-items:end;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.4}
+.pst{font-size:12.5px;font-weight:600}
+.pst.ok{color:#2E7D32}
+.pst.part{color:#8A4B00}
+.ppin{display:flex;flex-wrap:wrap;align-items:flex-end;gap:4px 14px;padding:0 10px 10px 40px}
+.ppin label{flex:1 1 100px;display:grid}
+.ppin .fld{height:40px;font-size:19px;background:#fff;border:1px solid #B9C6E2;border-radius:4px;padding:0 8px}
+.ppro{flex-basis:100%;font-size:13.5px}
+.ppro:empty{display:none}
 .ps2{font-size:14px;color:var(--ink)}
-/* เลือกยอดที่ลูกค้าจ่าย + น้ำหนัก × ราคา ใต้แต่ละวัน */
+.pdel{justify-self:start;color:#A12A2A}
+.payfoot{display:flex;align-items:center;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));border-top:1.5px solid var(--ink);background:var(--paper)}
+.pfs{flex:1;min-width:0;display:grid;font-size:14px;line-height:1.4}
+.pfs b{color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pfs .big3{font-size:19px}
+.payfoot .btn{min-height:50px;padding:0 18px;font-size:16.5px;flex:none}
+/* ตารางยอดค้าง: แตะวัน = รับเงินวันนั้น · น้ำหนัก × ราคา ใต้แต่ละวัน */
 .cb{display:inline-block;width:20px;height:20px;border:1.5px solid var(--ink);border-radius:4px;vertical-align:-4px;margin-right:8px;background:var(--paper);flex:none}
-tr.on .cb,.cb.on{background:var(--ink)}
-tr.on .cb::after,.cb.on::after{content:"";display:block;width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translate(6px,2px) rotate(45deg)}
-.lined tr.on td{background:#EEF3FC}
+.cb.on{background:var(--ink)}
+.cb.on::after{content:"";display:block;width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translate(6px,2px) rotate(45deg)}
 .lined tr.tick td{border-bottom:0}
-.lined tr.calc td{height:auto;white-space:normal;font-size:12.5px;line-height:1.45;color:var(--pencil);padding:0 6px 6px 34px;vertical-align:top}
-.lined td.tickcell{text-align:center;padding:0 0 4px}
-.lined td.tickcell .cb{margin:0}
+.custsum .ol{display:block;position:sticky;left:0;max-width:calc(100vw - 64px)}
+.lined tr.calc td{height:auto;white-space:normal;font-size:12.5px;line-height:1.45;color:var(--pencil);padding:0 6px 6px 12px;vertical-align:top}
 .lined.periods td{height:auto;padding-top:6px}
 .lined td.pn{white-space:normal;line-height:1.3}
 .lined td.pn .small{display:block}
-.tickbar{position:sticky;bottom:0;z-index:3;margin-top:10px;background:var(--paper);border:1.5px solid var(--ink);border-radius:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:grid;gap:8px;box-shadow:0 -6px 16px rgb(30 40 60 / .12)}
-.tickbar .tbl{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:15px}
-.tickbar .tbl b{color:var(--ink);font-size:18px;font-variant-numeric:tabular-nums}
-.tickbar .link{justify-self:start}
-.tickbar .btn{min-height:44px}
-.tickinfo{background:#EEF3FC;border-radius:6px;padding:6px 10px;display:grid;gap:2px;font-size:14px}
-/* หน้าต่างรับเงิน: รายการยอดค้างให้เลือก (เลื่อนในกล่องได้ ลูกค้าค้างหลายวันจะได้ไม่ยาวทั้งหน้าต่าง) */
-.paypick{display:grid;gap:6px}
-.pph{display:flex;justify-content:space-between;align-items:baseline;gap:4px 8px;flex-wrap:wrap}
-.pph b{color:var(--ink);font-variant-numeric:tabular-nums}
-.pplist{max-height:min(34vh,300px);overflow:auto;border:1px solid var(--rule);border-radius:6px;-webkit-overflow-scrolling:touch}
-.pprow{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:6px 10px;border:0;border-bottom:1px solid var(--rule);background:var(--paper);text-align:left;font:inherit;color:inherit;cursor:pointer}
-.pprow:last-child{border-bottom:0}
-.pprow.on{background:#EEF3FC}
-.pprow .cb{margin:0}
-.ppd{flex:1;min-width:0;display:grid;line-height:1.3}
-.ppd .small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ppa{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* รับเงินล่าสุด (หน้าลูกค้า) แตะเพื่อแก้ */
+.rplist{border-top:1px solid var(--rule)}
+.rprow{display:flex;align-items:center;gap:10px;width:100%;min-height:54px;padding:6px 4px;border:0;border-bottom:1px solid var(--rule);background:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.rprow:hover{background:var(--tint)}
+.rpd{width:62px;flex:none;font-weight:600}
+.rpm{flex:1;min-width:0;display:grid;line-height:1.35}
+.rpm b{color:var(--ink);font-variant-numeric:tabular-nums}
+.rpe{color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:3px;font-size:14.5px;padding:0 4px}
 /* กดค้างที่ชื่อในหน้าบันทึกแล้วลาก = ย้ายลำดับ */
 #plist tr.tap{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 #plist tr.dragging td{transform:translateY(var(--dy,0));background:#EEF2FA;position:relative;z-index:2;box-shadow:0 1px 0 var(--rule)}
@@ -324,6 +343,9 @@ tr.on .cb::after,.cb.on::after{content:"";display:block;width:5px;height:10px;bo
 .modal-card .row{display:flex;gap:8px;justify-content:flex-end}
 #toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:70;background:var(--cover);color:#fff;padding:10px 18px;border-radius:5px;font-weight:600;font-size:15px;max-width:calc(100% - 32px);opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
+#toast.act{display:flex;align-items:center;gap:12px;padding:6px 8px 6px 16px;width:max-content}
+#toast.act.show{pointer-events:auto}
+.tbtn{border:0;border-radius:4px;background:#fff;color:var(--cover);font-weight:700;font-size:15px;min-height:36px;padding:0 16px;flex:none}
 @media (min-width:900px){#toast{bottom:28px}}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 </style>
@@ -369,7 +391,7 @@ function rangeLabel(a, b) {
 const todayISO = () => iso(new Date());
 const wide = () => window.matchMedia("(min-width:1100px)").matches;
 const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-const METHODS = ["เงินสด", "โอน", "เช็ค"];
+const METHODS = ["โอน", "เงินสด"]; // ไม่มีเช็ค (Korn ตัดออก 23 ต.ค.)
 const TYPES = ["ซาก", "หมูเป็น"];
 
 /* ---------- น้องบีเกิล: สติกเกอร์ในโฟลเดอร์ stickers/ (ถ้าไม่มีไฟล์ จะซ่อนตัวเอง) ---------- */
@@ -386,7 +408,7 @@ const S = {
   customers: [], farms: [], set: clone(DEFAULT_SET), days: {}, dates: [], expenses: [], cuts: {},
   tab: "entry", entryKind: "sale", date: todayISO(), openId: null, draft: null, dirty: false, expDraft: null,
   debtFilter: "owe", detail: null, tick: null, stMode: "week", stAnchor: todayISO(), billOpen: false,
-  sumKind: "cash", orderView: "day", sumMode: "month", sumAnchor: todayISO(), sumFrom: addDays(todayISO(), -6), sumTo: todayISO(),
+  sumKind: "cash", orderView: "cust", sumMode: "month", sumAnchor: todayISO(), sumFrom: addDays(todayISO(), -6), sumTo: todayISO(),
   pendingRender: false,
 };
 const K = {
@@ -418,7 +440,7 @@ function lineTotals(l) {
 }
 const emptyT = t => !t.kg && !t.n && !t.amt && !t.paid && !t.disc;
 function loadsDesc(t, k) {
-  const parts = Object.keys(t.by).map(ty => `${k === "sale" ? ty + " " : ""}${fmtN(t.by[ty].n, 0)} ตัว ${kg1(t.by[ty].kg)} กก.`);
+  const parts = Object.keys(t.by).map(ty => `${k === "sale" ? ty + " " : ""}${t.by[ty].n ? fmtN(t.by[ty].n, 0) + " ตัว " : ""}${kg1(t.by[ty].kg)} กก.`);
   if (t.lab) parts.push(`ค่าทำ ${money(t.lab)}`);
   if (t.dd) parts.push(`ลดตำหนิ${t.ddn.length ? ` (${t.ddn.join(", ")})` : ""} −${money(t.dd)}`);
   return parts.join(" · ");
@@ -529,12 +551,37 @@ function settle(debits, pays) {
 }
 // เงินในวันนั้นที่เป็นก้อน "เลือกวัน" (allocAmt) · ไม่มี allocAmt = ทั้งวัน · ส่วนที่เหลือของวันนั้นตัดยอดเก่าสุดก่อน
 const allocAmtOf = (l, c) => l && l.allocAmt != null && l.allocAmt !== "" ? Math.min(num(l.allocAmt), c) : c;
-// เงินรับของวันนั้น (รวมลดให้): ส่วนที่ไม่ได้เลือกวัน (รับไว้ก่อน) ตัดเก่าสุดก่อน แล้วค่อยก้อนที่เลือกวันไว้
+/**
+ * ก้อนเงินที่เลือกวันไว้ของวันนั้น: [{ k: วันที่ (หรือทุกวันในงวด), a: เงินรับ+ลดให้ของก้อนนี้, d: ส่วนที่เป็นลดให้ }]
+ * allocBy = แบบใหม่ (ใส่เงินแยกรายวัน) · ข้อมูลเก่า (alloc + allocAmt) = 1 ก้อนหลายวัน ตัดวันเก่าในก้อนก่อน
+ * รวมทุกก้อนไม่เกินเงินของวันนั้น (c)
+ */
+function allocGroups(l, c) {
+  if (c == null) c = num(l && l.paid) + num(l && l.disc);
+  const g = l && Array.isArray(l.allocBy) && l.allocBy.length ? l.allocBy.map(x => ({ k: allocOf({ alloc: x.k }), a: num(x.a), d: num(x.d) }))
+    : allocOf(l).length ? [{ k: allocOf(l), a: allocAmtOf(l, c), d: 0 }] : [];
+  let room = c;
+  return g.filter(x => x.k.length).map(x => { const a = r2(Math.max(0, Math.min(x.a, room))); room -= a; return { k: x.k, a, d: r2(Math.min(x.d, a)) }; }).filter(x => x.a > 0.004);
+}
+// เก็บก้อนเลือกวันลงรายการ · ใส่ alloc/allocAmt แบบเดิมไว้ด้วย หลังบ้านเวอร์ชันเก่ายังอ่านได้ (แค่ไม่รู้ว่าแต่ละวันเท่าไร)
+function setAlloc(line, groups) {
+  delete line.alloc; delete line.allocAmt; delete line.allocBy;
+  const g = [];
+  for (const x of groups) {
+    if (!x.k.length || x.a <= 0.004) continue;
+    const k = x.k.slice().sort(), same = g.find(y => y.k.join() === k.join());
+    if (same) { same.a = r2(same.a + x.a); same.d = r2(same.d + num(x.d)); } else g.push({ k, a: r2(x.a), d: r2(num(x.d)) });
+  }
+  if (!g.length) return line;
+  line.allocBy = g; line.alloc = [...new Set(g.flatMap(x => x.k))].sort(); line.allocAmt = r2(g.reduce((s, x) => s + x.a, 0));
+  return line;
+}
+// เงินรับของวันนั้น (รวมลดให้): ส่วนที่ไม่ได้เลือกวัน (รับไว้ก่อน) ตัดเก่าสุดก่อน แล้วค่อยก้อนที่เลือกวันไว้ทีละก้อน
 function addPay(pays, l, t) {
-  const c = t.paid + t.disc, a = allocOf(l); if (!c) return;
-  const ta = a.length ? allocAmtOf(l, c) : 0;
+  const c = t.paid + t.disc; if (!c) return;
+  const g = allocGroups(l, c), ta = g.reduce((s, x) => s + x.a, 0);
   if (c - ta > 0.004) pays.push({ c: c - ta, alloc: [] });
-  if (ta > 0.004) pays.push({ c: ta, alloc: a });
+  g.forEach(x => pays.push({ c: x.a, alloc: x.k }));
 }
 /* ---------- งวดบิล: พ่อเลือกเองว่างวดเริ่ม–จบวันไหน ยอดขายในช่วงนั้นรวมเป็น 1 งวด เงินที่รับตัดยอดเก่าสุดก่อน ---------- */
 const cutsOf = id => ((S.cuts && S.cuts[id]) || []).slice().sort((a, b) => a.date < b.date ? -1 : 1);
@@ -1182,7 +1229,7 @@ async function saveLine(skipConfirm) {
   const noP = D.loads.findIndex(x => num(x.w) && !num(x.p)), noW = D.loads.findIndex(x => num(x.n) && !num(x.w));
   // หมูเป็นที่มีค่าทำ ต้องรู้จำนวนตัว ไม่งั้นค่าทำหายเงียบๆ
   const noN = k === "sale" ? D.loads.findIndex(x => isLive(x) && num(x.w) && num(x.lab) && !num(x.n)) : -1;
-  const bad = [[noP, "#p", x => `รอบ ${x.r} ยังไม่มีราคา พิมพ์ราคา หรือติ๊ก "ราคาเดิม"`], [noW, "#w", x => `รอบ ${x.r} ใส่จำนวนตัวแล้ว แต่ยังไม่ใส่น้ำหนัก`],
+  const bad = [[noP, "#p", x => `รอบ ${x.r} ยังไม่มีราคา พิมพ์ราคา หรือเลือก "ราคาเดิม"`], [noW, "#w", x => `รอบ ${x.r} ใส่จำนวนตัวแล้ว แต่ยังไม่ใส่น้ำหนัก`],
     [noN, "#n", x => `หมูเป็นรอบ ${x.r} มีค่าทำ ใส่จำนวนตัวด้วย`]].find(([i]) => i >= 0);
   if (bad) { const [i, f, msg] = bad; toast(msg(D.loads[i])); const el = $(f + i); if (el) el.focus(); return; }
   const line = {
@@ -1195,8 +1242,8 @@ async function saveLine(skipConfirm) {
   if (line.loads.length) for (let r = 1; r <= roundsOf(k, p); r++) if (!D.loads.some(x => x.r === r)) line.loads.push({ w: 0, n: 0, p: 0, t: "ซาก", r, skip: true });
   line.loads.sort((a, b) => a.r - b.r);
   // วันนั้นมีรับเงินที่เลือกวันไว้ เก็บไว้เหมือนเดิม
-  const pl = lineOf(k, date, id), pa = allocOf(pl);
-  if (pa.length && (line.paid || line.disc)) { line.alloc = pa; if (pl.allocAmt != null) line.allocAmt = pl.allocAmt; }
+  const pl = lineOf(k, date, id);
+  if (pl && (line.paid || line.disc)) setAlloc(line, allocGroups(pl, line.paid + line.disc));
   // กันเผลอแก้ตัวเลขของวันก่อนๆ: ถ้ายอดเปลี่ยน ให้ดูก่อน→หลัง แล้วกดยืนยันเอง
   // ฝั่งขาย ดูเฉพาะยอดขาย (วันที่มีแค่รับเงิน แล้วมาลงขายเพิ่ม ไม่ต้องถาม)
   const old = lineOf(k, date, id), oldT = old && lineTotals(old);
@@ -1305,34 +1352,133 @@ function lastPay(id) {
   return null;
 }
 
-/* ---------- หน้าต่างรับเงิน: พิมพ์ยอดโอน แล้วบอกทันทีว่าเงินก้อนนี้ตัดยอดได้ถึงวันไหน ยังค้างเท่าไร ----------
-   เก็บเป็นเงินรับ (paid) ในรายการของลูกค้าคนนั้นวันที่รับเงิน รวมกับยอดขายวันนั้น (ถ้ามี) ข้อมูลในชีตเหมือนเดิม */
+/* ---------- หน้าต่างรับเงิน: แตะวันที่ลูกค้าจ่าย ช่อง "รับ" เติมเต็มยอดวันนั้นให้ แก้เป็นยอดโอนจริงได้ + ลดให้รายวัน ----------
+   เก็บเป็นเงินรับ (paid) + ลดให้ (disc) ในรายการของลูกค้าคนนั้นวันที่เงินเข้า รวมกับยอดขายวันนั้น (ถ้ามี)
+   เงินของแต่ละวันที่เลือกเก็บเป็นก้อน (allocBy) · เงินที่ไม่ได้เลือกวัน ตัดยอดเก่าสุดก่อน */
 function payLineOf(id, date) {
   const l = lineOf("sale", date, id);
   return l ? clone(l) : { loads: [], paid: 0, disc: 0, method: "โอน", note: "" };
 }
-// ลองใส่รายการสมมุติลงไปชั่วคราว แล้วคิดยอดค้างด้วยสูตรเดิม (FIFO / งวด) จะได้ตรงกับหน้าอื่นเสมอ
-function obWith(id, date, line) {
-  const day = S.days[date] || { date, lines: {}, buys: {} }, had = !!S.days[date], keep = day.lines || {};
-  S.days[date] = Object.assign({}, day, { lines: Object.assign({}, keep, { [id]: line }) });
-  const dates = S.dates; if (!had) S.dates = Object.keys(S.days).sort();
+// รายการเดิมที่เอาเงินรับออก (ยอดขายวันนั้นยังอยู่)
+const withoutPay = l => setAlloc(Object.assign(l, { paid: 0, disc: 0 }), []);
+// ลองใส่รายการสมมุติลงไปชั่วคราว (ได้หลายวัน) แล้วคิดยอดค้างด้วยสูตรเดิม (FIFO / งวด) จะได้ตรงกับหน้าอื่นเสมอ
+function obWith(id, lines) {
+  const keep = {}, dates = S.dates;
+  for (const d in lines) {
+    keep[d] = S.days[d]; const day = S.days[d] || { date: d, lines: {}, buys: {} };
+    S.days[d] = Object.assign({}, day, { lines: Object.assign({}, day.lines || {}, { [id]: lines[d] }) });
+  }
+  S.dates = Object.keys(S.days).sort();
   try { return openBills("sale", id, "9999-12-31"); }
-  finally { if (had) S.days[date] = day; else delete S.days[date]; S.dates = dates; }
+  finally { for (const d in keep) { if (keep[d]) S.days[d] = keep[d]; else delete S.days[d]; } S.dates = dates; }
 }
-// sel = ยอดที่เลือกไว้ (billId) จากหน้าบัญชีลูกค้า → เปิดมาพร้อมเลือกไว้แล้ว · เลือกเพิ่ม/เอาออกในหน้าต่างนี้ได้อีก
+// ยอดค้างตอนก่อนรับเงินก้อนนี้: เอาเงินรับตั้งแต่วันนั้นเป็นต้นไปออก (ตัดยอดไล่ตามวันที่รับ เงินก้อนหลังๆ ยังไม่เกิด)
+// วันที่เงินก้อนหลังมาตัดไปแล้วยังอยู่ในรายการ วันที่เคยเลือกไว้จะไม่หายตอนเปิดแก้
+function obBefore(id, date) {
+  const lines = {};
+  for (const d of S.dates) { if (d < date) continue; const l = lineOf("sale", d, id); if (l && (num(l.paid) || num(l.disc))) lines[d] = withoutPay(clone(l)); }
+  return obWith(id, lines);
+}
+// sel = ยอดที่แตะมาจากหน้าบัญชีลูกค้า → เปิดมาพร้อมเลือกไว้แล้ว · edit = แก้เงินที่รับไว้แล้วของวันนั้น
 function openPay(id, date, edit, sel) {
   const p = partyById("sale", id); if (!p) return;
   const d = date || todayISO(), old = payLineOf(id, d);
-  S.pay = { id, date: d, edit: !!edit, amt: edit && num(old.paid) ? String(old.paid) : "", disc: edit && num(old.disc) ? String(old.disc) : "",
-    method: (num(old.paid) && old.method) || "โอน", note: edit ? old.note || "" : "", showNote: !!(edit && old.note),
-    sel: !edit && sel ? sel.slice() : [], amtAuto: true, clearAlloc: false };
-  if (S.pay.sel.length) S.pay.amt = String(paySel(S.pay).sum);
-  renderPay(); const f = $("#payAmt"); if (f) { f.focus(); if (S.pay.sel.length) f.select(); }
+  edit = !!edit && !!(num(old.paid) || num(old.disc));
+  const P = S.pay = { id, date: d, from: edit ? d : null, edit, method: (num(old.paid) && METHODS.includes(old.method) && old.method) || "โอน", note: edit ? old.note || "" : "", showNote: !!(edit && old.note),
+    picks: {}, extra: 0, exDisc: 0, fixed: false, snap: null, oldPaid: num(old.paid), oldDisc: num(old.disc) };
+  P.base = edit ? obBefore(id, d) : openBills("sale", id, "9999-12-31");
+  // แก้ยอดเดิม: ยอดเงินคงที่ไว้ก่อน เอาออกจากวันหนึ่งแล้วแตะอีกวัน = ย้ายเงินไปวันนั้น
+  if (edit) { fillPicks(P, old); P.fixed = true; } else (sel || []).forEach(k => togglePick(P, k));
+  renderPay();
 }
-// ยอดที่เลือกในหน้าต่างรับเงิน: บิลไหน, วันที่ที่จะตัด (keys), รวมยอดที่เหลือของบิลเหล่านั้น
-function paySel(P) {
-  const ob = openBills("sale", P.id, "9999-12-31"), bills = ob.bills.filter(b => P.sel.includes(billId(b)));
-  return { ob, bills, keys: [...new Set(bills.flatMap(b => b.keys))], sum: r2(bills.reduce((s, b) => s + b.left, 0)) };
+// แก้ยอดเดิม: แตกก้อนที่เลือกวันไว้กลับเป็นช่องรับ/ลดของแต่ละวัน · ที่เหลือ = เงินที่ไม่ได้เลือกวัน
+function fillPicks(P, old) {
+  const used = {}; let gr = 0, gd = 0;
+  for (const g of allocGroups(old)) {
+    let rem = g.a, remD = g.d;
+    for (const b of P.base.bills) {
+      if (rem <= 0.004) break;
+      const key = billId(b), room = r2(b.left - (used[key] || 0));
+      if (room <= 0.004 || !b.keys.some(k => g.k.includes(k))) continue;
+      const t = Math.min(rem, room), td = Math.min(remD, t), pk = P.picks[key] || (P.picks[key] = { r: 0, dc: 0 });
+      pk.r = r2(pk.r + t - td); pk.dc = r2(pk.dc + td); used[key] = (used[key] || 0) + t;
+      rem -= t; remD -= td; gr += t - td; gd += td;
+    }
+  }
+  P.extra = r2(Math.max(0, num(old.paid) - gr)); P.exDisc = r2(Math.max(0, num(old.disc) - gd));
+}
+// แตะวัน: เติมเต็มยอดที่เหลือของวันนั้น · ถ้ายอดโอนคงที่แล้ว (พิมพ์เอง/กำลังแก้) เอาจากเงินที่ยังไม่ได้ลงวันไหนมาใส่ ยอดโอนไม่เปลี่ยน
+// เงินหมดแล้ว = ช่องรับ 0 ให้พ่อแก้เอง (ไม่แอบเพิ่มยอดโอน)
+function togglePick(P, key) {
+  const b = P.base.bills.find(x => billId(x) === key); if (!b) return;
+  P.snap = null;
+  if (P.picks[key]) { if (P.fixed) P.extra = r2(P.extra + P.picks[key].r); delete P.picks[key]; return; }
+  let r = b.left;
+  if (P.fixed) { r = Math.min(b.left, P.extra); P.extra = r2(P.extra - r); }
+  P.picks[key] = { r: r2(r), dc: 0 };
+}
+/**
+ * พิมพ์ยอดโอน: คิดจากยอดตอนเริ่มพิมพ์ (snap) จะได้ไม่เพี้ยนระหว่างกดทีละตัวเลข
+ * เพิ่มขึ้น → เติมวันที่เลือกที่ยังไม่เต็ม (เก่าไปใหม่) ที่เหลือ = ตัดเก่าสุดก่อน
+ * ลดลง → ลดวันที่เลือกจากใหม่ไปเก่า แล้วค่อยลดเงินที่ไม่ได้เลือกวัน (เงินที่ไม่ได้เลือกวันของเดิมคงไว้ก่อน)
+ */
+function setTotal(P, T) {
+  const bills = P.base.bills.filter(b => P.picks[billId(b)]);
+  if (!P.snap) P.snap = { r: Object.fromEntries(bills.map(b => [billId(b), P.picks[billId(b)].r])), extra: P.extra };
+  bills.forEach(b => { P.picks[billId(b)].r = P.snap.r[billId(b)] || 0; }); P.extra = P.snap.extra;
+  T = r2(Math.max(0, T));
+  let d = r2(T - P.extra - bills.reduce((s, b) => s + P.picks[billId(b)].r, 0));
+  if (d > 0) {
+    for (const b of bills) { const pk = P.picks[billId(b)], room = r2(b.left - pk.dc - pk.r); if (room > 0 && d > 0) { const t = Math.min(room, d); pk.r = r2(pk.r + t); d = r2(d - t); } }
+    P.extra = r2(P.extra + d);
+  } else if (d < 0) {
+    d = -d;
+    for (const b of bills.slice().reverse()) { const pk = P.picks[billId(b)], t = Math.min(pk.r, d); pk.r = r2(pk.r - t); d = r2(d - t); }
+    P.extra = r2(Math.max(0, P.extra - d));
+  }
+  P.fixed = true;
+}
+// แก้ช่องรับ: ยอดโอนคงที่ ส่วนต่างไปอยู่ที่เงินที่ไม่ได้เลือกวัน (ใส่เกินยอดโอน = ยอดโอนเพิ่มตาม)
+// แก้ช่องลดให้: ถ้าช่องรับยังเต็มวันอยู่ ช่องรับลดลงตาม (รับ + ลด = ยอดวันนั้น ไม่ลงรับเกินเงินจริง)
+function setPick(P, key, f, v) {
+  const pk = P.picks[key], b = P.base.bills.find(x => billId(x) === key); if (!pk || !b) return;
+  P.snap = null; v = r2(Math.max(0, v));
+  let r = pk.r;
+  if (f === "dc") { const full = pk.r + pk.dc >= b.left - 0.004; pk.dc = v; if (full) r = r2(Math.max(0, b.left - v)); }
+  else r = v;
+  if (P.fixed) { const e = r2(P.extra + pk.r - r); if (e >= 0) P.extra = e; else { P.extra = 0; P.fixed = false; } }
+  pk.r = r;
+}
+// รับเพิ่มในวันที่มีรับไว้แล้ว (หรือย้ายไปวันนั้น) แต่คนละช่องทาง: เก็บรวมกันไม่ได้ (ชีตเก็บวันละช่องทางเดียว)
+function payConflict(P) {
+  if (P.edit && P.date === P.from) return null;
+  const tl = lineOf("sale", P.date, P.id);
+  return tl && num(tl.paid) && tl.method && tl.method !== P.method && payTot(P).r > 0.004 ? tl : null;
+}
+function payTot(P) {
+  const T = { r: P.extra, d: P.exDisc, groups: [] };
+  for (const b of P.base.bills) {
+    const pk = P.picks[billId(b)]; if (!pk) continue;
+    T.r += pk.r; T.d += pk.dc;
+    if (pk.r + pk.dc > 0.004) T.groups.push({ k: b.keys, a: r2(pk.r + pk.dc), d: pk.dc });
+  }
+  T.r = r2(T.r); T.d = r2(T.d);
+  return T;
+}
+// รายการที่จะบันทึก: รับใหม่ = บวกเพิ่มจากที่รับไว้แล้ววันนั้น · แก้ = แทนของเดิม (ย้ายวันได้ วันเดิมเอาเงินออก)
+function payLines(P) {
+  const T = payTot(P), out = {};
+  if (P.edit && P.from !== P.date) {
+    const o = withoutPay(payLineOf(P.id, P.from));
+    if (!o.loads.some(x => !x.skip && (num(x.w) || num(x.n)))) o.note = ""; // วันเดิมมีแค่รับเงิน หมายเหตุย้ายไปด้วย
+    out[P.from] = o;
+  }
+  const l = payLineOf(P.id, P.date), merge = !(P.edit && P.from === P.date);
+  const g = (merge ? allocGroups(l) : []).concat(T.groups);
+  l.paid = r2((merge ? num(l.paid) : 0) + T.r); l.disc = r2((merge ? num(l.disc) : 0) + T.d); l.method = P.method;
+  if (P.showNote) l.note = String(P.note || "").trim();
+  out[P.date] = setAlloc(l, g);
+  return out;
 }
 // ป้ายวันที่ที่เลือก: ไม่เกิน 4 วันบอกทีละวัน · มากกว่านั้นบอกเป็นช่วง + จำนวนวัน
 function allocLabel(keys) {
@@ -1341,109 +1487,112 @@ function allocLabel(keys) {
   return o.join(", ");
 }
 const billLabel = (b, per) => b.opening ? "ยอดยกมา" : per ? periodName({ ...b, from: b.date }).replace(" (ยังไม่ปิด)", "") : thShort(b.date);
-// รายการยอดค้างให้เลือกในหน้าต่างรับเงิน (ไม่เลือก = ตัดยอดเก่าสุดก่อนเหมือนเดิม)
-function payPickHTML(P) {
-  const { ob, bills, sum } = paySel(P); if (!ob.count) return "";
-  const per = ob.mode === "period", unit = per ? "งวด" : "ยอด", last = bills.length ? ob.bills.indexOf(bills[bills.length - 1]) : -1;
-  const older = last > 0 ? ob.bills.slice(0, last).filter(b => !bills.includes(b)).length : 0;
-  const rows = ob.bills.map(b => {
-    const on = bills.includes(b), sub = per ? periodRange({ ...b, from: b.date }) : calcLines(P.id, b).join(" · ");
-    return `<button type="button" class="pprow${on ? " on" : ""}" data-act="payPick" data-key="${esc(billId(b))}" role="checkbox" aria-checked="${on}">
-      <span class="cb${on ? " on" : ""}" aria-hidden="true"></span><span class="ppd"><b>${esc(billLabel(b, per))}</b>${sub ? `<span class="pencil small">${sub}</span>` : ""}</span><span class="ppa">${money(b.left)}</span></button>`;
-  }).join("");
-  return `<div class="paypick"><div class="pph"><span class="lbl">เลือก${unit}ที่ลูกค้าจ่าย</span>
-      <span class="small">${bills.length ? `เลือก ${bills.length} ${unit} · รวม <b>${money(sum)}</b> <button class="link" data-act="payPickClear">ล้าง</button>` : `<span class="pencil">ไม่เลือก = ตัด${unit}เก่าสุดก่อน</span>`}</span></div>
-    <div class="pplist" id="payPick">${rows}</div>
-    ${older ? `<button class="link" data-act="payPickOlder" style="justify-self:start">＋ เลือก${unit}ที่เก่ากว่านี้ด้วย (${older} ${unit})</button>` : ""}
-    ${bills.length ? `<span class="pencil small">แก้จำนวนเงินด้านบนให้ตรงกับยอดโอนจริงได้</span>` : ""}</div>`;
+const inV = n => n ? money(n) : "";
+function payRowHTML(P, b, i, per) {
+  const key = billId(b), pk = P.picks[key], on = !!pk, sub = per ? [periodRange({ ...b, from: b.date })] : calcLines(P.id, b);
+  return `<div class="pp${on ? " on" : ""}">
+    <button type="button" class="pprow" data-act="payPick" data-key="${esc(key)}" role="checkbox" aria-checked="${on}">
+      <span class="cb${on ? " on" : ""}" aria-hidden="true"></span>
+      <span class="ppd"><b>${esc(billLabel(b, per))}</b>${sub.map(s => `<span class="small">${s}</span>`).join("")}</span>
+      <span class="ppa">${money(b.left)}<span class="pst" id="pst${i}"></span></span></button>
+    ${on ? `<div class="ppin"><label><span class="lbl">รับ</span><input class="fld" data-pr="r" data-key="${esc(key)}" inputmode="decimal" placeholder="0" value="${inV(pk.r)}"></label>
+      ${pk.dc || pk.showDc ? `<label><span class="lbl">ลดให้</span><input class="fld" id="pdc-${esc(key)}" data-pr="dc" data-key="${esc(key)}" inputmode="decimal" placeholder="0" value="${inV(pk.dc)}"></label>`
+        : `<button type="button" class="link ddlink" data-act="payDc" data-key="${esc(key)}">＋ ลดให้</button>`}
+      <span class="ppro" id="pro${i}"></span></div>` : ""}</div>`;
 }
 function renderPay() {
-  const P = S.pay, p = partyById("sale", P.id), old = payLineOf(P.id, P.date), m = $("#modal");
-  const had = num(old.paid) || num(old.disc), oldA = P.clearAlloc ? [] : allocOf(old);
-  // แก้ยอดเดิมที่เคยเลือกวันไว้ = บอกวันเดิม กดเปลี่ยนเป็นตัดเก่าสุดก่อนได้
-  const oldC = r2(num(old.paid) + num(old.disc)), oldTA = oldA.length ? allocAmtOf(old, oldC) : 0;
-  const editInfo = P.edit && oldA.length ? `<div class="tickinfo"><span>${oldTA < oldC - 0.004 ? `เงิน ${money(oldTA)} ` : ""}ตัดยอดที่เลือกไว้: <b>${esc(allocLabel(oldA))}</b></span><button class="link" data-act="payUntick" style="justify-self:start">เปลี่ยนเป็นตัดยอดเก่าสุดก่อน</button></div>` : "";
-  const y0 = $("#payPick") ? $("#payPick").scrollTop : 0;
-  m.innerHTML = `<div class="modal-card paybox" role="dialog" aria-modal="true" aria-label="รับเงิน">
-    <p><b>${P.edit ? "แก้ยอดรับเงิน" : "รับเงิน"}</b> · ${esc(p.name)}</p>
-    ${editInfo}
-    <div class="paygrid">
-      <label for="payAmt"><span class="lbl">จำนวนเงิน (บาท)</span><input class="fld" id="payAmt" data-pf="amt" inputmode="decimal" placeholder="0" value="${esc(P.amt)}"></label>
-      <label for="payDate"><span class="lbl">วันที่เงินเข้า</span><input type="date" class="fld" id="payDate" data-pf="date" value="${P.date}" ${P.edit ? "disabled" : ""}></label>
-      <label for="payMethod"><span class="lbl">ช่องทาง</span><select class="fld" id="payMethod" data-pf="method">${METHODS.map(x => `<option ${x === P.method ? "selected" : ""}>${x}</option>`).join("")}</select></label>
+  const P = S.pay, p = partyById("sale", P.id), m = $("#modal"), B = P.base, per = B.mode === "period", unit = per ? "งวด" : "วัน";
+  // วันที่เงินเข้ามีรับไว้แล้ว (รับใหม่ หรือแก้แล้วย้ายมาวันนี้) = รวมเป็นก้อนเดียวกัน
+  const old = P.edit && P.date === P.from ? null : lineOf("sale", P.date, P.id), had = old && (num(old.paid) || num(old.disc));
+  const C = P.edit ? openBills("sale", P.id, "9999-12-31") : B; // ป้ายบน = ค้างจริงตอนนี้ (ตอนแก้ base เป็นยอดก่อนรับเงินก้อนนี้)
+  const t = todayISO(), y = addDays(t, -1), odd = P.date !== t && P.date !== y;
+  const y0 = $("#payBody") ? $("#payBody").scrollTop : 0, title = P.edit ? "แก้ยอดรับเงิน" : "รับเงิน";
+  m.classList.add("paymodal");
+  m.innerHTML = `<div class="modal-card paybox" role="dialog" aria-modal="true" aria-label="${title}">
+    <div class="payhead"><div class="pht"><b>${title} · ${esc(p.name)}</b>${C.count ? `<span class="pchip">ค้าง ${money(C.total)} · ${C.count} ${per ? "งวด" : "ยอด"}</span>` : ""}
+      ${P.edit ? `<span class="pold">เดิม: ${thShort(P.from)} · รับ ${money(P.oldPaid)}${P.oldDisc ? ` · ลด ${money(P.oldDisc)}` : ""}</span>` : ""}</div>
+      <button class="xbtn" data-act="payCancel" aria-label="ปิด">✕</button></div>
+    <div class="paybody" id="payBody">
+      <label class="ptot" for="payAmt"><span class="lbl">ยอดที่โอนมา (บาท)</span><input class="fld" id="payAmt" data-pf="total" inputmode="decimal" placeholder="แตะ${unit}ด้านล่าง หรือพิมพ์ยอด"></label>
+      <div class="prow2"><span class="lbl">เงินเข้า</span><div class="seg sm" role="group" aria-label="วันที่เงินเข้า"><button data-act="payDay" data-d="${t}" aria-pressed="${P.date === t}">วันนี้</button><button data-act="payDay" data-d="${y}" aria-pressed="${P.date === y}">เมื่อวาน</button></div>
+        <input type="date" class="fld pdate${odd ? " on" : ""}" id="payDate" value="${P.date}" aria-label="เลือกวันที่เงินเข้า"></div>
+      ${P.date !== t ? `<div class="warn">เงินเข้าวันที่ ${thLong(P.date)} (ไม่ใช่วันนี้)</div>` : ""}
+      <div class="prow2"><span class="lbl">ช่องทาง</span><div class="seg sm" role="group" aria-label="ช่องทาง">${METHODS.map(x => `<button data-act="payMethod" data-m="${x}" aria-pressed="${x === P.method}">${x}</button>`).join("")}</div></div>
+      ${had ? `<div class="hint"><span>${thShort(P.date)} ลงรับไว้แล้ว ${money(num(old.paid))}${num(old.paid) && old.method ? ` (${esc(old.method)})` : ""}${num(old.disc) ? ` · ลด ${money(num(old.disc))}` : ""}<br>${P.edit ? "ย้ายมาวันนี้แล้วจะ<b>รวมเป็นก้อนเดียว</b>กับของเดิม" : "ที่ใส่ตอนนี้จะ<b>บวกเพิ่ม</b>จากเดิม"}</span>${P.edit ? "" : `<button class="btn" data-act="payEdit">แก้ยอดเดิมแทน</button>`}</div>` : ""}
+      <div class="err" id="payConf" hidden></div>
+      ${B.count ? `<div class="pph"><b>แตะ${unit}ที่ลูกค้าจ่าย</b><span class="pencil small">ไม่เลือก = ตัด${unit}เก่าสุดก่อน</span></div>
+        <div class="pplist">${B.bills.map((b, i) => payRowHTML(P, b, i, per)).join("")}</div>`
+        : `<p class="pencil small">${P.edit ? "" : "ตอนนี้ไม่มียอดค้าง เงินที่รับจะเป็นยอดจ่ายเกิน"}</p>`}
+      <div id="payExtra"></div>
+      ${P.showNote ? `<label for="payNote"><span class="lbl">หมายเหตุ</span><input class="fld l" id="payNote" data-pf="note" value="${esc(P.note)}"></label>` : `<button class="link ddlink" data-act="payNoteShow" style="justify-self:start">＋ หมายเหตุ</button>`}
+      ${P.edit ? `<button class="link pdel" data-act="payDelete">ลบยอดรับเงินนี้</button>` : ""}
+      <div class="err" id="payErr" hidden></div>
     </div>
-    ${had && !P.edit ? `<div class="pencil small">วันที่นี้ลงรับไว้แล้ว ${money(num(old.paid))}${num(old.disc) ? ` · ลดให้ ${money(num(old.disc))}` : ""} · ยอดที่ใส่จะบวกเพิ่ม <button class="link" data-act="payEdit">แก้ยอดเดิม</button></div>` : ""}
-    ${P.edit ? "" : payPickHTML(P)}
-    <div class="paysum" id="paySum"></div>
-    <div class="hint" id="payRo" hidden><span id="payRoText"></span><button class="btn" data-act="payRoundOff">ลดให้ ปิดยอด</button></div>
-    <div class="frow" id="payDiscRow" ${num(P.disc) ? "" : "hidden"}><span>ลดให้</span><span class="v" id="payDiscV"></span><button class="link" data-act="payDiscClear">ยกเลิก</button></div>
-    ${P.showNote ? `<label for="payNote"><span class="lbl">หมายเหตุ</span><input class="fld l" id="payNote" data-pf="note" value="${esc(P.note)}"></label>` : `<button class="link ddlink" data-act="payNoteShow" style="justify-self:start">＋ หมายเหตุ</button>`}
-    <div class="err" id="payErr" hidden></div>
-    <div class="row">${P.edit && had ? `<button class="link" data-act="payDelete" style="color:#A12A2A;margin-right:auto">ลบยอดนี้</button>` : ""}<button class="btn" data-act="payCancel">ยกเลิก</button><button class="btn solid" data-act="paySave">${P.edit ? "บันทึกที่แก้" : "ลงรับเงิน"}</button></div></div>`;
-  if ($("#payPick")) $("#payPick").scrollTop = y0;
-  m.hidden = false; updatePaySum();
+    <div class="payfoot"><div class="pfs" id="payFoot"></div><button class="btn solid" data-act="paySave">${P.edit ? "บันทึกที่แก้" : "ลงรับเงิน"}</button></div></div>`;
+  m.hidden = false; $("#payBody").scrollTop = y0; updatePay();
 }
-// รายการของวันนั้นหลังลงรับเงินนี้ (บวกเพิ่ม หรือ แทนยอดเดิมถ้ากำลังแก้)
-function payResult() {
-  const P = S.pay, line = payLineOf(P.id, P.date), amt = r2(num(P.amt)), disc = r2(num(P.disc));
-  line.paid = P.edit ? amt : r2(num(line.paid) + amt);
-  line.disc = P.edit ? disc : r2(num(line.disc) + disc);
-  line.method = P.method;
-  if (P.showNote) line.note = String(P.note || "").trim();
-  // วันที่เลือก: รับเพิ่มแบบเลือกวัน = รวมวันกับที่เลือกไว้เดิม และนับเงินก้อนนี้เข้า allocAmt (เงินที่รับไว้ก่อนในวันเดียวกันยังตัดเก่าสุดก่อน)
-  // แก้ยอดเดิม = allocAmt ไม่เกินยอดใหม่ · ไม่มีเงินรับแล้ว หรือกดเปลี่ยนเป็นตัดเก่าสุดก่อน = ล้าง
-  const old = payLineOf(P.id, P.date), oldC = r2(num(old.paid) + num(old.disc)), newC = r2(num(line.paid) + num(line.disc));
-  const a = P.clearAlloc ? [] : allocOf(old);
-  let ta = a.length ? allocAmtOf(old, oldC) : 0;
-  if (!P.edit && P.sel.length) { paySel(P).keys.forEach(x => { if (!a.includes(x)) a.push(x); }); ta = r2(ta + amt + disc); }
-  ta = Math.min(ta, newC);
-  if (a.length && ta > 0.004) { line.alloc = a.sort(); line.allocAmt = r2(ta); } else { delete line.alloc; delete line.allocAmt; }
-  return line;
+// พิมพ์ยอดโอนแล้ว ช่องรับของแต่ละวันเปลี่ยนตาม (ช่องที่กำลังพิมพ์ไม่ยุ่ง)
+function renderPayInputs() {
+  const P = S.pay; if (!P) return;
+  $$("#modal [data-pr]").forEach(x => { const pk = P.picks[x.dataset.key]; if (pk && x !== document.activeElement) x.value = inV(pk[x.dataset.pr]); });
 }
-function updatePaySum() {
-  const P = S.pay; if (!P || !$("#paySum")) return;
-  const now = openBills("sale", P.id, "9999-12-31"), amt = num(P.amt), disc = num(P.disc);
-  const ob = obWith(P.id, P.date, payResult());
-  let html = `<div class="ps1"><span>ค้างอยู่ตอนนี้</span><b>${money(now.total)}</b></div>`;
-  if (!P.edit && P.sel.length && (amt || disc)) {
-    // ยอดที่เลือกไว้ หลังรับเงินนี้ ยังเหลือวันไหนบ้าง · เงินเกินจากที่เลือก ไปตัดยอดเก่าสุด
-    const ps = paySel(P), want = new Set(ps.keys), rest = ob.bills.filter(b => (b.keys || []).some(x => want.has(x))), over = r2(amt + disc - ps.sum);
-    html += `<div class="ps2">${rest.length ? `ยอดที่เลือก ยังเหลือ ${rest.slice(0, 2).map(b => `${billLabel(b, ob.mode === "period")} ${money(b.left)}`).join(" · ")}${rest.length > 2 ? ` · อีก ${rest.length - 2} ยอด` : ""}`
-      : "✓ ยอดที่เลือก ตัดครบ"}${over > 0.004 ? ` · เกินที่เลือก ${money(over)} ไปตัดยอดเก่าสุดก่อน` : ""}</div>`;
-  }
-  if (amt || disc || P.edit) {
-    html += `<div class="ps2">→ ${esc(throughText(ob))}</div>`
-      + `<div class="ps1 big2"><span>${ob.count ? "ยังค้าง" : "หลังรับเงินนี้"}</span><b>${ob.count ? money(ob.total) : ob.credit > 0.004 ? "จ่ายเกิน " + money(ob.credit) : "ครบ"}</b></div>`;
-  }
-  $("#paySum").innerHTML = html;
-  // ปุ่มลดให้: โผล่เฉพาะตอนใส่เงินแล้ว เหลือนิดเดียว (ตามที่ตั้งไว้) พ่อต้องกดเอง
-  const showRo = amt > 0 && !disc && ob.count && ob.total <= num(S.set.roundOffMax);
-  $("#payRo").hidden = !showRo;
-  if (showRo) $("#payRoText").textContent = `เหลือ ${money(ob.total)}`;
-  $("#payDiscRow").hidden = !disc; $("#payDiscV").textContent = money(disc);
+// อัปเดตเฉพาะตัวเลข (ไม่วาดใหม่ทั้งหน้าต่าง) ระหว่างพิมพ์ ช่องที่กำลังพิมพ์จะได้ไม่หลุด
+function updatePay() {
+  const P = S.pay; if (!P || !$("#payFoot")) return;
+  const B = P.base, per = B.mode === "period", unit = per ? "งวด" : "วัน", T = payTot(P), ob = obWith(P.id, payLines(P)), ro = num(S.set.roundOffMax);
+  const f = $("#payAmt"); if (f && document.activeElement !== f) f.value = inV(T.r);
+  B.bills.forEach((b, i) => {
+    const key = billId(b), a = ob.bills.find(x => billId(x) === key), after = a ? a.left : 0, pk = P.picks[key];
+    const st = $("#pst" + i), pr = $("#pro" + i);
+    if (st) { st.className = "pst" + (after <= 0.004 ? " ok" : after < b.left - 0.004 ? " part" : ""); st.textContent = after <= 0.004 ? "✓ ครบ" : after < b.left - 0.004 ? `เหลือ ${money(after)}` : ""; }
+    if (pr && pk) {
+      const over = r2(pk.r + pk.dc - b.left);
+      pr.innerHTML = over > 0.004 ? `<span class="warn">เกินยอด ${esc(billLabel(b, per))} ${money(over)} ไปตัด${unit}เก่าสุดก่อน</span>`
+        : P.fixed && pk.r <= 0.004 && pk.dc <= 0.004 ? `<span class="warn">ยอดที่โอนมาลงวันอื่นหมดแล้ว แก้ยอดด้านบน หรือใส่ช่องรับเอง</span>`
+        : after > 0.004 && after <= ro ? `<button class="link" data-act="payRo" data-key="${esc(key)}">ลดเศษ ${money(after)}</button>` : "";
+    }
+  });
+  const picked = Object.keys(P.picks).length;
+  let ex = "";
+  if (picked && P.extra > 0.004) ex += `<div class="ps2">เงินที่เหลือ ${money(P.extra)} ไปตัด${unit}เก่าสุดก่อน</div>`;
+  if (P.exDisc > 0.004) ex += `<div class="frow"><span>ลดให้ ปิดยอด</span><span class="v">${money(P.exDisc)}</span><button class="link" data-act="payExDiscClear">เอาออก</button></div>`;
+  else if (!picked && T.r > 0.004 && ob.count && ob.total <= ro) ex += `<div class="hint"><span>เหลือ ${money(ob.total)}</span><button class="btn" data-act="payExDisc">ลดให้ ปิดยอด</button></div>`;
+  $("#payExtra").innerHTML = ex;
+  $("#payFoot").innerHTML = `<span>รับ <b class="big3">${money(T.r)}</b>${T.d ? ` · ลด <b>${money(T.d)}</b>` : ""}</span>
+    <span>${ob.count ? `หลังรับ ยังค้าง <b>${money(ob.total)}</b>` : ob.credit > 0.004 ? `หลังรับ <b>จ่ายเกิน ${money(ob.credit)}</b>` : `หลังรับ <b>✓ ครบทุกยอด</b>`}</span>`;
   $("#payErr").hidden = true;
+  const cf = payConflict(P), ce = $("#payConf");
+  if (ce) { ce.hidden = !cf; ce.textContent = cf ? `${thShort(P.date)} รับไว้แล้วเป็น${cf.method} ลง${P.method}รวมวันเดียวกันไม่ได้ เลือก${cf.method} หรือเปลี่ยนวันที่เงินเข้า` : ""; }
 }
-function closePay() { S.pay = null; $("#modal").hidden = true; $("#modal").innerHTML = ""; }
+function closePay() { S.pay = null; const m = $("#modal"); m.hidden = true; m.innerHTML = ""; m.classList.remove("paymodal"); }
 async function savePay(del) {
-  const P = S.pay, p = partyById("sale", P.id), err = $("#payErr");
-  if (!P.date) { err.textContent = "เลือกวันที่รับเงิน"; err.hidden = false; return; }
-  if (!del && !num(P.amt) && !num(P.disc) && !P.edit) { err.textContent = "ใส่จำนวนเงินที่รับ"; err.hidden = false; $("#payAmt").focus(); return; }
-  if (num(P.amt) < 0 || num(P.disc) < 0) { err.textContent = "จำนวนเงินติดลบไม่ได้"; err.hidden = false; return; }
-  if (del) { P.amt = ""; P.disc = ""; }
-  const line = payResult(), date = P.date, id = P.id, amt = num(P.amt);
-  if (del && !(await askConfirm(`ลบยอดรับเงินของ ${p.name} วันที่ ${thShort(date)}?`, "ลบ"))) { renderPay(); return; }
-  closePay(); if (S.tick && S.tick.id === id) S.tick = null; // รับเงินแล้ว ล้างที่เลือกไว้
-  const day = S.days[date] || (S.days[date] = { date, lines: {}, buys: {} });
-  day.lines = Object.assign({}, day.lines, { [id]: line });
+  const P = S.pay, p = partyById("sale", P.id), err = $("#payErr"), T = payTot(P);
+  const fail = msg => { err.textContent = msg; err.hidden = false; };
+  if (!P.date) return fail("เลือกวันที่เงินเข้า");
+  const cf = !del && payConflict(P); if (cf) return fail(`${thShort(P.date)} รับไว้แล้วเป็น${cf.method} ลง${P.method}รวมวันเดียวกันไม่ได้`);
+  if (!del && !P.edit && !T.r && !T.d) { fail(`แตะ${P.base.mode === "period" ? "งวด" : "วัน"}ที่ลูกค้าจ่าย หรือพิมพ์ยอดที่โอนมา`); return; }
+  if (P.extra < 0 || P.exDisc < 0 || Object.values(P.picks).some(x => x.r < 0 || x.dc < 0)) return fail("จำนวนเงินติดลบไม่ได้");
+  // แก้จนเหลือ 0 = ลบ
+  if (del || (P.edit && !T.r && !T.d)) {
+    if (!(await askConfirm(`ลบยอดรับเงินของ ${p.name} วันที่ ${thShort(P.from)}?\n(รับ ${money(P.oldPaid)}${P.oldDisc ? ` · ลด ${money(P.oldDisc)}` : ""})`, "ลบ"))) { renderPay(); return; }
+    Object.assign(P, { picks: {}, extra: 0, exDisc: 0, date: P.from }); del = true;
+  }
+  const lines = payLines(P), id = P.id, date = P.date, edit = P.edit, keys = [];
+  closePay();
+  for (const d in lines) {
+    const day = S.days[d] || (S.days[d] = { date: d, lines: {}, buys: {} });
+    day.lines = Object.assign({}, day.lines, { [id]: lines[d] });
+    keys.push(queueLine("sale", d, id, lines[d], p.name));
+    // ถ้าหน้าบันทึกเปิดคนนี้วันนั้นค้างไว้ ให้ยอดรับเงินในร่างตรงกัน (กดลงขายทีหลังจะได้ไม่ทับเงินที่รับ)
+    if (S.draft && S.openId === id && S.date === d && S.entryKind === "sale") { S.draft.paid = String(lines[d].paid || ""); S.draft.disc = String(lines[d].disc || ""); S.draft.method = lines[d].method; }
+  }
   S.dates = Object.keys(S.days).sort();
-  // ถ้าหน้าบันทึกเปิดคนนี้วันนี้ค้างไว้ ให้ยอดรับเงินในร่างตรงกัน (กดลงขายทีหลังจะได้ไม่ทับเงินที่รับ)
-  if (S.draft && S.openId === id && S.date === date && S.entryKind === "sale") { S.draft.paid = String(line.paid || ""); S.draft.disc = String(line.disc || ""); S.draft.method = line.method; }
-  const key = queueLine("sale", date, id, line, p.name);
   if (S.tab === "debts") renderDebts();
   if (S.detail && !$("#drawer").hidden) renderDetail();
   await flushOutbox();
-  const left = S.outbox.find(x => x.key === key), what = del ? `ลบยอดรับเงิน ${p.name}` : P.edit ? `แก้ยอดรับเงิน ${p.name}` : `รับเงิน ${p.name} ${money(amt)}`;
-  if (!left) toast(`${what} แล้ว`);
+  const left = S.outbox.find(x => keys.includes(x.key));
+  const what = del ? `ลบยอดรับเงิน ${p.name} ${thShort(date)}` : edit ? `แก้ยอดรับเงิน ${p.name} ${thShort(date)}` : `รับเงิน ${p.name} ${money(T.r)}${T.d ? ` ลด ${money(T.d)}` : ""} · ${thShort(date)}`;
+  if (!left) toast(`${what} แล้ว`, del ? null : { label: "แก้", fn: () => openPay(id, date, true) });
   else if (left.err) toast(`${what} ไม่สำเร็จ: ${left.err}`);
   else if (!S.needPin) toast(`เน็ตไม่ดี เก็บ${what}ไว้ในเครื่องแล้ว จะส่งให้เองตอนเน็ตกลับมา`);
 }
@@ -1464,7 +1613,7 @@ function statement(k, id, from, to) {
   return { opening, rows, dr: r2(dr), cr: r2(cr), closing: r2(b) };
 }
 function stRange() { return S.stMode === "month" ? monthOf(S.stAnchor) : weekOf(S.stAnchor); }
-function openDetail(k, id) { S.detail = { k, id }; S.tick = null; S.stMode = "week"; S.stAnchor = todayISO(); S.billOpen = false; $("#drawer").hidden = false; renderDetail(); $("#drawer").scrollTop = 0; }
+function openDetail(k, id) { S.detail = { k, id }; S.stMode = "week"; S.stAnchor = todayISO(); S.billOpen = false; $("#drawer").hidden = false; renderDetail(); $("#drawer").scrollTop = 0; }
 function closeDetail() { S.detail = null; S.billOpen = false; S.log = null; $("#drawer").hidden = true; $("#drawer").innerHTML = ""; }
 /* ---------- ประวัติการแก้ไข: เปิดจากหน้าตั้งค่า · ใหม่สุดก่อน · ดูได้ว่าแก้อะไร เมื่อไหร่ จากเครื่องไหน ---------- */
 async function openLog(limit) {
@@ -1611,7 +1760,7 @@ function dayModel(d) {
     if (!t.amt && !t.paid && !t.disc && Math.abs(close) < 0.005) continue;
     const ob = openBills("sale", p.id, d);
     debts.push({ name: p.name, open: balBefore("sale", p.id, d), amt: t.amt, got: r2(t.paid + t.disc), close, total: ob.total,
-      note: leftText(ob) + (t.disc ? ` · รับรวมลดให้ ${money(t.disc)}` : "") });
+      note: leftText(ob) + (t.disc ? ` · ส่วนลด ${money(t.disc)}` : "") });
   }
   return { d, s, sales, debts, books: inBooks(d), owe: r2(debts.reduce((a, x) => a + x.total, 0)) };
 }
@@ -1673,7 +1822,7 @@ async function dayPages(m) {
       else grey("ไม่มีใครค้าง");
       const ms = Object.keys(s.m).map(k => `${k} ${money(s.m[k])}`).join(" · ");
       kv("รับเงินวันนี้" + (ms ? ` (${ms})` : ""), money(s.paid));
-      if (s.disc) kv("ลดให้วันนี้", money(s.disc));
+      if (s.disc) kv("ส่วนลดวันนี้", money(s.disc));
       y += 10; if (draw) { g.fillStyle = "#EEF2FA"; g.fillRect(P - 20, y - 4, IW + 40, 84); } y += 16;
       kv("ลูกหนี้ค้างทั้งหมด", baht(m.owe), true); y += 10;
     }
@@ -1738,62 +1887,61 @@ function throughText(ob) {
   if (per) return (ob.paidThrough ? `จ่ายครบถึงงวดที่สิ้นสุด ${thShort(ob.paidThrough)}` : "ยังไม่ได้จ่ายงวดไหนครบ") + partTxt + skTxt;
   return (ob.paidThrough ? `จ่ายครบถึงยอดวันที่ ${thShort(ob.paidThrough)}` : sk.length ? "ยอดเก่าสุดยังไม่ครบ" : "ยังไม่ได้จ่ายยอดไหนครบ") + partTxt + skTxt;
 }
-/* ---------- เลือกยอดที่ลูกค้าจ่าย: เลือกวัน (หรืองวด) ที่ลูกค้าบอกว่าจ่าย แล้วกดรับเงิน เงินก้อนนั้นตัดวันที่เลือกก่อน ---------- */
+/* ---------- ยอดที่ยังค้าง: แตะวันไหน = เปิดหน้าต่างรับเงินโดยเลือกวันนั้นไว้ให้ (เลือกเพิ่ม/แก้ยอดในหน้าต่างรับเงินที่เดียว) ---------- */
 const billId = b => b.opening ? "open" : b.date;
-function tickedBills(id, ob) {
-  const sel = S.tick && S.tick.id === id ? S.tick.sel : [];
-  return ob.bills.filter(b => sel.includes(billId(b)));
-}
 // น้ำหนัก × ราคา ของวันนั้น ให้พ่อเทียบกับยอดได้เลย (หลายรอบ = บรรทัดละรอบ)
 function calcLines(id, b) {
   if (b.opening) return ["ยอดค้างก่อนเริ่มใช้แอป"];
   const L = [], loads = (((lineOf("sale", b.date, id) || {}).loads) || []).filter(x => !x.skip && num(x.w));
   const many = loads.length > 1 || loads.some(x => labOf(x) || num(x.dd));
   for (const x of loads) {
-    L.push(`${isLive(x) ? "หมูเป็น " : ""}${kg1(num(x.w))} กก. × ${fmtN(num(x.p))}${many ? ` = ${money(num(x.w) * num(x.p))}` : ""}`);
+    L.push(`${isLive(x) ? "หมูเป็น " : ""}${num(x.n) ? `${fmtN(num(x.n), 0)} ตัว · ` : ""}${kg1(num(x.w))} กก. × ${fmtN(num(x.p))}${many ? ` = ${money(num(x.w) * num(x.p))}` : ""}`);
     if (labOf(x)) L.push(`+ ค่าทำ ${fmtN(num(x.n), 0)} ตัว × ${fmtN(num(x.lab))} = ${money(labOf(x))}`);
     if (num(x.dd)) L.push(`− ลดตำหนิ${x.ddn ? ` (${esc(x.ddn)})` : ""} ${money(num(x.dd))}`);
   }
   if (b.left < b.amt - 0.004) L.push(`จ่ายไปแล้ว ${money(b.amt - b.left)}`);
   return L;
 }
-function tickBar(id, ob) {
-  const tb = tickedBills(id, ob); if (!tb.length) return "";
-  const sum = r2(tb.reduce((s, b) => s + b.left, 0)), last = ob.bills.indexOf(tb[tb.length - 1]);
-  const older = ob.bills.slice(0, last).filter(b => !tb.includes(b)).length, unit = ob.mode === "period" ? "งวด" : "ยอด";
-  return `<div class="tickbar"><div class="tbl"><span>เลือก ${tb.length} ${unit} · รวม <b>${money(sum)}</b></span><button class="link" data-act="tickClear">ล้าง</button></div>
-    ${older ? `<button class="link" data-act="tickOlder">＋ เลือก${unit}ที่เก่ากว่านี้ด้วย (${older} ${unit})</button>` : ""}
-    <button class="btn solid" data-act="tickPay">รับเงินยอดที่เลือก</button></div>`;
+// รับเงินล่าสุด 5 ครั้ง (ใหม่สุดก่อน) แตะเพื่อแก้ยอด วันที่ หรือวันที่เลือกไว้
+function recentPaysHTML(id) {
+  const list = [];
+  for (let i = S.dates.length - 1; i >= 0 && list.length < 5; i--) {
+    const d = S.dates[i]; if (!inBooks(d)) break;
+    const l = lineOf("sale", d, id); if (l && (num(l.paid) || num(l.disc))) list.push({ d, l });
+  }
+  if (!list.length) return "";
+  return `<div class="sec">รับเงินล่าสุด <span class="pencil small">· แตะเพื่อแก้</span></div>
+    <div class="rplist">${list.map(({ d, l }) => { const keys = [...new Set(allocGroups(l).flatMap(x => x.k))];
+      return `<button type="button" class="rprow" data-act="payOpen" data-edit="1" data-id="${esc(id)}" data-date="${d}"><span class="rpd">${thShort(d)}</span>
+        <span class="rpm"><span><b>${money(num(l.paid))}</b>${num(l.disc) ? ` · ลด ${money(num(l.disc))}` : ""} <span class="pencil small">${esc(num(l.paid) ? l.method || "" : "")}</span></span>
+        <span class="small pencil">${keys.length ? "ตัด " + esc(allocLabel(keys)) : "ตัดยอดเก่าสุดก่อน"}</span></span><span class="rpe">แก้</span></button>`; }).join("")}</div>`;
 }
 function billsSection(k, id, ob) {
-  const tk = k === "sale", sel = tk ? tickedBills(id, ob) : [];
-  const daily = ob.count && ob.mode !== "period" ? `<div class="sec">ยอดที่ยังค้าง (${ob.count} ยอด)${tk ? ` <span class="pencil small">· เลือกวันที่ลูกค้าจ่าย</span>` : ""}</div>
+  const tk = k === "sale";
+  const daily = ob.count && ob.mode !== "period" ? `<div class="sec">ยอดที่ยังค้าง (${ob.count} ยอด)${tk ? ` <span class="pencil small">· แตะวันที่ลูกค้าจ่าย เพื่อรับเงิน</span>` : ""}</div>
       <table class="lined bills"><colgroup><col style="width:40%"><col style="width:30%"><col style="width:30%"></colgroup>
         <thead><tr><th>วันที่</th><th class="n">ยอด</th><th class="n">เหลือ</th></tr></thead>
         <tbody>${ob.bills.map(b => {
-          const on = sel.includes(b), act = tk ? `class="tap tick${on ? " on" : ""}" data-act="tickBill" data-key="${esc(billId(b))}"` : "", cl = tk ? calcLines(id, b) : [];
-          return `<tr ${act} ${tk ? `role="checkbox" aria-checked="${on}"` : ""}><td>${tk ? `<span class="cb" aria-hidden="true"></span>` : ""}${b.opening ? "ยอดยกมา" : thShort(b.date)}</td><td class="n pencil">${money(b.amt)}</td><td class="n ink">${money(b.left)}</td></tr>`
-            + (cl.length ? `<tr ${tk ? `class="tap calc${on ? " on" : ""}" data-act="tickBill" data-key="${esc(billId(b))}"` : `class="calc"`}><td colspan="3">${cl.join("<br>")}</td></tr>` : "");
+          const act = tk ? `class="tap tick" data-act="payOpen" data-id="${esc(id)}" data-pick="${esc(billId(b))}"` : "", cl = tk ? calcLines(id, b) : [];
+          return `<tr ${act}><td>${b.opening ? "ยอดยกมา" : thShort(b.date)}</td><td class="n pencil">${money(b.amt)}</td><td class="n ink">${money(b.left)}</td></tr>`
+            + (cl.length ? `<tr ${tk ? `class="tap calc" data-act="payOpen" data-id="${esc(id)}" data-pick="${esc(billId(b))}"` : `class="calc"`}><td colspan="3">${cl.join("<br>")}</td></tr>` : "");
         }).join("")}
-        <tr class="tot"><td colspan="2">รวม</td><td class="n"><span class="dbl">${money(ob.total)}</span></td></tr></tbody></table>
-      ${tk ? tickBar(id, ob) : ""}` : "";
+        <tr class="tot"><td colspan="2">รวม</td><td class="n"><span class="dbl">${money(ob.total)}</span></td></tr></tbody></table>` : "";
   if (k !== "sale") return daily;
   if (ob.mode !== "period") return daily + `<div class="actions" style="margin-top:10px"><button class="btn" data-act="cutOpen" data-id="${esc(id)}">ปิดงวด</button></div>
       <p class="note">ลูกค้าที่คิดเงินเป็นงวด กดปิดงวด แล้วยอดตั้งแต่ครั้งก่อนจะรวมเป็น 1 งวด ดูง่ายเหมือนบิล</p>`;
   const start = Math.max(0, ob.all.length - 8), rows = ob.all.slice(start);
-  const selIds = sel.map(billId);
-  // ช่องเลือกแยกเป็นคอลัมน์แรก (แตะส่วนอื่นของแถว = ทำบิลงวดนั้น เหมือนเดิม) · งวดที่ครบแล้วไม่มีช่องเลือก
-  return `<div class="sec">งวดบิล${ob.count ? ` <span class="pencil small">· เลือกงวดที่ลูกค้าจ่าย</span>` : ""}</div>
-    <table class="lined periods"><colgroup><col style="width:10%"><col style="width:30%"><col style="width:30%"><col style="width:30%"></colgroup>
-      <thead><tr><th></th><th>งวด · ช่วง</th><th class="n">ยอด</th><th class="n">ค้าง</th></tr></thead>
-      <tbody>${rows.map((b, i) => { const open = b.left > 0.004, on = open && selIds.includes(billId({ opening: b.opening, date: b.from }));
-        return `<tr class="tap ${b.current ? "cur" : ""}${on ? " on" : ""}" data-act="periodBill" data-id="${esc(id)}" data-i="${start + i}">
-        <td class="tickcell" ${open ? `data-act="tickBill" data-key="${esc(b.opening ? "open" : b.from)}" role="checkbox" aria-checked="${on}" aria-label="เลือก${esc(periodName(b))}"` : ""}>${open ? `<span class="cb${on ? " on" : ""}" aria-hidden="true"></span>` : ""}</td><td class="pn">${periodName(b)}<span class="pencil small">${periodRange(b)}</span></td>
+  // แตะงวด = ทำบิลงวดนั้น · รับเงินงวดไหน เลือกในหน้าต่างรับเงิน
+  return `<div class="sec">งวดบิล</div>
+    <table class="lined periods"><colgroup><col style="width:40%"><col style="width:30%"><col style="width:30%"></colgroup>
+      <thead><tr><th>งวด · ช่วง</th><th class="n">ยอด</th><th class="n">ค้าง</th></tr></thead>
+      <tbody>${rows.map((b, i) => { const open = b.left > 0.004;
+        return `<tr class="tap ${b.current ? "cur" : ""}" data-act="periodBill" data-id="${esc(id)}" data-i="${start + i}">
+        <td class="pn">${periodName(b)}<span class="pencil small">${periodRange(b)}</span></td>
         <td class="n">${money(b.amt)}</td><td class="n">${open ? `<span class="ink">${money(b.left)}</span>` : `<span class="stamp">ครบ</span>`}</td></tr>`; }).join("")}
-      <tr class="tot"><td colspan="3">รวมค้าง</td><td class="n"><span class="dbl">${money(ob.total)}</span></td></tr></tbody></table>
-    ${tickBar(id, ob)}
+      <tr class="tot"><td colspan="2">รวมค้าง</td><td class="n"><span class="dbl">${money(ob.total)}</span></td></tr></tbody></table>
     <div class="actions" style="margin-top:10px"><button class="btn" data-act="cutOpen" data-id="${esc(id)}">ปิดงวด</button><button class="link" data-act="cutUndo" data-id="${esc(id)}" style="color:var(--pencil)">ยกเลิกงวดล่าสุด</button></div>
-    <p class="note">แตะงวดเพื่อทำบิล เลือกได้หลายงวด ส่งเป็นข้อความ รูป หรือ PDF</p>`;
+    <p class="note">แตะงวดเพื่อทำบิล เลือกได้หลายงวด ส่งเป็นรูปเข้า LINE · รับเงินงวดไหน กด "รับเงิน" แล้วแตะงวดนั้น</p>`;
 }
 /* ---------- กล่องปิดงวด ---------- */
 function cutPreview(id, from, to) {
@@ -1860,6 +2008,7 @@ function renderDetail() {
       <div class="actions" style="margin:12px 0">${k === "sale" ? `<button class="btn solid" data-act="payOpen" data-id="${esc(id)}">รับเงิน</button>` : `<button class="btn solid" data-act="gotoEntry" data-kind="${k}" data-id="${esc(id)}">จ่ายเงิน / ลงบัญชีวันนี้</button>`}<button class="btn" data-act="bill">ส่งบิล LINE</button></div>
       <div id="billBox" class="billbox" ${S.billOpen ? "" : "hidden"}>${S.billOpen ? billBoxHTML(k, id) : ""}</div>
       ${billsSection(k, id, ob)}
+      ${k === "sale" ? recentPaysHTML(id) : ""}
       <div class="sec">บัญชีเดินสะพัด</div>
       <div class="periodbar"><div class="seg sm" role="group" aria-label="ช่วง"><button data-act="stMode" data-m="week" aria-pressed="${S.stMode === "week"}">วีค</button><button data-act="stMode" data-m="month" aria-pressed="${S.stMode === "month"}">เดือน</button></div>
         <div class="rangenav"><button class="icon" data-act="stPrev" aria-label="ก่อนหน้า">‹</button><span class="lbl2">${S.stMode === "month" ? thMonth(from) : rangeLabel(from, to)}</span><button class="icon" data-act="stNext" aria-label="ถัดไป">›</button></div></div>
@@ -1881,9 +2030,10 @@ function sumRange() {
 }
 function renderSummary() {
   if (S.sumKind === "pl" && !S.set.buyEnabled) S.sumKind = "cash";
+  if (S.sumKind === "order") S.sumKind = "cust"; // ออเดอร์รวมอยู่ในหน้าลูกค้าแล้ว
   const [from, to] = sumRange();
-  setCover("Summary", { cash: "รายรับ-รายจ่าย", cust: "สรุปลูกค้า", order: "ออเดอร์", pl: "กำไรขาดทุน" }[S.sumKind], S.sumMode === "month" ? thMonth(from) : rangeLabel(from, to));
-  const kinds = [["cash", "รายรับ-รายจ่าย"], ["cust", "ลูกค้า"], ["order", "ออเดอร์"], ...(S.set.buyEnabled ? [["pl", "กำไรขาดทุน"]] : [])];
+  setCover("Summary", { cash: "รายรับ-รายจ่าย", cust: "สรุปลูกค้า", pl: "กำไรขาดทุน" }[S.sumKind], S.sumMode === "month" ? thMonth(from) : rangeLabel(from, to));
+  const kinds = [["cash", "รายรับ-รายจ่าย"], ["cust", "ลูกค้า"], ...(S.set.buyEnabled ? [["pl", "กำไรขาดทุน"]] : [])];
   $("#main").innerHTML = `<div class="page">
     <div class="toolbar"><div class="seg" role="group" aria-label="รายงาน">${kinds.map(([v, t]) => `<button data-act="skind" data-k="${v}" aria-pressed="${S.sumKind === v}">${t}</button>`).join("")}</div>
       <span class="napper" aria-hidden="true"><img src="stickers/beagle-sleep-noz.png" alt="" onerror="this.parentNode.remove()"><i>z</i><i>z</i><i>Z</i></span>
@@ -1895,7 +2045,7 @@ function renderSummary() {
         : `<div class="rangenav"><button class="icon" data-act="sumPrev" aria-label="ก่อนหน้า">‹</button><span class="lbl2">${S.sumMode === "week" ? rangeLabel(from, to) : thMonth(from)}</span><button class="icon" data-act="sumNext" aria-label="ถัดไป">›</button><button class="link" data-act="sumNow">${S.sumMode === "week" ? "วีคนี้" : "เดือนนี้"}</button></div>`}
     </div>
     <div id="copyBox" hidden><textarea class="billtext" id="copyText" readonly aria-label="ตารางสำหรับคัดลอก"></textarea></div>
-    ${S.sumKind === "cash" ? cashHTML(from, to) : S.sumKind === "cust" ? custHTML(from, to) : S.sumKind === "order" ? orderHTML(from, to) : plHTML(from, to)}
+    ${S.sumKind === "cash" ? cashHTML(from, to) : S.sumKind === "cust" ? custHTML(from, to) : plHTML(from, to)}
   </div>`;
 }
 function cashHTML(from, to) {
@@ -1907,7 +2057,7 @@ function cashHTML(from, to) {
   <table class="lined"><colgroup><col style="width:24%"><col style="width:13%"><col style="width:20%"><col style="width:19%"><col style="width:24%"></colgroup>
     <thead><tr><th>ชนิด</th><th class="n">ตัว</th><th class="n">กก.</th><th class="n">เฉลี่ย ฿/กก.</th><th class="n">บาท</th></tr></thead>
     <tbody>${TYPES.map(ty => { const b = P.sale.by[ty] || { n: 0, kg: 0, amt: 0 }; return `<tr><td>${ty}</td><td class="n">${fmtN(b.n, 0)}</td><td class="n">${kg1(b.kg)}</td><td class="n pencil">${b.kg ? fmtN(b.meat / b.kg) : "–"}</td><td class="n ink">${money(b.amt)}</td></tr>`; }).join("")}
-    <tr><td>ลดให้ลูกค้า</td><td class="n pencil" colspan="3">${P.sale.discN} ครั้ง</td><td class="n ink">−${money(P.sale.disc)}</td></tr>
+    ${P.sale.disc ? `<tr><td>ส่วนลด</td><td colspan="3"></td><td class="n ink">−${money(P.sale.disc)}</td></tr>` : ""}
     <tr class="tot"><td>ขายสุทธิ</td><td class="n">${fmtN(P.sale.n, 0)}</td><td class="n">${kg1(P.sale.kg)}</td><td></td><td class="n"><span class="dbl">${money(P.saleNet)}</span></td></tr></tbody></table>
   ${dailyHTML(from, to)}
   <div class="sec">เงินเข้า-ออกจริง</div>
@@ -1972,20 +2122,10 @@ function avgKg(by) {
   const tys = Object.keys(by || {}).filter(ty => by[ty].n);
   return tys.length === 1 && by[tys[0]].kgn ? fmtN(by[tys[0]].kgn / by[tys[0]].n, 1) : "–";
 }
-function orderHTML(from, to) {
-  const v = S.orderView, b0 = x => fmtN(Math.round(x), 0);
-  const seg = `<div class="seg sm" role="group" aria-label="แบบออเดอร์" style="margin:12px 0 2px">${[["day", "รายวัน"], ["cust", "รายคน"]].map(([m, t]) => `<button data-act="orderView" data-v="${m}" aria-pressed="${v === m}">${t}</button>`).join("")}</div>`;
-  if (v === "cust") {
-    const rows = orderCust(from, to), T = rows.reduce((a, o) => ({ n: a.n + o.n, kg: a.kg + o.kg, amt: a.amt + o.amt }), { n: 0, kg: 0, amt: 0 });
-    return seg + (rows.length ? `<table class="lined daily"><colgroup><col style="width:23%"><col style="width:9%"><col style="width:11%"><col style="width:20%"><col style="width:14%"><col style="width:23%"></colgroup>
-      <thead><tr><th>ลูกค้า</th><th class="n">วัน</th><th class="n">ตัว</th><th class="n">กก.</th><th class="n">เฉลี่ย</th><th class="n">บาท</th></tr></thead>
-      <tbody>${rows.map(o => `<tr class="tap" data-act="detail" data-kind="sale" data-id="${esc(o.c.id)}"><td>${esc(o.c.name)}</td><td class="n pencil">${o.days}</td><td class="n">${fmtN(o.n, 0)}</td><td class="n">${kg1(o.kg)}</td><td class="n pencil">${avgKg(o.by)}</td><td class="n ink">${b0(o.amt)}</td></tr>`).join("")}
-      <tr class="tot"><td colspan="2">รวม</td><td class="n">${fmtN(T.n, 0)}</td><td class="n">${b0(T.kg)}</td><td></td><td class="n"><span class="dbl">${b0(T.amt)}</span></td></tr></tbody></table>
-      <p class="note">วัน = จำนวนวันที่สั่งในช่วงนี้ · เฉลี่ย = กก./ตัว (คิดเฉพาะรายการที่ใส่จำนวนตัว · ซื้อทั้งซากและหมูเป็นขึ้น –) · แตะชื่อเพื่อดูบัญชีของคนนั้น</p>` : `<p class="note">ช่วงนี้ยังไม่มีออเดอร์</p>`);
-  }
-  const days = orderDays(from, to);
-  if (!days.length) return seg + `<p class="note">ช่วงนี้ยังไม่มีออเดอร์</p>`;
-  return seg + `<table class="lined daily orders"><colgroup><col style="width:32%"><col style="width:10%"><col style="width:19%"><col style="width:14%"><col style="width:25%"></colgroup>
+function orderDaysHTML(from, to) {
+  const b0 = x => fmtN(Math.round(x), 0), days = orderDays(from, to);
+  if (!days.length) return `<p class="note">ช่วงนี้ยังไม่มีออเดอร์</p>`;
+  return `<table class="lined daily orders"><colgroup><col style="width:32%"><col style="width:10%"><col style="width:19%"><col style="width:14%"><col style="width:25%"></colgroup>
     <thead><tr><th>ลูกค้า</th><th class="n">ตัว</th><th class="n">กก.</th><th class="n">฿/กก.</th><th class="n">บาท</th></tr></thead>
     <tbody>${days.map(({ d, items, s }) => `<tr class="dayhd tap" data-act="gotoDay" data-d="${d}"><td>${DOW_S[parseISO(d).getDay()]} ${thShort(d)}</td><td colspan="4" class="n">${fmtN(s.n, 0)} ตัว · ${b0(s.kg)} กก.${avgKg(s.by) !== "–" ? ` (${avgKg(s.by)}/ตัว)` : ""} · ${b0(s.amt)}</td></tr>`
       + items.map(({ c, x, r }) => `<tr class="tap" data-act="gotoEntry" data-kind="sale" data-id="${esc(c.id)}" data-date="${d}"><td>${esc(c.name)}${r ? ` <span class="pencil small">ร.${r}</span>` : ""}${isLive(x) ? ` <span class="tag">เป็น</span>` : ""}${labOf(x) || num(x.dd) ? ` <span class="pencil small">*</span>` : ""}</td>
@@ -1995,30 +2135,50 @@ function orderHTML(from, to) {
 function custRows(from, to) {
   return S.customers.map(c => ({ c, s: stats("sale", c.id, from, to) })).filter(r => r.c.active !== false || r.s.days || Math.abs(r.s.closing) > 0.004);
 }
+// บรรทัดเล็กใต้ชื่อ: สั่งกี่วัน กี่ตัว เฉลี่ยวันละกี่ตัว (นับเฉพาะวันที่สั่ง)
+function orderLine(o) {
+  return o && o.n ? `เฉลี่ยวันละ ${perDay(o.n, o.days)} ตัว` : "";
+}
+// ตัว/วัน ปัดลง (ไม่ถึง 1 ตัวก็นับ 1) ให้อ่านง่าย
+const perDay = (n, days) => fmtN(Math.max(1, Math.floor(n / days)), 0);
+/** สรุปลูกค้า: รายคน = ยอดเงิน + จำนวนตัวที่สั่ง (รวมออเดอร์รายคนไว้ด้วย) · ออเดอร์รายวัน = ใครสั่งอะไรแต่ละวัน */
 function custHTML(from, to) {
-  const rows = custRows(from, to);
+  const v = S.orderView === "day" ? "day" : "cust";
+  const seg = `<div class="seg sm" role="group" aria-label="แบบสรุปลูกค้า" style="margin:12px 0 2px">${[["cust", "รายคน"], ["day", "ออเดอร์รายวัน"]].map(([m, t]) => `<button data-act="orderView" data-v="${m}" aria-pressed="${v === m}">${t}</button>`).join("")}</div>`;
+  if (v === "day") return seg + orderDaysHTML(from, to);
+  const rows = custRows(from, to), od = {};
+  orderCust(from, to).forEach(o => { od[o.c.id] = o; });
   const T = rows.reduce((a, { s }) => { for (const f of ["opening", "amt", "paid", "disc", "closing"]) a[f] += s[f]; return a; }, { opening: 0, amt: 0, paid: 0, disc: 0, closing: 0 });
+  // ไม่มีส่วนลดเลยในช่วงนี้ = ไม่ต้องมีคอลัมน์ส่วนลด
+  const hasDisc = Math.abs(T.disc) > 0.004, cols = hasDisc ? 6 : 5;
+  const w = hasDisc ? [18, 15, 17, 17, 15, 18] : [22, 17, 20, 20, 21];
+  let n = 0, saleDays = 0;
+  for (const d of S.dates) { if (d < from) continue; if (d > to) break; const s = daySum("sale", d); n += s.n; if (s.kg || s.n) saleDays++; }
   let weeks = "";
   if (S.sumMode === "month") {
     const ws = []; let [w0] = weekOf(from);
     while (w0 <= to) { ws.push([w0, addDays(w0, 6)]); w0 = addDays(w0, 7); }
+    const wk = ws.map(([a, b]) => { let amt = 0, paid = 0, disc = 0; for (let d = a; d <= b; d = addDays(d, 1)) { const s = daySum("sale", d); amt += s.amt; paid += s.paid; disc += s.disc; } return { a, b, amt, paid, disc }; });
+    const wd = wk.some(x => Math.abs(x.disc) > 0.004);
     weeks = `<div class="sec">แยกรายวีค</div>
-      <table class="lined"><colgroup><col style="width:34%"><col style="width:22%"><col style="width:22%"><col style="width:22%"></colgroup>
-      <thead><tr><th>วีค</th><th class="n">ขาย</th><th class="n">รับเงิน</th><th class="n">ลดให้</th></tr></thead>
-      <tbody>${ws.map(([a, b]) => { let amt = 0, paid = 0, disc = 0; for (let d = a; d <= b; d = addDays(d, 1)) { const s = daySum("sale", d); amt += s.amt; paid += s.paid; disc += s.disc; }
-        return `<tr class="tap" data-act="gotoWeek" data-d="${a}"><td>${rangeLabel(a, b)}</td><td class="n ink">${money(amt)}</td><td class="n ink">${money(paid)}</td><td class="n pencil">${money(disc)}</td></tr>`; }).join("")}</tbody></table>
+      <table class="lined"><colgroup>${(wd ? [34, 22, 22, 22] : [40, 30, 30]).map(x => `<col style="width:${x}%">`).join("")}</colgroup>
+      <thead><tr><th>วีค</th><th class="n">ขาย</th><th class="n">รับเงิน</th>${wd ? `<th class="n">ส่วนลด</th>` : ""}</tr></thead>
+      <tbody>${wk.map(x => `<tr class="tap" data-act="gotoWeek" data-d="${x.a}"><td>${rangeLabel(x.a, x.b)}</td><td class="n ink">${money(x.amt)}</td><td class="n ink">${money(x.paid)}</td>${wd ? `<td class="n pencil">${x.disc ? money(x.disc) : ""}</td>` : ""}</tr>`).join("")}</tbody></table>
       <p class="note">วีคที่คร่อมเดือนนับเต็มวีค เหมือนในไฟล์ Excel เดิม</p>`;
   }
-  return `<div class="tblwrap" style="overflow-x:auto"><table class="lined" style="min-width:520px"><colgroup><col style="width:18%"><col style="width:17%"><col style="width:17%"><col style="width:17%"><col style="width:14%"><col style="width:17%"></colgroup>
-    <thead><tr><th>ลูกค้า</th><th class="n">ยกมา</th><th class="n">ขาย</th><th class="n">รับเงิน</th><th class="n">ลดให้</th><th class="n">คงค้าง</th></tr></thead>
-    <tbody>${rows.map(({ c, s }) => `<tr class="tap" data-act="detail" data-kind="sale" data-id="${esc(c.id)}"><td>${esc(c.name)}</td><td class="n pencil">${money(s.opening)}</td><td class="n ink">${money(s.amt)}</td><td class="n ink">${money(s.paid)}</td><td class="n pencil">${money(s.disc)}</td><td class="n ink">${money(s.closing)}</td></tr>`).join("")}
-    <tr class="tot"><td>รวม</td><td class="n">${money(T.opening)}</td><td class="n">${money(T.amt)}</td><td class="n">${money(T.paid)}</td><td class="n">${money(T.disc)}</td><td class="n"><span class="dbl">${money(T.closing)}</span></td></tr></tbody></table></div>${weeks}`;
+  return seg + `<div class="tblwrap" style="overflow-x:auto"><table class="lined custsum" style="min-width:${hasDisc ? 600 : 520}px"><colgroup>${w.map(x => `<col style="width:${x}%">`).join("")}</colgroup>
+    <thead><tr><th>ลูกค้า</th><th class="n">ยกมา</th><th class="n">ขาย</th><th class="n">รับเงิน</th>${hasDisc ? `<th class="n">ส่วนลด</th>` : ""}<th class="n">คงค้าง</th></tr></thead>
+    <tbody>${rows.map(({ c, s }) => { const ol = orderLine(od[c.id]), act = `data-act="detail" data-kind="sale" data-id="${esc(c.id)}"`;
+      return `<tr class="tap${ol ? " tick" : ""}" ${act}><td>${esc(c.name)}</td><td class="n pencil">${s.opening ? money(s.opening) : ""}</td><td class="n ink">${money(s.amt)}</td><td class="n ink">${money(s.paid)}</td>${hasDisc ? `<td class="n pencil">${s.disc ? money(s.disc) : ""}</td>` : ""}<td class="n ink">${money(s.closing)}</td></tr>`
+        + (ol ? `<tr class="tap calc" ${act}><td colspan="${cols}"><span class="ol">${ol}</span></td></tr>` : ""); }).join("")}
+    <tr class="tot"><td>รวม</td><td class="n">${money(T.opening)}</td><td class="n">${money(T.amt)}</td><td class="n">${money(T.paid)}</td>${hasDisc ? `<td class="n">${money(T.disc)}</td>` : ""}<td class="n"><span class="dbl">${money(T.closing)}</span></td></tr></tbody></table></div>
+    ${n ? `<p class="note">ทุกคนรวมกัน เฉลี่ยวันละ ${perDay(n, saleDays)} ตัว (นับเฉพาะวันที่สั่ง) · แตะชื่อเพื่อดูบัญชีของคนนั้น</p>` : ""}${weeks}`;
 }
 function plHTML(from, to) {
   const P = periodTotals(from, to), cats = Object.keys(P.exp.cat);
   const row = (l, v, cls = "") => `<tr class="${cls}"><td>${l}</td><td class="n ink">${v < 0 ? "(" + money(-v) + ")" : money(v)}</td></tr>`;
   return `<table class="lined"><colgroup><col style="width:68%"><col style="width:32%"></colgroup><tbody>
-    ${row("ขายหมู", P.sale.amt)}${row("หัก ลดให้ลูกค้า", -P.sale.disc)}${row("ขายสุทธิ", P.saleNet, "tot")}
+    ${row("ขายหมู", P.sale.amt)}${row("หัก ส่วนลด", -P.sale.disc)}${row("ขายสุทธิ", P.saleNet, "tot")}
     ${row("ซื้อหมูจากฟาร์ม", P.buy.amt)}${row("หัก ส่วนลดจากฟาร์ม", -P.buy.disc)}${row("ต้นทุนสุทธิ", P.buyNet, "tot")}
     ${row("กำไรขั้นต้น", P.gross, "tot")}${cats.map(c => row(esc(c), P.exp.cat[c])).join("")}${row("รวมค่าใช้จ่าย", P.exp.total, "tot")}
     <tr class="tot"><td>กำไร (ขาดทุน) สุทธิ</td><td class="n"><span class="dbl">${P.net < 0 ? "(" + money(-P.net) + ")" : money(P.net)}</span></td></tr></tbody></table>
@@ -2026,20 +2186,19 @@ function plHTML(from, to) {
 }
 function reportTsv() {
   const [f, t] = sumRange(), L = [];
-  if (S.sumKind === "cust") {
-    L.push([`สรุปลูกค้า ${rangeLabel(f, t)}`], ["ลูกค้า", "ยกมา", "ขาย", "รับเงิน", "ลดให้", "คงค้าง"]);
-    custRows(f, t).forEach(({ c, s }) => L.push([c.name, s.opening, s.amt, s.paid, s.disc, s.closing]));
-  } else if (S.sumKind === "order" && S.orderView === "cust") {
-    L.push([`ออเดอร์รายคน ${rangeLabel(f, t)}`], ["ลูกค้า", "วัน", "ตัว", "กก.", "เฉลี่ย กก./ตัว", "บาท"]);
-    orderCust(f, t).forEach(o => L.push([o.c.name, o.days, o.n, r2(o.kg), avgKg(o.by), r2(o.amt)]));
-  } else if (S.sumKind === "order") {
+  if (S.sumKind === "cust" && S.orderView !== "day") {
+    const od = {}; orderCust(f, t).forEach(o => { od[o.c.id] = o; });
+    L.push([`สรุปลูกค้า ${rangeLabel(f, t)}`], ["ลูกค้า", "ยกมา", "ขาย", "รับเงิน", "ส่วนลด", "คงค้าง", "วันที่สั่ง", "ตัว", "เฉลี่ยตัว/วัน", "กก."]);
+    custRows(f, t).forEach(({ c, s }) => { const o = od[c.id];
+      L.push([c.name, s.opening, s.amt, s.paid, s.disc, s.closing, o ? o.days : 0, o ? o.n : 0, o && o.n ? r2(o.n / o.days) : "", o ? r2(o.kg) : 0]); });
+  } else if (S.sumKind === "cust") {
     L.push([`ออเดอร์รายวัน ${rangeLabel(f, t)}`], ["วันที่", "ลูกค้า", "รอบ", "ชนิด", "ตัว", "กก.", "ราคา/กก.", "ค่าทำ", "ลดตำหนิ", "บาท"]);
     orderDays(f, t).forEach(({ d, items }) => items.forEach(({ c, x, r }) => L.push([thShort(d), c.name, r || "", x.t || "ซาก", num(x.n), num(x.w), num(x.p), r2(labOf(x)), num(x.dd), r2(loadAmt(x))])));
   } else {
     const P = periodTotals(f, t);
     L.push([`รายรับ-รายจ่าย ${rangeLabel(f, t)}`]);
     TYPES.forEach(ty => { const b = P.sale.by[ty] || { n: 0, kg: 0, amt: 0 }; L.push([`ขาย${ty}`, b.n + " ตัว", b.kg + " กก.", r2(b.amt)]); });
-    L.push(["ลดให้ลูกค้า", "", "", -P.sale.disc], ["ขายสุทธิ", "", "", P.saleNet], ["รับเงิน", ...METHODS.map(m => `${m} ${P.sale.m[m] || 0}`), P.sale.paid]);
+    L.push(["ส่วนลด", "", "", -P.sale.disc], ["ขายสุทธิ", "", "", P.saleNet], ["รับเงิน", ...METHODS.map(m => `${m} ${P.sale.m[m] || 0}`), P.sale.paid]);
     Object.keys(P.exp.cat).forEach(c => L.push([c, "", "", P.exp.cat[c]]));
     L.push(["รวมรายจ่าย", "", "", P.exp.total]);
   }
@@ -2214,7 +2373,12 @@ function saveConfigToast(ok) { backend.saveConfig().then(() => toast(ok)).catch(
 
 /* ================= toast, confirm, copy ================= */
 let toastT;
-function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2600); }
+// act = { label, fn } ปุ่มเล็กในข้อความ (เช่น "แก้" หลังรับเงิน) ค้างไว้นานขึ้นให้ทันกด
+function toast(msg, act) {
+  const t = $("#toast"); t.textContent = msg; t.classList.toggle("act", !!act);
+  if (act) { const b = document.createElement("button"); b.type = "button"; b.className = "tbtn"; b.textContent = act.label; b.onclick = () => { t.classList.remove("show"); act.fn(); }; t.append(b); }
+  t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), act ? 5000 : 2600);
+}
 function askConfirm(msg, ok = "ยืนยัน") {
   return new Promise(res => {
     const m = $("#modal");
@@ -2312,39 +2476,24 @@ document.addEventListener("click", async e => {
       backend.saveExpense({ id, deleted: true }).then(() => toast("ลบรายจ่ายแล้ว")).catch(() => { toast("ลบไม่สำเร็จ"); loadAll(true); }); break;
     }
     case "dfilter": S.debtFilter = b.dataset.f; renderDebts(); break;
-    case "payOpen": openPay(b.dataset.id, b.dataset.date, b.dataset.edit === "1"); break;
-    case "tickBill": case "tickOlder": case "tickClear": {
-      const { id } = S.detail, ob = openBills("sale", id, "9999-12-31"), y0 = $("#drawer").scrollTop;
-      const sel = new Set(S.tick && S.tick.id === id ? S.tick.sel : []);
-      if (act === "tickBill") { const key = b.dataset.key; if (sel.has(key)) sel.delete(key); else sel.add(key); }
-      if (act === "tickOlder") { const tb = tickedBills(id, ob), last = ob.bills.indexOf(tb[tb.length - 1]); ob.bills.slice(0, last).forEach(x => sel.add(billId(x))); }
-      S.tick = act === "tickClear" || !sel.size ? null : { id, sel: [...sel] };
-      renderDetail(); $("#drawer").scrollTop = y0; break;
-    }
-    case "tickPay": {
-      const { id } = S.detail, tb = tickedBills(id, openBills("sale", id, "9999-12-31")); if (!tb.length) break;
-      openPay(id, todayISO(), false, tb.map(billId)); break;
-    }
-    case "payPick": case "payPickOlder": case "payPickClear": {
-      // เลือกยอดในหน้าต่างรับเงิน · ถ้าพ่อยังไม่ได้พิมพ์จำนวนเงินเอง ใส่ยอดรวมที่เลือกให้
-      const P = S.pay, sel = new Set(P.sel);
-      if (act === "payPick") { const key = b.dataset.key; if (sel.has(key)) sel.delete(key); else sel.add(key); }
-      if (act === "payPickOlder") { const { ob, bills } = paySel(P), last = ob.bills.indexOf(bills[bills.length - 1]); ob.bills.slice(0, last).forEach(x => sel.add(billId(x))); }
-      P.sel = act === "payPickClear" ? [] : [...sel];
-      if (P.amtAuto) P.amt = P.sel.length ? String(paySel(P).sum) : "";
-      renderPay(); break;
-    }
-    case "payUntick": S.pay.clearAlloc = true; renderPay(); break;
-    case "payEdit": { const old = payLineOf(S.pay.id, S.pay.date); Object.assign(S.pay, { sel: [], edit: true, amt: num(old.paid) ? String(old.paid) : "", disc: num(old.disc) ? String(old.disc) : "", method: old.method || S.pay.method, note: old.note || "", showNote: !!old.note }); renderPay(); $("#payAmt").focus(); break; }
+    case "payOpen": openPay(b.dataset.id, b.dataset.date, b.dataset.edit === "1", b.dataset.pick ? [b.dataset.pick] : null); break;
+    case "payPick": togglePick(S.pay, b.dataset.key); renderPay(); break;
+    // ช่องลดให้ของวันนั้น ซ่อนไว้จนกว่าจะกด (ไม่ต้องเห็น 0 ทุกวัน)
+    case "payDc": { const pk = S.pay.picks[b.dataset.key]; if (!pk) break; pk.showDc = true; renderPay(); const f = document.getElementById("pdc-" + b.dataset.key); if (f) f.focus(); break; }
+    case "payDay": S.pay.date = b.dataset.d; renderPay(); break;
+    case "payMethod": S.pay.method = b.dataset.m; renderPay(); break;
+    case "payEdit": openPay(S.pay.id, S.pay.date, true); break;
     case "payCancel": closePay(); break;
     case "paySave": savePay(false); break;
     case "payDelete": savePay(true); break;
-    case "payNoteShow": S.pay.showNote = true; renderPay(); $("#payNote").focus(); break;
-    case "payDiscClear": S.pay.disc = ""; updatePaySum(); break;
-    case "payRoundOff": {
-      const ob = obWith(S.pay.id, S.pay.date, payResult()); if (!ob.count) return;
-      S.pay.disc = String(ob.total); updatePaySum(); toast(`ลดให้ ${money(ob.total)} ปิดยอด กด "${S.pay.edit ? "บันทึกที่แก้" : "ลงรับเงิน"}" เพื่อบันทึก`); break;
+    case "payNoteShow": { const P = S.pay; if (!P.edit) P.note = payLineOf(P.id, P.date).note || ""; P.showNote = true; renderPay(); $("#payNote").focus(); break; }
+    // ลดเศษของวันนั้น (เหลือไม่เกินที่ตั้งไว้) · ลดให้ปิดยอดทั้งคน (ตอนไม่ได้เลือกวัน) · พ่อต้องกดเองทุกครั้ง
+    case "payRo": {
+      const P = S.pay, key = b.dataset.key, pk = P.picks[key], ob = obWith(P.id, payLines(P)), a = ob.bills.find(x => billId(x) === key);
+      if (pk && a) { pk.dc = r2(pk.dc + a.left); renderPay(); } break;
     }
+    case "payExDisc": { const P = S.pay, ob = obWith(P.id, payLines(P)); if (ob.count) { P.exDisc = r2(P.exDisc + ob.total); updatePay(); } break; }
+    case "payExDiscClear": S.pay.exDisc = 0; updatePay(); break;
     case "detail": openDetail(b.dataset.kind || "sale", b.dataset.id); break;
     case "closeDetail": closeDetail(); break;
     case "cutOpen": openCut(b.dataset.id); break;
@@ -2445,8 +2594,13 @@ document.addEventListener("input", e => {
   if (t.closest("#panel") && S.draft && t.dataset.f) {
     if (t.dataset.i != null) S.draft.loads[+t.dataset.i][t.dataset.f] = t.value; else S.draft[t.dataset.f] = t.value;
     S.dirty = true; updatePanelCalc();
-  } else if (t.dataset.pf && S.pay && t.dataset.pf !== "date") {
-    S.pay[t.dataset.pf] = t.value; if (t.dataset.pf === "amt") S.pay.amtAuto = false; updatePaySum();
+  } else if (t.dataset.pf && S.pay) {
+    if (t.dataset.pf === "total") { setTotal(S.pay, num(t.value)); renderPayInputs(); } else S.pay[t.dataset.pf] = t.value;
+    updatePay();
+  } else if (t.dataset.pr && S.pay) {
+    // แก้ช่องรับ/ลดของวันนั้น (ช่องรับอาจเปลี่ยนตามลดให้)
+    setPick(S.pay, t.dataset.key, t.dataset.pr, num(t.value)); renderPayInputs();
+    updatePay();
   } else if (t.dataset.ef && S.expDraft) {
     S.expDraft[t.dataset.ef] = t.value;
     if (t.dataset.ef === "amount" && S.expDraft.err) { S.expDraft.err = ""; $("#eErr").hidden = true; }
@@ -2456,6 +2610,9 @@ document.addEventListener("change", e => {
   const t = e.target;
   if (t.id === "cutFrom" || t.id === "cutTo") { updateCutSum(t.dataset.id); return; }
   if (t.id === "payDate" && S.pay) { if (t.value) { S.pay.date = t.value; renderPay(); } else t.value = S.pay.date; return; }
+  // พิมพ์เสร็จแล้ว (ออกจากช่อง) โชว์ตัวเลขแบบมีลูกน้ำ
+  if (S.pay && t.dataset.pf === "total") { S.pay.snap = null; t.value = inV(payTot(S.pay).r); return; }
+  if (S.pay && t.dataset.pr) { const pk = S.pay.picks[t.dataset.key]; if (pk) t.value = inV(pk[t.dataset.pr]); return; }
   if (t.id === "sDev") { const v = t.value.trim().slice(0, 40); try { if (v) localStorage.setItem(LS_DEV, v); else localStorage.removeItem(LS_DEV); } catch (err) { /* storage blocked */ } t.value = devName(); toast(`เครื่องนี้ชื่อ "${devName()}" แล้ว`); return; }
   if (t.id === "dateInput" && t.value) changeDate(t.value);
   else if (t.dataset.price) {
