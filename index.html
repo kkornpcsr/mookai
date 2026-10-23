@@ -2135,10 +2135,12 @@ function orderDaysHTML(from, to) {
 function custRows(from, to) {
   return S.customers.map(c => ({ c, s: stats("sale", c.id, from, to) })).filter(r => r.c.active !== false || r.s.days || Math.abs(r.s.closing) > 0.004);
 }
-// บรรทัดเล็กใต้ชื่อ: สั่งกี่วัน กี่ตัว เฉลี่ยวันละกี่ตัว (นับเฉพาะวันที่สั่ง)
-function orderLine(o) {
-  return o && o.n ? `เฉลี่ยวันละ ${perDay(o.n, o.days)} ตัว` : "";
+// บรรทัดเล็กใต้ชื่อ: สั่งกี่วันจากกี่วัน (วีค 7/7 = สั่งทุกวัน) · เฉลี่ยวันละกี่ตัว (นับเฉพาะวันที่สั่ง)
+function orderLine(o, span) {
+  return o ? `สั่ง ${o.days}/${span} วัน${o.n ? ` · เฉลี่ยวันละ ${perDay(o.n, o.days)} ตัว` : ""}` : "";
 }
+// จำนวนวันของช่วงที่เลือก นับถึงวันนี้ (เดือนนี้ยังไม่จบ ไม่นับวันที่ยังไม่ถึง)
+const spanDays = (from, to) => { const end = to < todayISO() ? to : todayISO(); return end < from ? 0 : daysBetween(from, end) + 1; };
 // ตัว/วัน ปัดลง (ไม่ถึง 1 ตัวก็นับ 1) ให้อ่านง่าย
 const perDay = (n, days) => fmtN(Math.max(1, Math.floor(n / days)), 0);
 /** สรุปลูกค้า: รายคน = ยอดเงิน + จำนวนตัวที่สั่ง (รวมออเดอร์รายคนไว้ด้วย) · ออเดอร์รายวัน = ใครสั่งอะไรแต่ละวัน */
@@ -2150,8 +2152,9 @@ function custHTML(from, to) {
   orderCust(from, to).forEach(o => { od[o.c.id] = o; });
   const T = rows.reduce((a, { s }) => { for (const f of ["opening", "amt", "paid", "disc", "closing"]) a[f] += s[f]; return a; }, { opening: 0, amt: 0, paid: 0, disc: 0, closing: 0 });
   // ไม่มีส่วนลดเลยในช่วงนี้ = ไม่ต้องมีคอลัมน์ส่วนลด
-  const hasDisc = Math.abs(T.disc) > 0.004, cols = hasDisc ? 6 : 5;
-  const w = hasDisc ? [18, 15, 17, 17, 15, 18] : [22, 17, 20, 20, 21];
+  // ไม่มียกมา (คงค้างบอกอยู่แล้ว) · ตัว = จำนวนหมูที่สั่งในช่วงนี้
+  const hasDisc = Math.abs(T.disc) > 0.004, cols = hasDisc ? 6 : 5, span = spanDays(from, to);
+  const w = hasDisc ? [19, 9, 19, 19, 14, 20] : [21, 10, 23, 23, 23];
   let n = 0, saleDays = 0;
   for (const d of S.dates) { if (d < from) continue; if (d > to) break; const s = daySum("sale", d); n += s.n; if (s.kg || s.n) saleDays++; }
   let weeks = "";
@@ -2166,13 +2169,13 @@ function custHTML(from, to) {
       <tbody>${wk.map(x => `<tr class="tap" data-act="gotoWeek" data-d="${x.a}"><td>${rangeLabel(x.a, x.b)}</td><td class="n ink">${money(x.amt)}</td><td class="n ink">${money(x.paid)}</td>${wd ? `<td class="n pencil">${x.disc ? money(x.disc) : ""}</td>` : ""}</tr>`).join("")}</tbody></table>
       <p class="note">วีคที่คร่อมเดือนนับเต็มวีค เหมือนในไฟล์ Excel เดิม</p>`;
   }
-  return seg + `<div class="tblwrap" style="overflow-x:auto"><table class="lined custsum" style="min-width:${hasDisc ? 600 : 520}px"><colgroup>${w.map(x => `<col style="width:${x}%">`).join("")}</colgroup>
-    <thead><tr><th>ลูกค้า</th><th class="n">ยกมา</th><th class="n">ขาย</th><th class="n">รับเงิน</th>${hasDisc ? `<th class="n">ส่วนลด</th>` : ""}<th class="n">คงค้าง</th></tr></thead>
-    <tbody>${rows.map(({ c, s }) => { const ol = orderLine(od[c.id]), act = `data-act="detail" data-kind="sale" data-id="${esc(c.id)}"`;
-      return `<tr class="tap${ol ? " tick" : ""}" ${act}><td>${esc(c.name)}</td><td class="n pencil">${s.opening ? money(s.opening) : ""}</td><td class="n ink">${money(s.amt)}</td><td class="n ink">${money(s.paid)}</td>${hasDisc ? `<td class="n pencil">${s.disc ? money(s.disc) : ""}</td>` : ""}<td class="n ink">${money(s.closing)}</td></tr>`
+  return seg + `<div class="tblwrap" style="overflow-x:auto"><table class="lined custsum" style="min-width:${hasDisc ? 560 : 480}px"><colgroup>${w.map(x => `<col style="width:${x}%">`).join("")}</colgroup>
+    <thead><tr><th>ลูกค้า</th><th class="n">ตัว</th><th class="n">ขาย</th><th class="n">รับเงิน</th>${hasDisc ? `<th class="n">ส่วนลด</th>` : ""}<th class="n">คงค้าง</th></tr></thead>
+    <tbody>${rows.map(({ c, s }) => { const o = od[c.id], ol = orderLine(o, span), act = `data-act="detail" data-kind="sale" data-id="${esc(c.id)}"`;
+      return `<tr class="tap${ol ? " tick" : ""}" ${act}><td>${esc(c.name)}</td><td class="n">${o && o.n ? fmtN(o.n, 0) : ""}</td><td class="n ink">${money(s.amt)}</td><td class="n ink">${money(s.paid)}</td>${hasDisc ? `<td class="n pencil">${s.disc ? money(s.disc) : ""}</td>` : ""}<td class="n ink">${money(s.closing)}</td></tr>`
         + (ol ? `<tr class="tap calc" ${act}><td colspan="${cols}"><span class="ol">${ol}</span></td></tr>` : ""); }).join("")}
-    <tr class="tot"><td>รวม</td><td class="n">${money(T.opening)}</td><td class="n">${money(T.amt)}</td><td class="n">${money(T.paid)}</td>${hasDisc ? `<td class="n">${money(T.disc)}</td>` : ""}<td class="n"><span class="dbl">${money(T.closing)}</span></td></tr></tbody></table></div>
-    ${n ? `<p class="note">ทุกคนรวมกัน เฉลี่ยวันละ ${perDay(n, saleDays)} ตัว (นับเฉพาะวันที่สั่ง) · แตะชื่อเพื่อดูบัญชีของคนนั้น</p>` : ""}${weeks}`;
+    <tr class="tot"><td>รวม</td><td class="n">${n ? fmtN(n, 0) : ""}</td><td class="n">${money(T.amt)}</td><td class="n">${money(T.paid)}</td>${hasDisc ? `<td class="n">${money(T.disc)}</td>` : ""}<td class="n"><span class="dbl">${money(T.closing)}</span></td></tr></tbody></table></div>
+    ${n ? `<p class="note">รวม ${fmtN(n, 0)} ตัว · มีขาย ${saleDays}/${span} วัน · ทุกคนรวมกันเฉลี่ยวันละ ${perDay(n, saleDays)} ตัว (นับเฉพาะวันที่มีขาย) · แตะชื่อเพื่อดูบัญชีของคนนั้น</p>` : ""}${weeks}`;
 }
 function plHTML(from, to) {
   const P = periodTotals(from, to), cats = Object.keys(P.exp.cat);
