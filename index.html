@@ -204,6 +204,13 @@ select.fld{text-align:left}
 .lextra label{flex:0 0 34%}
 .lextra label + label{flex:1 1 auto}
 .lextra .pencil{padding-bottom:10px}
+/* ขายอื่นๆ ทั้งวัน (เลือด ไส้) ใส่เป็นบาท ขึ้นทุกคน */
+.othrow{margin:6px 0 4px;max-width:240px}
+.othrow .fld{text-align:right}
+.exl{display:block;font-size:11.5px;line-height:1.3;color:var(--pencil);font-weight:400}
+/* ตั้งค่า: ลูกค้าที่ปิด "ใช้งาน" (เลิกซื้อแล้ว) จางลง */
+.settbl tr.off td{opacity:.5}
+.settbl tr.off td:last-child{opacity:1}
 .ddlink{font-size:13.5px;color:var(--pencil);margin-top:4px;min-height:32px}
 .pkeep{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-height:32px;font-size:12.5px;color:var(--pencil);cursor:pointer}
 .pkeep[hidden]{display:none}
@@ -224,14 +231,24 @@ select.fld{text-align:left}
 .panel-actions.one{grid-template-columns:1fr}
 /* แท็บรับเงิน: ชื่อ + บรรทัดเล็ก · ยอดค้าง · ปุ่มรับเงิน */
 .paylist{border-top:1.5px solid var(--margin)}
-.prow{display:flex;align-items:center;gap:8px;min-height:60px;border-bottom:1px solid var(--rule)}
-.pwho{flex:1;min-width:0;border:0;background:none;text-align:left;padding:6px 0 6px 6px;display:grid;gap:1px;cursor:pointer;color:var(--text);font:inherit}
-.pwho:hover{background:var(--tint)}
+.prow{display:flex;align-items:center;gap:8px;width:100%;min-height:62px;padding:0 4px 0 0;border:0;border-bottom:1px solid var(--rule);background:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.prow:hover,.prow:active{background:var(--tint)}
+.pwho{flex:1;min-width:0;padding:6px 0 6px 6px;display:grid;gap:1px;color:var(--text)}
+
 .pwho .nm{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pwho .sb{font-size:12.5px;color:var(--pencil);line-height:1.35}
 .pwho .sb span{white-space:nowrap}
 .pamt{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink);white-space:nowrap;font-size:16px}
-.pbtn{flex:none;min-height:40px;padding:0 12px;font-size:14.5px}
+/* แถวลูกค้าทั้งแถวกดได้ ป้าย "รับเงิน ›" บอกว่าแตะแล้วไปไหน */
+.pgo{flex:none;font-size:14px;font-weight:600;color:var(--ink);border:1.5px solid var(--ink);border-radius:6px;padding:7px 10px;white-space:nowrap}
+.payhead .pbill{flex:none;min-height:36px;padding:0 14px;font-size:15px;margin-top:-4px}
+/* หน้าบิล: แถวบิล (แตะเลือกส่ง) + ปุ่มแก้ */
+.bmrow{display:flex;align-items:center;border-bottom:1px solid var(--rule);background:var(--paper)}
+.bmrow:last-child{border-bottom:0}
+.bmrow.on{background:#EEF3FC}
+.bmpick{flex:1;min-width:0;display:flex;align-items:flex-start;gap:10px;min-height:56px;padding:10px;border:0;background:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.bmpick .cb{margin:1px 0 0}
+.bmedit{flex:none;min-height:44px;padding:0 14px;font-weight:700}
 /* หน้าต่างรับเงิน: หัว (ชื่อ ยอดค้าง) กับท้าย (ยอดรวม + ปุ่มลงรับเงิน) อยู่กับที่ ตรงกลางเลื่อนได้ ปุ่มไม่หลุดจอ */
 .modal.paymodal{padding:8px;place-items:start center}
 .modal-card.paybox{max-width:440px;padding:0;gap:0;display:flex;flex-direction:column;max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);overflow:hidden}
@@ -291,6 +308,8 @@ select.fld{text-align:left}
 .rprow{display:flex;align-items:center;gap:10px;width:100%;min-height:54px;padding:6px 4px;border:0;border-bottom:1px solid var(--rule);background:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
 .rprow:hover{background:var(--tint)}
 .rpd{width:62px;flex:none;font-weight:600}
+.rprow.ro{cursor:default}
+.rprow.ro:hover{background:none}
 .rpm{flex:1;min-width:0;display:grid;line-height:1.35}
 .rpm b{color:var(--ink);font-variant-numeric:tabular-nums}
 .rpe{color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:3px;font-size:14.5px;padding:0 4px}
@@ -425,7 +444,9 @@ const isLive = x => !!x && x.t === "หมูเป็น";
 const labOf = x => isLive(x) ? num(x.n) * num(x.lab) : 0;
 const loadAmt = x => num(x.w) * num(x.p) + labOf(x) - num(x.dd);
 function lineTotals(l) {
-  const t = { kg: 0, n: 0, kgn: 0, amt: 0, lab: 0, dd: 0, ddn: [], paid: num(l && l.paid), disc: num(l && l.disc), method: (l && l.method) || "เงินสด", by: {} };
+  // oth = ขายอื่นๆ ทั้งวัน (เลือด ไส้ ฯลฯ) ใส่เป็นบาท รวมอยู่ในยอดขาย แต่ไม่เข้าชนิดซาก/หมูเป็น
+  const oth = num(l && l.oth);
+  const t = { kg: 0, n: 0, kgn: 0, amt: oth, oth, lab: 0, dd: 0, ddn: [], paid: num(l && l.paid), disc: num(l && l.disc), method: (l && l.method) || "เงินสด", by: {} };
   for (const x of (l && l.loads) || []) {
     if (x.skip) continue;
     const w = num(x.w), n = num(x.n), a = loadAmt(x), ty = x.t === "หมูเป็น" ? "หมูเป็น" : "ซาก";
@@ -443,6 +464,7 @@ function loadsDesc(t, k) {
   const parts = Object.keys(t.by).map(ty => `${k === "sale" ? ty + " " : ""}${t.by[ty].n ? fmtN(t.by[ty].n, 0) + " ตัว " : ""}${kg1(t.by[ty].kg)} กก.`);
   if (t.lab) parts.push(`ค่าทำ ${money(t.lab)}`);
   if (t.dd) parts.push(`ลดตำหนิ${t.ddn.length ? ` (${t.ddn.join(", ")})` : ""} −${money(t.dd)}`);
+  if (t.oth) parts.push(`อื่นๆ ${money(t.oth)}`);
   return parts.join(" · ");
 }
 /** ชนิดที่ลูกค้าคนนี้ซื้อครั้งล่าสุดในรอบนี้ (คนซื้อหมูเป็นประจำ จะได้ไม่ต้องกดเปลี่ยนทุกวัน) */
@@ -538,15 +560,17 @@ const allocOf = l => (l && Array.isArray(l.alloc) ? l.alloc : []).filter(x => x 
 function settle(debits, pays) {
   const dayLeft = {};
   for (const x of debits) { x.left = x.amt; for (const d in x.dm) dayLeft[d] = x.dm[d]; }
-  const take = (x, d, c) => { const t = Math.min(c, dayLeft[d], x.left); if (t <= 0) return 0; dayLeft[d] -= t; x.left -= t; return t; };
+  // จดไว้ด้วยว่าเงินก้อนไหนตัดวันไหนไปเท่าไร (p.cut) ไว้โชว์ในสมุดลูกหนี้
+  const take = (p, x, d, c) => { const t = Math.min(c, dayLeft[d], x.left); if (t <= 0) return 0; dayLeft[d] -= t; x.left -= t; p.cut[d] = (p.cut[d] || 0) + t; return t; };
   let extra = 0;
   for (const p of pays) {
-    let c = p.c;
-    if (p.alloc.length) { const want = new Set(p.alloc); for (const x of debits) for (const d in x.dm) { if (c <= 0.004) break; if (want.has(d)) c -= take(x, d, c); } }
-    for (const x of debits) for (const d in x.dm) { if (c <= 0.004) break; c -= take(x, d, c); }
-    extra += c;
+    let c = p.c; p.cut = {};
+    if (p.alloc.length) { const want = new Set(p.alloc); for (const x of debits) for (const d in x.dm) { if (c <= 0.004) break; if (want.has(d)) c -= take(p, x, d, c); } }
+    for (const x of debits) for (const d in x.dm) { if (c <= 0.004) break; c -= take(p, x, d, c); }
+    p.over = c > 0.004 ? r2(c) : 0; extra += c;
   }
-  for (const x of debits) x.left = x.left <= 0.004 ? 0 : r2(x.left);
+  // จ่ายแล้วของแต่ละวัน = ยอดวันนั้น − ที่ยังค้าง
+  for (const x of debits) { x.left = x.left <= 0.004 ? 0 : r2(x.left); x.paidBy = {}; for (const d in x.dm) x.paidBy[d] = r2(x.dm[d] - Math.max(0, dayLeft[d])); }
   return r2(extra);
 }
 // เงินในวันนั้นที่เป็นก้อน "เลือกวัน" (allocAmt) · ไม่มี allocAmt = ทั้งวัน · ส่วนที่เหลือของวันนั้นตัดยอดเก่าสุดก่อน
@@ -577,11 +601,11 @@ function setAlloc(line, groups) {
   return line;
 }
 // เงินรับของวันนั้น (รวมลดให้): ส่วนที่ไม่ได้เลือกวัน (รับไว้ก่อน) ตัดเก่าสุดก่อน แล้วค่อยก้อนที่เลือกวันไว้ทีละก้อน
-function addPay(pays, l, t) {
+function addPay(pays, l, t, d) {
   const c = t.paid + t.disc; if (!c) return;
   const g = allocGroups(l, c), ta = g.reduce((s, x) => s + x.a, 0);
-  if (c - ta > 0.004) pays.push({ c: c - ta, alloc: [] });
-  g.forEach(x => pays.push({ c: x.a, alloc: x.k }));
+  if (c - ta > 0.004) pays.push({ c: c - ta, alloc: [], d });
+  g.forEach(x => pays.push({ c: x.a, alloc: x.k, d }));
 }
 /* ---------- งวดบิล: พ่อเลือกเองว่างวดเริ่ม–จบวันไหน ยอดขายในช่วงนั้นรวมเป็น 1 งวด เงินที่รับตัดยอดเก่าสุดก่อน ---------- */
 const cutsOf = id => ((S.cuts && S.cuts[id]) || []).slice().sort((a, b) => a.date < b.date ? -1 : 1);
@@ -600,7 +624,7 @@ function periodBuckets(id, asOf) {
     if (d > asOf) break;
     if (!inBooks(d)) continue;
     const l = lineOf("sale", d, id); if (!l) continue;
-    const t = lineTotals(l); addPay(pays, l, t); if (!t.amt) continue;
+    const t = lineTotals(l); addPay(pays, l, t, d); if (!t.amt) continue;
     let b = pb.find(x => (!x.from || d >= x.from) && d <= x.to);
     if (!b) {
       if (!lastTo || d > lastTo) b = cur;
@@ -614,20 +638,20 @@ function periodBuckets(id, asOf) {
   list.forEach(b => { b.amt = r2(b.amt); });
   const rem = settle(list, pays);
   const shown = list.filter(b => b.amt > 0.004);
-  return { buckets: shown, credit: shown.every(b => b.left <= 0.004) ? r2(rem) : 0 };
+  return { buckets: shown, credit: shown.every(b => b.left <= 0.004) ? r2(rem) : 0, trace: { debits: list, pays } };
 }
 function periodBills(id, asOf) {
   const pb = periodBuckets(id, asOf), open = pb.buckets.filter(b => b.left > 0.004), ageRef = asOf > todayISO() ? todayISO() : asOf;
   // จ่ายครบถึง = งวดสุดท้ายที่ครบต่อเนื่องจากงวดแรก · งวดใหม่กว่าที่ลูกค้าขอจ่ายข้ามไปก่อน เก็บไว้ใน skipped
   const fo = pb.buckets.findIndex(b => b.left > 0.004), paid = fo < 0 ? pb.buckets : pb.buckets.slice(0, fo);
   const skipped = fo < 0 ? [] : pb.buckets.slice(fo).filter(b => b.left <= 0.004).map(b => ({ date: b.from, to: b.to, opening: !!b.opening, current: !!b.current, gap: !!b.gap, no: b.no }));
-  return { mode: "period", all: pb.buckets, credit: open.length ? 0 : pb.credit, skipped,
+  return { mode: "period", all: pb.buckets, credit: open.length ? 0 : pb.credit, skipped, trace: pb.trace,
     bills: open.map(b => ({ date: b.from, to: b.to, amt: b.amt, left: b.left, opening: !!b.opening, current: !!b.current, no: b.no, keys: Object.keys(b.dm), age: Math.max(0, daysBetween(b.from, ageRef)) })),
     total: r2(open.reduce((s, b) => s + b.left, 0)), count: open.length, closedOpen: open.filter(b => !b.current).length,
     cur: (open.find(b => b.current) || {}).left || 0, paidThrough: paid.length ? paid[paid.length - 1].to : null, oldest: open.length ? open[0].from : null };
 }
 function oweText(ob) {
-  if (ob.mode === "period") return [ob.closedOpen ? `${ob.closedOpen} งวด` : "", ob.cur > 0.004 ? "งวดนี้" : ""].filter(Boolean).join(" + ");
+  if (ob.mode === "period") return [ob.closedOpen ? `${ob.closedOpen} บิล` : "", ob.cur > 0.004 ? "ยังไม่รวมบิล" : ""].filter(Boolean).join(" + ");
   return `${ob.count} ยอด · ตั้งแต่ ${ob.bills[0].opening ? "ยอดยกมา" : thShort(ob.oldest)}`;
 }
 function openBills(k, id, asOf) {
@@ -641,7 +665,7 @@ function openBills(k, id, asOf) {
     const l = lineOf(k, d, id); if (!l) continue;
     const t = lineTotals(l);
     if (t.amt) debits.push({ date: d, amt: t.amt, dm: { [d]: t.amt } });
-    addPay(pays, l, t);
+    addPay(pays, l, t, d);
   }
   const rem = settle(debits, pays);
   const bills = [], skipped = []; let paidThrough = null;
@@ -652,32 +676,32 @@ function openBills(k, id, asOf) {
     bills.push({ date: x.date, amt: x.amt, left: x.left, opening: !!x.opening, keys: x.opening ? ["open"] : [x.date], age: Math.max(0, daysBetween(x.date, ageRef)) });
   }
   const total = r2(bills.reduce((s, b) => s + b.left, 0));
-  return { bills, skipped, total, count: bills.length, credit: bills.length ? 0 : r2(rem), paidThrough, oldest: bills.length ? bills[0].date : null };
+  return { bills, skipped, total, count: bills.length, credit: bills.length ? 0 : r2(rem), paidThrough, oldest: bills.length ? bills[0].date : null, trace: { debits, pays } };
 }
 function statusHTML(ob, short) {
   if (!ob.count) return ob.credit > 0.004 ? `<span class="stamp">จ่ายเกิน${short ? "" : " " + money(ob.credit)}</span>` : `<span class="stamp">ครบ</span>`;
-  if (ob.mode === "period") return `<span class="owe">${ob.closedOpen ? `${short ? "" : "ค้าง "}${ob.closedOpen} งวด` : "งวดนี้"}</span>`;
+  if (ob.mode === "period") return `<span class="owe">${ob.closedOpen ? `${short ? "" : "ค้าง "}${ob.closedOpen} บิล` : "ยังไม่รวมบิล"}</span>`;
   return `<span class="owe">${short ? "" : "ค้าง "}${ob.count} ยอด</span>`;
 }
 function daySum(k, d) {
   const m = (S.days[d] && S.days[d][K[k].key]) || {};
-  const s = { amt: 0, paid: 0, disc: 0, discN: 0, kg: 0, n: 0, kgn: 0, cnt: 0, m: {}, by: {} };
+  const s = { amt: 0, oth: 0, paid: 0, disc: 0, discN: 0, kg: 0, n: 0, kgn: 0, cnt: 0, m: {}, by: {} };
   for (const id in m) {
     const t = lineTotals(m[id]); if (emptyT(t)) continue;
-    s.amt += t.amt; s.paid += t.paid; s.disc += t.disc; s.kg += t.kg; s.n += t.n; s.kgn += t.kgn; if (t.amt) s.cnt++; if (t.disc) s.discN++;
+    s.amt += t.amt; s.oth += t.oth || 0; s.paid += t.paid; s.disc += t.disc; s.kg += t.kg; s.n += t.n; s.kgn += t.kgn; if (t.amt) s.cnt++; if (t.disc) s.discN++;
     if (t.paid) s.m[t.method] = (s.m[t.method] || 0) + t.paid;
     for (const ty in t.by) { const b = s.by[ty] || (s.by[ty] = { kg: 0, n: 0, kgn: 0, amt: 0, meat: 0 }); b.kg += t.by[ty].kg; b.n += t.by[ty].n; b.kgn += t.by[ty].kgn; b.amt += t.by[ty].amt; b.meat += t.by[ty].meat; }
   }
   return s;
 }
 function periodTotals(from, to) {
-  const blank = () => ({ amt: 0, paid: 0, disc: 0, discN: 0, kg: 0, n: 0, m: {}, by: {} });
+  const blank = () => ({ amt: 0, oth: 0, paid: 0, disc: 0, discN: 0, kg: 0, n: 0, m: {}, by: {} });
   const P = { sale: blank(), buy: blank(), exp: { total: 0, cat: {}, m: {} } };
   for (const d of S.dates) {
     if (d < from) continue; if (d > to) break;
     for (const k of ["sale", "buy"]) {
       const s = daySum(k, d), x = P[k];
-      for (const f of ["amt", "paid", "disc", "discN", "kg", "n"]) x[f] += s[f];
+      for (const f of ["amt", "oth", "paid", "disc", "discN", "kg", "n"]) x[f] += s[f] || 0;
       for (const mm in s.m) x.m[mm] = (x.m[mm] || 0) + s.m[mm];
       for (const ty in s.by) { const b = x.by[ty] || (x.by[ty] = { kg: 0, n: 0, amt: 0, meat: 0 }); b.kg += s.by[ty].kg; b.n += s.by[ty].n; b.amt += s.by[ty].amt; b.meat += s.by[ty].meat; }
     }
@@ -1058,6 +1082,7 @@ function fillEntryList() {
   const avg = o => o.n && o.kgn ? ` <span class="dsavg">เฉลี่ย ${fmtN(o.kgn / o.n, 1)} กก./ตัว</span>` : "";
   $("#daySum").innerHTML = tys.map(ty => { const b = s.by[ty];
       return `<div class="dsrow"><span class="dsty">${ty}</span><span class="dsmid"><b>${fmtN(b.n, 0)}</b> ตัว · <b>${kg1(b.kg)}</b> กก.${avg(b)}</span><b class="dsamt">${money(b.amt)}</b></div>`; }).join("")
+    + (s.oth ? `<div class="dsrow"><span class="dsty">อื่นๆ</span><span class="dsmid pencil">เลือด ไส้ ฯลฯ</span><b class="dsamt">${money(s.oth)}</b></div>` : "")
     + `<div class="dsrow tot"><span class="dsty">รวม${dayWord(d)}</span><span class="dsmid"><b>${fmtN(s.n, 0)}</b> ตัว · <b>${kg1(s.kg)}</b> กก.${tys.length ? "" : avg(s)}</span><b class="dsamt">${money(s.amt)}</b></div>`
     + (k === "sale" ? `<div class="dayshare"><button class="btn" data-act="dayImg">ส่งรูปบัญชี${dayWord(d)}เข้า LINE</button></div>`
       : `<div class="dsrow"><span class="dsty">${K[k].payLabel}</span><span></span><b class="dsamt">${money(s.paid)}</b></div>`);
@@ -1079,8 +1104,10 @@ function fillEntryList() {
         const pp = partyPrice(k, p.id, i, (x && x.t) || "ซาก", d).p;
         return pp ? `<span class="sug">${fmtN(pp)}</span>` : "";
       };
+      // ยอดที่ไม่ใช่ น้ำหนัก × ราคา ล้วนๆ บอกไว้ใต้ชื่อ พ่อคิดเลขเทียบเองจะได้ตรง
+      const ex = sale ? [t.lab ? `+ค่าทำ ${money(t.lab)}` : "", t.dd ? `ลดตำหนิ −${money(t.dd)}` : "", t.oth ? `+อื่นๆ ${money(t.oth)}` : ""].filter(Boolean).join(" · ") : "";
       const main = `<tr class="tap ${S.openId === p.id ? "sel" : ""}" data-act="open" data-id="${id}">
-        <td>${esc(p.name)}${!sale && t.paid && !t.amt ? ` <span class="pencil small">จ่าย ${money(t.paid)}</span>` : ""}</td><td class="n">${R > 1 ? "" : priceCell(0)}</td>
+        <td${ex ? ` class="wrap"` : ""}>${esc(p.name)}${!sale && t.paid && !t.amt ? ` <span class="pencil small">จ่าย ${money(t.paid)}</span>` : ""}${ex ? `<span class="exl">${ex}</span>` : ""}</td><td class="n">${R > 1 ? "" : priceCell(0)}</td>
         <td class="n ink">${t.kg ? kg1(t.kg) : ""}</td><td class="n ink">${t.n || ""}</td><td class="n ink">${t.amt ? money(t.amt) : ""}</td>${st}</tr>`;
       if (R <= 1) return main;
       let subs = "";
@@ -1109,7 +1136,7 @@ function draftFor(k, date, id) {
   // รอบประจำที่ยังไม่ได้กรอก เติมช่องว่างให้ (ช่องว่างไม่ถูกบันทึก) ยกเว้นรอบที่กด ✕ ไว้แล้ว
   for (const r of roundsToShow(has ? raw : [], R)) if (!loadOfRound(loads, r)) loads.push(blankLoad(k, id, date, r, k === "sale" ? partyType(id, r - 1, date) : "ซาก"));
   loads.sort((a, b) => a.r - b.r);
-  return { loads, paid: has && l.paid ? String(l.paid) : "", disc: has && l.disc ? String(l.disc) : "",
+  return { loads, oth: has && num(l.oth) ? String(l.oth) : "", paid: has && l.paid ? String(l.paid) : "", disc: has && l.disc ? String(l.disc) : "",
     method: (l && l.method) || "โอน", note: (l && l.note) || "", showDisc: !!(has && num(l.disc)) };
 }
 function renderPanel() {
@@ -1138,6 +1165,7 @@ function renderPanel() {
             <label class="pkeep" id="pkl${i}" hidden><input type="checkbox" id="pk${i}" data-act="pkeep" data-i="${i}"><span id="ps${i}"></span></label></div>
         </div>${k === "sale" ? loadExtras(x, i) : ""}</div>`).join("")}
       <div class="frow"><button class="link" data-act="addload">＋ เพิ่มรอบ</button><span class="pencil small" id="avgW"></span></div>
+      ${sale ? `<div class="othrow"><label for="pOth"><span class="lbl">อื่นๆ (เลือด ไส้ ฯลฯ) · บาท</span><input class="fld" id="pOth" data-f="oth" inputmode="decimal" placeholder="0" value="${esc(D.oth || "")}"></label></div>` : ""}
       ${sale ? `<div class="frow total"><span class="l">${KK.amountLabel}${dayWord(S.date)}</span><span class="v" id="pAmt"></span></div>
       <div class="warn" id="pWarn" hidden></div>
       ${D.showNote || D.note ? `<label for="pNote" style="display:block;margin-top:8px"><span class="lbl">หมายเหตุ</span><input class="fld l" id="pNote" data-f="note" value="${esc(D.note)}"></label>`
@@ -1171,6 +1199,7 @@ function loadExtras(x, i) {
 function draftTotals() {
   const D = S.draft; let kg = 0, n = 0, amt = 0;
   D.loads.forEach(x => { const w = num(x.w); kg += w; n += num(x.n); amt += loadAmt(x); });
+  amt += num(D.oth);
   return { kg: r2(kg), n, amt: r2(amt), paid: num(D.paid), disc: num(D.disc) };
 }
 function updatePanelCalc() {
@@ -1238,6 +1267,7 @@ async function saveLine(skipConfirm) {
       ...(k === "sale" && num(x.dd) ? { dd: r2(num(x.dd)), ddn: String(x.ddn || "").trim() } : {}) })),
     paid: r2(num(D.paid)), disc: r2(num(D.disc)), method: D.method || "เงินสด", note: String(D.note || "").trim(),
   };
+  if (k === "sale" && num(D.oth) > 0) line.oth = r2(num(D.oth));
   // รอบประจำที่พ่อกด ✕ ออก จดไว้ว่า "วันนี้ไม่มีรอบนี้" จะได้ไม่โผล่กลับมา
   if (line.loads.length) for (let r = 1; r <= roundsOf(k, p); r++) if (!D.loads.some(x => x.r === r)) line.loads.push({ w: 0, n: 0, p: 0, t: "ซาก", r, skip: true });
   line.loads.sort((a, b) => a.r - b.r);
@@ -1250,12 +1280,12 @@ async function saveLine(skipConfirm) {
   if (!skipConfirm && date < todayISO() && old && (k === "sale" ? oldT.amt || oldT.kg || oldT.n : !emptyT(oldT))) {
     const a = lineTotals(old), c = lineTotals(line), ch = [];
     const diff = (lbl, x, y, fm) => { if (Math.abs(x - y) > 0.004) ch.push(`${lbl}  ${fm(x)} → ${fm(y)}`); };
-    diff("ตัว", a.n, c.n, v => fmtN(v, 0)); diff("กก.", a.kg, c.kg, kg1); diff(K[k].amountLabel, a.amt, c.amt, money);
+    diff("ตัว", a.n, c.n, v => fmtN(v, 0)); diff("กก.", a.kg, c.kg, kg1); diff("อื่นๆ", a.oth, c.oth, money); diff(K[k].amountLabel, a.amt, c.amt, money);
     diff(K[k].payLabel, a.paid, c.paid, money); diff("ลดให้", a.disc, c.disc, money);
     if (ch.length) {
       const inCut = k === "sale" && periodList(id).some(pp => (!pp.from || date >= pp.from) && date <= pp.to);
       const msg = `แก้รายการเก่า: ${p.name} วันที่ ${thShort(date)}\n\n${ch.join("\n")}`
-        + (inCut ? "\n\nวันนี้อยู่ในงวดที่ปิดแล้ว ยอดงวดจะเปลี่ยน ถ้าส่งบิลไปแล้วต้องส่งใหม่" : "") + "\n\nยืนยันแก้ไหม?";
+        + (inCut ? "\n\nวันนี้อยู่ในบิลที่รวมแล้ว ยอดบิลจะเปลี่ยน ถ้าส่งบิลไปแล้วต้องส่งใหม่" : "") + "\n\nยืนยันแก้ไหม?";
       if (!(await askConfirm(msg, "ยืนยันแก้"))) return;
     }
   }
@@ -1325,7 +1355,7 @@ function renderDebts() {
   const owing = rows.filter(r => r.ob.count);
   const total = r2(owing.reduce((s, r) => s + r.ob.total, 0));
   const [wf, wt] = weekOf(t); let wkPaid = 0; for (let d = wf; d <= wt; d = addDays(d, 1)) wkPaid += daySum("sale", d).paid;
-  setCover("สมุดลูกหนี้", "รับเงิน", "ยอด ณ " + thLong(t));
+  setCover("Kai Account", "รับเงิน", "ยอด ณ " + thLong(t));
   let list = S.debtFilter === "owe" ? owing : rows;
   list = list.slice().sort((a, b) => b.ob.total - a.ob.total);
   // แต่ละคน: ชื่อ + บรรทัดเล็ก (ค้างกี่ยอด · จ่ายล่าสุดวันไหน ไว้ดูว่าใครเงียบไปนาน ควรตาม) · ยอดค้าง · ปุ่มรับเงิน
@@ -1336,12 +1366,11 @@ function renderDebts() {
       <div class="pencil small">${owing.length} คนค้าง · รับเงินวีคนี้ ${money(wkPaid)}</div></div>
     <div class="toolbar" style="margin-top:10px"><div class="seg sm" role="group" aria-label="แสดง"><button data-act="dfilter" data-f="owe" aria-pressed="${S.debtFilter === "owe"}">ที่ค้างอยู่</button><button data-act="dfilter" data-f="all" aria-pressed="${S.debtFilter === "all"}">ทุกคน</button></div>
       <div class="walkway" aria-hidden="true"><span class="walker"><img class="f1" src="stickers/beagle-walk-1.png" alt="" onerror="this.closest('.walkway').remove()"><img class="f2" src="stickers/beagle-walk-2.png" alt=""></span></div></div>
-    <div class="paylist">${list.map(({ c, ob }) => `<div class="prow">
-      <button class="pwho" data-act="detail" data-kind="sale" data-id="${esc(c.id)}"><span class="nm">${esc(c.name)}</span><span class="sb">${sub(c, ob)}</span></button>
-      <span class="pamt">${ob.count ? money(ob.total) : statusHTML(ob, true)}</span>
-      <button class="btn pbtn" data-act="payOpen" data-id="${esc(c.id)}">รับเงิน</button></div>`).join("")}</div>
+    <div class="paylist">${list.map(({ c, ob }) => `<button type="button" class="prow" data-act="payOpen" data-id="${esc(c.id)}">
+      <span class="pwho"><span class="nm">${esc(c.name)}</span><span class="sb">${sub(c, ob)}</span></span>
+      <span class="pamt">${ob.count ? money(ob.total) : statusHTML(ob, true)}</span><span class="pgo" aria-hidden="true">รับเงิน ›</span></button>`).join("")}</div>
     ${list.length ? "" : `<div class="empty with-sticker">${sticker("bone")}<b>ไม่มีใครค้างเลย</b>ทุกคนจ่ายครบแล้ว</div>`}
-    <p class="note">เงินโอนเข้า กด "รับเงิน" ที่ชื่อคนนั้น · แตะชื่อเพื่อดูบัญชีและส่งบิล LINE</p></div>`;
+    <p class="note">แตะชื่อลูกค้า = รับเงิน · ในหน้านั้นกด "บิล" เพื่อรวมบิล/ส่งรูปบิล · ดูประวัติเต็มที่ สรุป › ลูกค้า</p></div>`;
 }
 /** วันที่รับเงินครั้งล่าสุดของลูกค้าคนนี้ (ไม่นับวันก่อนเริ่มนับหนี้) */
 function lastPay(id) {
@@ -1486,7 +1515,7 @@ function allocLabel(keys) {
   if (ds.length > 4) o.push(`${thShort(ds[0])}–${thShort(ds[ds.length - 1])} (${ds.length} วัน)`); else o.push(...ds.map(thShort));
   return o.join(", ");
 }
-const billLabel = (b, per) => b.opening ? "ยอดยกมา" : per ? periodName({ ...b, from: b.date }).replace(" (ยังไม่ปิด)", "") : thShort(b.date);
+const billLabel = (b, per) => b.opening ? "ยอดยกมา" : per ? periodName({ ...b, from: b.date }) : thShort(b.date);
 const inV = n => n ? money(n) : "";
 function payRowHTML(P, b, i, per) {
   const key = billId(b), pk = P.picks[key], on = !!pk, sub = per ? [periodRange({ ...b, from: b.date })] : calcLines(P.id, b);
@@ -1501,7 +1530,7 @@ function payRowHTML(P, b, i, per) {
       <span class="ppro" id="pro${i}"></span></div>` : ""}</div>`;
 }
 function renderPay() {
-  const P = S.pay, p = partyById("sale", P.id), m = $("#modal"), B = P.base, per = B.mode === "period", unit = per ? "งวด" : "วัน";
+  const P = S.pay, p = partyById("sale", P.id), m = $("#modal"), B = P.base, per = B.mode === "period", unit = per ? "บิล" : "วัน";
   // วันที่เงินเข้ามีรับไว้แล้ว (รับใหม่ หรือแก้แล้วย้ายมาวันนี้) = รวมเป็นก้อนเดียวกัน
   const old = P.edit && P.date === P.from ? null : lineOf("sale", P.date, P.id), had = old && (num(old.paid) || num(old.disc));
   const C = P.edit ? openBills("sale", P.id, "9999-12-31") : B; // ป้ายบน = ค้างจริงตอนนี้ (ตอนแก้ base เป็นยอดก่อนรับเงินก้อนนี้)
@@ -1509,8 +1538,9 @@ function renderPay() {
   const y0 = $("#payBody") ? $("#payBody").scrollTop : 0, title = P.edit ? "แก้ยอดรับเงิน" : "รับเงิน";
   m.classList.add("paymodal");
   m.innerHTML = `<div class="modal-card paybox" role="dialog" aria-modal="true" aria-label="${title}">
-    <div class="payhead"><div class="pht"><b>${title} · ${esc(p.name)}</b>${C.count ? `<span class="pchip">ค้าง ${money(C.total)} · ${C.count} ${per ? "งวด" : "ยอด"}</span>` : ""}
+    <div class="payhead"><div class="pht"><b>${title} · ${esc(p.name)}</b>${C.count ? `<span class="pchip">ค้าง ${money(C.total)} · ${per ? oweText(C) : C.count + " ยอด"}</span>` : ""}
       ${P.edit ? `<span class="pold">เดิม: ${thShort(P.from)} · รับ ${money(P.oldPaid)}${P.oldDisc ? ` · ลด ${money(P.oldDisc)}` : ""}</span>` : ""}</div>
+      ${P.edit ? "" : `<button class="btn pbill" data-act="payBills" data-id="${esc(P.id)}">บิล</button>`}
       <button class="xbtn" data-act="payCancel" aria-label="ปิด">✕</button></div>
     <div class="paybody" id="payBody">
       <label class="ptot" for="payAmt"><span class="lbl">ยอดที่โอนมา (บาท)</span><input class="fld" id="payAmt" data-pf="total" inputmode="decimal" placeholder="แตะ${unit}ด้านล่าง หรือพิมพ์ยอด"></label>
@@ -1527,6 +1557,7 @@ function renderPay() {
       ${P.showNote ? `<label for="payNote"><span class="lbl">หมายเหตุ</span><input class="fld l" id="payNote" data-pf="note" value="${esc(P.note)}"></label>` : `<button class="link ddlink" data-act="payNoteShow" style="justify-self:start">＋ หมายเหตุ</button>`}
       ${P.edit ? `<button class="link pdel" data-act="payDelete">ลบยอดรับเงินนี้</button>` : ""}
       <div class="err" id="payErr" hidden></div>
+      ${P.edit ? "" : recentPaysHTML(P.id)}
     </div>
     <div class="payfoot"><div class="pfs" id="payFoot"></div><button class="btn solid" data-act="paySave">${P.edit ? "บันทึกที่แก้" : "ลงรับเงิน"}</button></div></div>`;
   m.hidden = false; $("#payBody").scrollTop = y0; updatePay();
@@ -1539,7 +1570,7 @@ function renderPayInputs() {
 // อัปเดตเฉพาะตัวเลข (ไม่วาดใหม่ทั้งหน้าต่าง) ระหว่างพิมพ์ ช่องที่กำลังพิมพ์จะได้ไม่หลุด
 function updatePay() {
   const P = S.pay; if (!P || !$("#payFoot")) return;
-  const B = P.base, per = B.mode === "period", unit = per ? "งวด" : "วัน", T = payTot(P), ob = obWith(P.id, payLines(P)), ro = num(S.set.roundOffMax);
+  const B = P.base, per = B.mode === "period", unit = per ? "บิล" : "วัน", T = payTot(P), ob = obWith(P.id, payLines(P)), ro = num(S.set.roundOffMax);
   const f = $("#payAmt"); if (f && document.activeElement !== f) f.value = inV(T.r);
   B.bills.forEach((b, i) => {
     const key = billId(b), a = ob.bills.find(x => billId(x) === key), after = a ? a.left : 0, pk = P.picks[key];
@@ -1570,7 +1601,7 @@ async function savePay(del) {
   const fail = msg => { err.textContent = msg; err.hidden = false; };
   if (!P.date) return fail("เลือกวันที่เงินเข้า");
   const cf = !del && payConflict(P); if (cf) return fail(`${thShort(P.date)} รับไว้แล้วเป็น${cf.method} ลง${P.method}รวมวันเดียวกันไม่ได้`);
-  if (!del && !P.edit && !T.r && !T.d) { fail(`แตะ${P.base.mode === "period" ? "งวด" : "วัน"}ที่ลูกค้าจ่าย หรือพิมพ์ยอดที่โอนมา`); return; }
+  if (!del && !P.edit && !T.r && !T.d) { fail(`แตะ${P.base.mode === "period" ? "บิล" : "วัน"}ที่ลูกค้าจ่าย หรือพิมพ์ยอดที่โอนมา`); return; }
   if (P.extra < 0 || P.exDisc < 0 || Object.values(P.picks).some(x => x.r < 0 || x.dc < 0)) return fail("จำนวนเงินติดลบไม่ได้");
   // แก้จนเหลือ 0 = ลบ
   if (del || (P.edit && !T.r && !T.d)) {
@@ -1613,11 +1644,11 @@ function statement(k, id, from, to) {
   return { opening, rows, dr: r2(dr), cr: r2(cr), closing: r2(b) };
 }
 function stRange() { return S.stMode === "month" ? monthOf(S.stAnchor) : weekOf(S.stAnchor); }
-function openDetail(k, id) { S.detail = { k, id }; S.stMode = "week"; S.stAnchor = todayISO(); S.billOpen = false; $("#drawer").hidden = false; renderDetail(); $("#drawer").scrollTop = 0; }
+function openDetail(k, id) { S.detail = { k, id }; S.stMode = k === "sale" ? "month" : "week"; S.stAnchor = todayISO(); S.billOpen = false; $("#drawer").hidden = false; renderDetail(); $("#drawer").scrollTop = 0; }
 function closeDetail() { S.detail = null; S.billOpen = false; S.log = null; $("#drawer").hidden = true; $("#drawer").innerHTML = ""; }
 /* ---------- ประวัติการแก้ไข: เปิดจากหน้าตั้งค่า · ใหม่สุดก่อน · ดูได้ว่าแก้อะไร เมื่อไหร่ จากเครื่องไหน ---------- */
 async function openLog(limit) {
-  S.detail = null; S.log = { items: (S.log && S.log.items) || null, limit: limit || 200, only: (S.log && S.log.only) || false, err: "" };
+  S.detail = null; S.log = { items: (S.log && S.log.items) || null, limit: limit || 200, only: (S.log && S.log.only) || 0, err: "" };
   $("#drawer").hidden = false; renderLog();
   try { const r = await api("apiLog", S.log.limit); if (!S.log) return; S.log.items = Array.isArray(r) ? r : []; S.log.err = ""; }
   catch (e) { if (S.log) S.log.err = isNetErr(e) ? "ต้องมีอินเทอร์เน็ตถึงจะดูประวัติได้" : (/คำสั่งไม่ถูกต้อง/.test(errText(e)) ? "หลังบ้านยังเป็นเวอร์ชันเก่า ต้องวาง Code.gs ใหม่แล้ว Deploy ก่อน" : errText(e)); }
@@ -1625,51 +1656,81 @@ async function openLog(limit) {
 }
 function renderLog() {
   const L = S.log; if (!L) return;
-  const kindOf = it => /^ลบ/.test(it.detail) ? "del" : /^แก้ไข|ยกเลิก/.test(it.detail) ? "edit" : "add";
-  const items = (L.items || []).filter(it => !L.only || kindOf(it) !== "add");
+  // หลังบ้านจดรับเงินไว้ใต้ประเภท "ขาย" (แถวเดียวกับยอดขายของวันนั้น) · ส่วนขาย (กก. · ยอด) ก่อนกับหลังเหมือนกัน = เปลี่ยนแค่รับเงิน ให้ขึ้นว่า "รับเงิน"
+  const salePart = s => (String(s).match(/[\d,.]+ กก\. · ยอด [\d,.]+/) || [""])[0];
+  const isPay = it => it.type === "ขาย" && /รับ |ส่วนลด|ตัดยอด/.test(it.detail);
+  const halves = it => { const m = String(it.detail).match(/^แก้ไข: เดิม (.*) → (.*)$/); return m ? [m[1], m[2]] : null; };
+  const typeOf = it => { if (!isPay(it)) return it.type; const h = halves(it); if (h ? salePart(h[0]) === salePart(h[1]) : !/กก\./.test(it.detail)) return "รับเงิน"; return "ขาย + รับเงิน"; };
+  // รับเงินครั้งแรกในวันที่มียอดขายอยู่แล้ว หลังบ้านเขียนว่า "แก้ไข" แต่จริงๆ คือรับเงินใหม่ ไม่นับเป็นการแก้
+  const kindOf = it => { if (/^ลบ/.test(it.detail)) return "del"; if (!/^แก้ไข|ยกเลิก/.test(it.detail)) return "add"; const h = halves(it); return h && typeOf(it) === "รับเงิน" && !/รับ |ส่วนลด/.test(h[0]) ? "add" : "edit"; };
+  const items = (L.items || []).filter(it => L.only === 2 ? isPay(it) : !L.only || kindOf(it) !== "add");
   let html = "", day = "";
   for (const it of items) {
     const d = String(it.at).slice(0, 10), tm = String(it.at).slice(11, 16);
     if (d !== day) { day = d; html += `<div class="logday">${/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${DOW_S[parseISO(d).getDay()]} ${thLong(d)}` : esc(d)}</div>`; }
-    const c = it.type === "ขาย" ? S.customers.find(x => x.name === it.name) : null;
-    html += `<div class="logrow ${kindOf(it)} ${c ? "tap" : ""}" ${c && it.date ? `data-act="gotoEntry" data-kind="sale" data-id="${esc(c.id)}" data-date="${esc(it.date)}"` : ""}>
-      <div class="lt"><span class="pencil">${esc(tm)}</span> · <b>${esc(it.type)}</b>${it.name ? ` · ${esc(it.name)}` : ""}${it.date ? ` <span class="pencil small">(รายการวันที่ ${/^\d{4}-\d{2}-\d{2}$/.test(it.date) ? thShort(it.date) : esc(it.date)})</span>` : ""}</div>
+    const c = it.type === "ขาย" ? S.customers.find(x => x.name === it.name) : null, ty = typeOf(it);
+    // แตะรายการรับเงิน = เปิดแก้ยอดรับเงินวันนั้น · รายการขาย = เปิดหน้าบันทึกวันนั้น
+    const go = !c || !it.date ? "" : ty === "รับเงิน" ? `data-act="payOpen" data-edit="1" data-id="${esc(c.id)}" data-date="${esc(it.date)}"` : `data-act="gotoEntry" data-kind="sale" data-id="${esc(c.id)}" data-date="${esc(it.date)}"`;
+    html += `<div class="logrow ${kindOf(it)} ${go ? "tap" : ""}" ${go}>
+      <div class="lt"><span class="pencil">${esc(tm)}</span> · <b>${esc(ty)}</b>${it.name ? ` · ${esc(it.name)}` : ""}${it.date ? ` <span class="pencil small">(รายการวันที่ ${/^\d{4}-\d{2}-\d{2}$/.test(it.date) ? thShort(it.date) : esc(it.date)})</span>` : ""}</div>
       <div class="ld">${esc(it.detail)}</div>${it.dev ? `<div class="pencil small">จากเครื่อง: ${esc(it.dev)}</div>` : ""}</div>`;
   }
   $("#drawer").innerHTML = `<div class="book">
     <header class="cover"><div class="k">Kai Account</div><h2>ประวัติการแก้ไข</h2><button class="x" data-act="closeDetail" aria-label="ปิด">✕</button></header>
     <div class="page">
-      <div class="toolbar" style="margin:4px 0 8px"><div class="seg sm" role="group" aria-label="แสดง"><button data-act="logOnly" data-v="0" aria-pressed="${!L.only}">ทั้งหมด</button><button data-act="logOnly" data-v="1" aria-pressed="${L.only}">เฉพาะที่แก้/ลบ</button></div></div>
-      ${L.err ? `<div class="warn">${esc(L.err)}</div>` : !L.items ? `<p class="note">กำลังโหลด…</p>` : items.length ? html : `<p class="note">${L.only ? "ยังไม่มีการแก้หรือลบรายการ" : "ยังไม่มีประวัติ"}</p>`}
+      <div class="toolbar" style="margin:4px 0 8px"><div class="seg sm" role="group" aria-label="แสดง"><button data-act="logOnly" data-v="0" aria-pressed="${!L.only}">ทั้งหมด</button><button data-act="logOnly" data-v="2" aria-pressed="${L.only === 2}">รับเงิน</button><button data-act="logOnly" data-v="1" aria-pressed="${L.only === 1}">ที่แก้/ลบ</button></div></div>
+      ${L.err ? `<div class="warn">${esc(L.err)}</div>` : !L.items ? `<p class="note">กำลังโหลด…</p>` : items.length ? html : `<p class="note">${L.only === 2 ? "ยังไม่มีรายการรับเงินในช่วงที่โหลดมา" : L.only ? "ยังไม่มีการแก้หรือลบรายการ" : "ยังไม่มีประวัติ"}</p>`}
       ${L.items && L.items.length >= L.limit && L.limit < 1000 ? `<div class="actions" style="margin-top:12px"><button class="btn" data-act="logMore">โหลดเก่ากว่านี้</button></div>` : ""}
-      <p class="note">ใหม่สุดอยู่บน · แตะรายการขายเพื่อเปิดรายการวันนั้น · ประวัติทั้งหมดอยู่ในแท็บ "ประวัติการแก้ไข" ใน Google Sheet ด้วย</p>
+      <p class="note">ใหม่สุดอยู่บน · แตะรายการขายเพื่อเปิดวันนั้น · แตะรายการรับเงินเพื่อแก้ยอดรับเงิน · ประวัติทั้งหมดอยู่ในแท็บ "ประวัติการแก้ไข" ใน Google Sheet ด้วย</p>
     </div></div>`;
 }
 /* ---------- บิลส่งลูกค้า: โครงเดียว ใช้ทำได้ทั้งข้อความ รูป และ PDF ---------- */
 const isPeriodCust = (k, id) => k === "sale" && cutsOf(id).length > 0;
-/** ลูกค้าแบ่งงวด: sel = ลำดับงวดที่เลือก (ใน periodBills().all) · ลูกค้ารายวัน: ใบแจ้งยอดตามช่วงวีค/เดือนที่ดูอยู่ */
+// แถวในบิลของวันนั้น: น้ำหนัก × ราคา (+ ค่าทำ − ลดตำหนิ) + อื่นๆ
+function billDayRows(id, d) {
+  const rows = [], l = lineOf("sale", d, id) || {};
+  for (const x of l.loads || []) {
+    if (x.skip || !num(x.w)) continue;
+    rows.push({ l: `${thShort(d)}  ${x.t || "ซาก"} ${kg1(num(x.w))} กก. × ${fmtN(num(x.p))}`, r: money(num(x.w) * num(x.p)), eq: true });
+    if (labOf(x)) rows.push({ l: `+ ค่าทำ ${fmtN(num(x.n), 0)} ตัว × ${fmtN(num(x.lab))}`, r: money(labOf(x)), eq: true, sub: true });
+    if (num(x.dd)) rows.push({ l: `− ลดตำหนิ${x.ddn ? ` (${x.ddn})` : ""}`, r: "−" + money(num(x.dd)), sub: true });
+  }
+  if (num(l.oth)) rows.push({ l: `${thShort(d)}  อื่นๆ`, r: money(num(l.oth)) });
+  return rows;
+}
+/** ลูกค้าที่รวมบิลแล้ว: sel = ลำดับบิลที่เลือก (ใน periodBills().all) · ลูกค้ารายวัน: ใบแจ้งยอดค้าง (ทุกวันที่ยังค้าง) · ฟาร์ม: ช่วงวีค/เดือนที่ดูอยู่ */
 function billModel(k, id, sel) {
   const p = partyById(k, id), m = { blocks: [], file: `${p.name}-${todayISO()}` };
   if (isPeriodCust(k, id)) {
     const all = periodBills(id, "9999-12-31").all, pick = (sel || []).filter(i => all[i]).sort((a, b) => a - b).map(i => all[i]);
-    const nm = b => periodName(b).replace(" (ยังไม่ปิด)", "");
-    m.title = pick.length === 1 ? `บิล${nm(pick[0])} คุณ${p.name}` : `บิล คุณ${p.name}`;
+    m.title = pick.length === 1 && realCut(pick[0]) ? `${periodName(pick[0])} คุณ${p.name}` : `บิล คุณ${p.name}`;
     m.sub = `ณ วันที่ ${thLong(todayISO())}`;
     for (const b of pick) {
       const rows = [];
       if (!b.opening) for (const d of S.dates) {
         if (d < b.from || !inBooks(d)) continue; if (d > b.to) break;
-        for (const x of ((lineOf("sale", d, id) || {}).loads) || []) {
-          if (x.skip || !num(x.w)) continue;
-          rows.push({ l: `${thShort(d)}  ${x.t || "ซาก"} ${kg1(num(x.w))} กก. × ${fmtN(num(x.p))}`, r: money(num(x.w) * num(x.p)), eq: true });
-          if (labOf(x)) rows.push({ l: `+ ค่าทำ ${fmtN(num(x.n), 0)} ตัว × ${fmtN(num(x.lab))}`, r: money(labOf(x)), eq: true, sub: true });
-          if (num(x.dd)) rows.push({ l: `− ลดตำหนิ${x.ddn ? ` (${x.ddn})` : ""}`, r: "−" + money(num(x.dd)), sub: true });
-        }
+        rows.push(...billDayRows(id, d));
       }
-      m.blocks.push({ head: `${nm(b)} · ${b.opening ? "ยอดค้างก่อนเริ่มใช้แอป" : periodRange(b) + (b.current ? " ถึงปัจจุบัน" : "")}`, rows,
-        foot: [{ l: "รวมงวดนี้", r: baht(b.amt) }, b.left > 0.004 ? { l: "ค้างชำระ", r: baht(b.left), strong: true } : { l: "ชำระครบแล้ว", r: "" }] });
+      // หัวที่ลูกค้าเห็น: บิลจริงใช้ชื่อบิล · ยอดที่ยังไม่รวมบิล/นอกบิล บอกเป็นช่วงวัน (ไม่ใช้คำในแอป)
+      const head = realCut(b) ? `${periodName(b)} · ${periodRange(b)}` : b.opening ? "ยอดค้างก่อนเริ่มใช้แอป" : `ยอดตั้งแต่ ${thShort(b.from)}${b.current ? "" : ` ถึง ${thShort(b.to)}`}`;
+      const paid = r2(b.amt - b.left);
+      m.blocks.push({ head, rows,
+        foot: [{ l: "รวมยอด", r: baht(b.amt) }, ...(b.left > 0.004 && paid > 0.004 ? [{ l: "จ่ายแล้ว", r: "−" + baht(paid) }] : []),
+          b.left > 0.004 ? { l: "ค้างชำระ", r: baht(b.left), strong: true } : { l: "ชำระครบแล้ว", r: "" }] });
     }
     if (pick.length > 1) m.grand = { l: "รวมค้างชำระทั้งหมด", r: baht(r2(pick.reduce((s, b) => s + b.left, 0))) };
+    return m;
+  }
+  if (k === "sale") {
+    // ลูกค้ารายวัน: ทุกวันที่ยังค้าง พร้อมน้ำหนัก × ราคา · วันที่จ่ายไปบางส่วนบอกว่าเหลือเท่าไร
+    const ob = openBills("sale", id, "9999-12-31");
+    m.title = `ใบแจ้งยอดค้าง คุณ${p.name}`; m.sub = `ณ วันที่ ${thLong(todayISO())}`;
+    const rows = [];
+    for (const b of ob.bills) {
+      if (b.opening) rows.push({ l: "ยอดค้างก่อนเริ่มใช้แอป", r: money(b.amt) }); else rows.push(...billDayRows(id, b.date));
+      if (b.left < b.amt - 0.004) rows.push({ l: `   จ่ายไปแล้ว (${b.opening ? "ยอดยกมา" : thShort(b.date)})`, r: "−" + money(b.amt - b.left), sub: true });
+    }
+    m.blocks.push({ rows, foot: [{ l: "ยอดค้างชำระ", r: baht(ob.total), strong: true }] });
     return m;
   }
   const [from, to] = stRange(), st = statement(k, id, from, to);
@@ -1751,7 +1812,7 @@ function dayModel(d) {
     if (!t.kg && !t.n && !t.amt) continue;
     const loads = ((l && l.loads) || []).map((x, i) => ({ x, r: roundNo(x, i) })).filter(o => !o.x.skip && (num(o.x.w) || num(o.x.n)));
     const one = loads.length === 1 ? loads[0].x : null, tys = Object.keys(t.by);
-    const note = [t.lab ? `ค่าทำ ${money(t.lab)}` : "", t.dd ? `ลดตำหนิ${t.ddn.length ? ` (${t.ddn.join(", ")})` : ""} −${money(t.dd)}` : ""].filter(Boolean).join(" · ");
+    const note = [t.lab ? `ค่าทำ ${money(t.lab)}` : "", t.dd ? `ลดตำหนิ${t.ddn.length ? ` (${t.ddn.join(", ")})` : ""} −${money(t.dd)}` : "", t.oth ? `อื่นๆ ${money(t.oth)}` : ""].filter(Boolean).join(" · ");
     sales.push({ name: p.name + (tys.length === 1 && tys[0] === "หมูเป็น" ? " (หมูเป็น)" : ""), p: one ? num(one.p) : 0, kg: t.kg, n: t.n, amt: t.amt, note,
       subs: loads.length > 1 ? loads.map(o => ({ name: `รอบ ${o.r}${isLive(o.x) && tys.length > 1 ? " หมูเป็น" : ""}`, p: num(o.x.p), kg: num(o.x.w), n: num(o.x.n), amt: loadAmt(o.x) })) : [] });
   }
@@ -1811,7 +1872,8 @@ async function dayPages(m) {
         }
         table([330, 130, 170, 90, 240], ["ลูกค้า", "ราคา", "กก.", "ตัว", "ยอดขาย"], rows);
         const tys = TYPES.filter(ty => s.by[ty] && (s.by[ty].kg || s.by[ty].n));
-        if (tys.length > 1) for (const ty of tys) kv(`${ty} ${fmtN(s.by[ty].n, 0)} ตัว · ${kg1(s.by[ty].kg)} กก.`, money(s.by[ty].amt));
+        if (tys.length > 1 || s.oth) for (const ty of tys) kv(`${ty} ${fmtN(s.by[ty].n, 0)} ตัว · ${kg1(s.by[ty].kg)} กก.`, money(s.by[ty].amt));
+        if (s.oth) kv("อื่นๆ (เลือด ไส้ ฯลฯ)", money(s.oth));
         kv(`รวมขาย ${fmtN(s.n, 0)} ตัว · ${kg1(s.kg)} กก.`, money(s.amt), true);
       } else grey("ไม่มีรายการขาย");
       if (!m.books) { y += 20; grey("วันนี้อยู่ก่อน \"วันเริ่มนับหนี้\" ในหน้าตั้งค่า จึงไม่มีส่วนตัดยอด"); }
@@ -1850,7 +1912,7 @@ async function dayPages(m) {
 }
 const canvasBlob = (cv, type, q) => new Promise(res => cv.toBlob(res, type, q));
 /** โชว์รูปให้ดูก่อน (หลายหน้า = เรียงลงมา มีป้ายหน้า 1/2) แล้วกด "ส่ง / แชร์" ส่งทุกหน้าพร้อมกัน (บน iPhone เลือก LINE ได้เลย) หรือบันทึกไฟล์ */
-function showBillFiles(items, label) {
+function showBillFiles(items, label, back) { // back = กลับไปหน้าที่เปิดมา (เช่นหน้าบิล) ตอนปิดหรือส่งเสร็จ
   const files = items.map(x => new File([x.blob], x.name, { type: x.blob.type })), urls = items.map(x => URL.createObjectURL(x.blob)), m = $("#modal");
   const canShare = !!(navigator.canShare && navigator.canShare({ files }));
   const many = items.length > 1;
@@ -1860,7 +1922,7 @@ function showBillFiles(items, label) {
     <div class="row"><button class="btn" id="boClose">ปิด</button><button class="btn solid" id="boGo">${canShare ? "ส่ง / แชร์" : "บันทึกไฟล์"}</button></div></div>`;
   m.hidden = false;
   const save = () => { urls.forEach((u, i) => { const a = document.createElement("a"); a.href = u; a.download = items[i].name; document.body.appendChild(a); a.click(); a.remove(); }); toast("บันทึกไฟล์แล้ว"); };
-  const done = () => { m.hidden = true; m.innerHTML = ""; setTimeout(() => urls.forEach(u => URL.revokeObjectURL(u)), 1000); };
+  const done = () => { m.hidden = true; m.innerHTML = ""; setTimeout(() => urls.forEach(u => URL.revokeObjectURL(u)), 1000); if (back) back(); };
   $("#boClose").onclick = done;
   $("#boGo").onclick = async () => {
     if (canShare) { try { await navigator.share({ files, title: label }); done(); } catch (e) { if (!e || e.name !== "AbortError") save(); } }
@@ -1870,21 +1932,21 @@ function showBillFiles(items, label) {
 const curBillModel = () => billModel(S.detail.k, S.detail.id, S.billSel);
 function billBoxHTML(k, id) {
   const per = isPeriodCust(k, id), all = per ? periodBills(id, "9999-12-31").all : [], none = per && !(S.billSel || []).length;
-  return `${per ? `<div class="billpick"><span class="lbl">เลือกงวดที่จะใส่ในบิล</span>${all.map((b, i) => `<label class="pickrow"><input type="checkbox" data-act="billPick" data-i="${i}" ${(S.billSel || []).includes(i) ? "checked" : ""}>
+  return `${per ? `<div class="billpick"><span class="lbl">เลือกบิลที่จะส่ง</span>${all.map((b, i) => `<label class="pickrow"><input type="checkbox" data-act="billPick" data-i="${i}" ${(S.billSel || []).includes(i) ? "checked" : ""}>
       <span>${periodName(b)} <span class="pencil small">${periodRange(b)}</span></span><b>${b.left > 0.004 ? "ค้าง " + money(b.left) : `<span class="stamp">ครบ</span>`}</b></label>`).join("")}</div>`
       : `<p class="note">ใบแจ้งยอดช่วง ${(() => { const [f, t] = stRange(); return rangeLabel(f, t); })()} · เปลี่ยนช่วงได้ที่ "บัญชีเดินสะพัด" ด้านล่าง</p>`}
     <div class="actions billacts"><button class="btn solid" data-act="billImg" ${none ? "disabled" : ""}>ส่งเป็นรูป</button><button class="link" data-act="billClose" style="color:var(--pencil)">ปิด</button></div>`;
 }
-const periodName = b => b.opening ? "ยอดยกมา" : b.current ? "งวดนี้ (ยังไม่ปิด)" : b.gap ? "ยอดนอกงวด" : `งวดที่ ${b.no}`;
+const periodName = b => b.opening ? "ยอดยกมา" : b.current ? "ยังไม่รวมบิล" : b.gap ? "ยอดนอกบิล" : `บิลที่ ${b.no}`;
 const periodRange = b => b.opening ? "ก่อนใช้แอป" : b.current ? `${thShort(b.from)} –` : (b.from === b.to ? thShort(b.to) : `${thShort(b.from)}–${thShort(b.to)}`);
 function throughText(ob) {
   if (!ob.count) return ob.credit > 0.004 ? `จ่ายเกินมา ${money(ob.credit)} จะหักบิลถัดไปให้` : "จ่ายครบทุกยอดแล้ว";
   const per = ob.mode === "period", sk = ob.skipped || [];
   // ยอดที่ลูกค้าจ่ายข้ามไปก่อน (เลือกไว้ตอนรับเงิน) บอกสั้นๆ ว่าวันไหนครบแล้ว
-  const skTxt = sk.length ? ` · จ่ายข้ามไปแล้ว ${sk.length > 3 ? sk.length + (per ? " งวด" : " ยอด") : sk.map(b => b.opening ? "ยอดยกมา" : per ? periodName({ ...b, from: b.date }).replace(" (ยังไม่ปิด)", "") : thShort(b.date)).join(", ")}` : "";
+  const skTxt = sk.length ? ` · จ่ายข้ามไปแล้ว ${sk.length > 3 ? sk.length + (per ? " บิล" : " ยอด") : sk.map(b => b.opening ? "ยอดยกมา" : per ? periodName({ ...b, from: b.date }) : thShort(b.date)).join(", ")}` : "";
   const part = ob.bills.filter(b => b.left < b.amt - 0.004);
-  const partTxt = part.map(b => per ? ` · ${periodName({ ...b, from: b.date }).replace(" (ยังไม่ปิด)", "")} จ่ายไปแล้ว ${money(b.amt - b.left)}` : ` · ยอด${b.opening ? "ยกมา" : "วันที่ " + thShort(b.date)} จ่ายไปแล้ว ${money(b.amt - b.left)}`).slice(0, 2).join("");
-  if (per) return (ob.paidThrough ? `จ่ายครบถึงงวดที่สิ้นสุด ${thShort(ob.paidThrough)}` : "ยังไม่ได้จ่ายงวดไหนครบ") + partTxt + skTxt;
+  const partTxt = part.map(b => per ? ` · ${periodName({ ...b, from: b.date })} จ่ายไปแล้ว ${money(b.amt - b.left)}` : ` · ยอด${b.opening ? "ยกมา" : "วันที่ " + thShort(b.date)} จ่ายไปแล้ว ${money(b.amt - b.left)}`).slice(0, 2).join("");
+  if (per) return (ob.paidThrough ? `จ่ายครบถึงบิลที่สิ้นสุด ${thShort(ob.paidThrough)}` : "ยังไม่ได้จ่ายบิลไหนครบ") + partTxt + skTxt;
   return (ob.paidThrough ? `จ่ายครบถึงยอดวันที่ ${thShort(ob.paidThrough)}` : sk.length ? "ยอดเก่าสุดยังไม่ครบ" : "ยังไม่ได้จ่ายยอดไหนครบ") + partTxt + skTxt;
 }
 /* ---------- ยอดที่ยังค้าง: แตะวันไหน = เปิดหน้าต่างรับเงินโดยเลือกวันนั้นไว้ให้ (เลือกเพิ่ม/แก้ยอดในหน้าต่างรับเงินที่เดียว) ---------- */
@@ -1892,13 +1954,14 @@ const billId = b => b.opening ? "open" : b.date;
 // น้ำหนัก × ราคา ของวันนั้น ให้พ่อเทียบกับยอดได้เลย (หลายรอบ = บรรทัดละรอบ)
 function calcLines(id, b) {
   if (b.opening) return ["ยอดค้างก่อนเริ่มใช้แอป"];
-  const L = [], loads = (((lineOf("sale", b.date, id) || {}).loads) || []).filter(x => !x.skip && num(x.w));
-  const many = loads.length > 1 || loads.some(x => labOf(x) || num(x.dd));
+  const l = lineOf("sale", b.date, id) || {}, oth = num(l.oth), L = [], loads = (l.loads || []).filter(x => !x.skip && num(x.w));
+  const many = loads.length > 1 || !!oth || loads.some(x => labOf(x) || num(x.dd));
   for (const x of loads) {
     L.push(`${isLive(x) ? "หมูเป็น " : ""}${num(x.n) ? `${fmtN(num(x.n), 0)} ตัว · ` : ""}${kg1(num(x.w))} กก. × ${fmtN(num(x.p))}${many ? ` = ${money(num(x.w) * num(x.p))}` : ""}`);
     if (labOf(x)) L.push(`+ ค่าทำ ${fmtN(num(x.n), 0)} ตัว × ${fmtN(num(x.lab))} = ${money(labOf(x))}`);
     if (num(x.dd)) L.push(`− ลดตำหนิ${x.ddn ? ` (${esc(x.ddn)})` : ""} ${money(num(x.dd))}`);
   }
+  if (oth) L.push(`+ อื่นๆ ${money(oth)}`);
   if (b.left < b.amt - 0.004) L.push(`จ่ายไปแล้ว ${money(b.amt - b.left)}`);
   return L;
 }
@@ -1910,93 +1973,193 @@ function recentPaysHTML(id) {
     const l = lineOf("sale", d, id); if (l && (num(l.paid) || num(l.disc))) list.push({ d, l });
   }
   if (!list.length) return "";
+  const tr = (openBills("sale", id, "9999-12-31").trace || { pays: [] }).pays; // ตัดวันไหนจริง (ตัวเดียวกับสมุดลูกหนี้)
   return `<div class="sec">รับเงินล่าสุด <span class="pencil small">· แตะเพื่อแก้</span></div>
-    <div class="rplist">${list.map(({ d, l }) => { const keys = [...new Set(allocGroups(l).flatMap(x => x.k))];
+    <div class="rplist">${list.map(({ d, l }) => { const ps = tr.filter(x => x.d === d), keys = [...new Set(ps.flatMap(x => Object.keys(x.cut || {}).filter(k => x.cut[k] > 0.004)))], picked = allocGroups(l).length > 0;
       return `<button type="button" class="rprow" data-act="payOpen" data-edit="1" data-id="${esc(id)}" data-date="${d}"><span class="rpd">${thShort(d)}</span>
         <span class="rpm"><span><b>${money(num(l.paid))}</b>${num(l.disc) ? ` · ลด ${money(num(l.disc))}` : ""} <span class="pencil small">${esc(num(l.paid) ? l.method || "" : "")}</span></span>
-        <span class="small pencil">${keys.length ? "ตัด " + esc(allocLabel(keys)) : "ตัดยอดเก่าสุดก่อน"}</span></span><span class="rpe">แก้</span></button>`; }).join("")}</div>`;
+        <span class="small pencil">${keys.length ? `ตัด ${esc(allocLabel(keys))}${picked ? "" : " (เก่าสุดก่อน)"}` : "ยังไม่ได้ตัดวันไหน"}</span></span><span class="rpe">แก้</span></button>`; }).join("")}</div>`;
 }
+// สมุดเจ้าหนี้ (ฟาร์ม): ยอดที่ยังค้างแบบอ่านอย่างเดียว · ฝั่งลูกค้าย้ายไปหน้ารับเงิน (รับเงิน/รวมบิล) กับสรุป > ลูกค้า (สมุดลูกหนี้)
 function billsSection(k, id, ob) {
-  const tk = k === "sale";
-  const daily = ob.count && ob.mode !== "period" ? `<div class="sec">ยอดที่ยังค้าง (${ob.count} ยอด)${tk ? ` <span class="pencil small">· แตะวันที่ลูกค้าจ่าย เพื่อรับเงิน</span>` : ""}</div>
+  return ob.count ? `<div class="sec">ยอดที่ยังค้าง (${ob.count} ยอด)</div>
       <table class="lined bills"><colgroup><col style="width:40%"><col style="width:30%"><col style="width:30%"></colgroup>
         <thead><tr><th>วันที่</th><th class="n">ยอด</th><th class="n">เหลือ</th></tr></thead>
-        <tbody>${ob.bills.map(b => {
-          const act = tk ? `class="tap tick" data-act="payOpen" data-id="${esc(id)}" data-pick="${esc(billId(b))}"` : "", cl = tk ? calcLines(id, b) : [];
-          return `<tr ${act}><td>${b.opening ? "ยอดยกมา" : thShort(b.date)}</td><td class="n pencil">${money(b.amt)}</td><td class="n ink">${money(b.left)}</td></tr>`
-            + (cl.length ? `<tr ${tk ? `class="tap calc" data-act="payOpen" data-id="${esc(id)}" data-pick="${esc(billId(b))}"` : `class="calc"`}><td colspan="3">${cl.join("<br>")}</td></tr>` : "");
-        }).join("")}
+        <tbody>${ob.bills.map(b => `<tr><td>${b.opening ? "ยอดยกมา" : thShort(b.date)}</td><td class="n pencil">${money(b.amt)}</td><td class="n ink">${money(b.left)}</td></tr>`).join("")}
         <tr class="tot"><td colspan="2">รวม</td><td class="n"><span class="dbl">${money(ob.total)}</span></td></tr></tbody></table>` : "";
-  if (k !== "sale") return daily;
-  if (ob.mode !== "period") return daily + `<div class="actions" style="margin-top:10px"><button class="btn" data-act="cutOpen" data-id="${esc(id)}">ปิดงวด</button></div>
-      <p class="note">ลูกค้าที่คิดเงินเป็นงวด กดปิดงวด แล้วยอดตั้งแต่ครั้งก่อนจะรวมเป็น 1 งวด ดูง่ายเหมือนบิล</p>`;
-  const start = Math.max(0, ob.all.length - 8), rows = ob.all.slice(start);
-  // แตะงวด = ทำบิลงวดนั้น · รับเงินงวดไหน เลือกในหน้าต่างรับเงิน
-  return `<div class="sec">งวดบิล</div>
-    <table class="lined periods"><colgroup><col style="width:40%"><col style="width:30%"><col style="width:30%"></colgroup>
-      <thead><tr><th>งวด · ช่วง</th><th class="n">ยอด</th><th class="n">ค้าง</th></tr></thead>
-      <tbody>${rows.map((b, i) => { const open = b.left > 0.004;
-        return `<tr class="tap ${b.current ? "cur" : ""}" data-act="periodBill" data-id="${esc(id)}" data-i="${start + i}">
-        <td class="pn">${periodName(b)}<span class="pencil small">${periodRange(b)}</span></td>
-        <td class="n">${money(b.amt)}</td><td class="n">${open ? `<span class="ink">${money(b.left)}</span>` : `<span class="stamp">ครบ</span>`}</td></tr>`; }).join("")}
-      <tr class="tot"><td colspan="2">รวมค้าง</td><td class="n"><span class="dbl">${money(ob.total)}</span></td></tr></tbody></table>
-    <div class="actions" style="margin-top:10px"><button class="btn" data-act="cutOpen" data-id="${esc(id)}">ปิดงวด</button><button class="link" data-act="cutUndo" data-id="${esc(id)}" style="color:var(--pencil)">ยกเลิกงวดล่าสุด</button></div>
-    <p class="note">แตะงวดเพื่อทำบิล เลือกได้หลายงวด ส่งเป็นรูปเข้า LINE · รับเงินงวดไหน กด "รับเงิน" แล้วแตะงวดนั้น</p>`;
 }
-/* ---------- กล่องปิดงวด ---------- */
+/* ---------- บิล: "รวมบิล" = รวมยอดขายช่วงวันเป็น 1 บิลไว้ส่งลูกค้า (ยังไม่ใช่การรับเงิน) · แก้วัน/ลบได้ทุกบิล · ส่งรูปบิลเข้า LINE ----------
+   เปิดจากปุ่ม "บิล" ในหน้าต่างรับเงิน · ปิด = กลับไปหน้าต่างรับเงินของคนนั้น */
+const realCut = b => !b.opening && !b.current && !b.gap;
+function openBillMgr(id) { closePay(); S.bm = { id, sel: null }; renderBillMgr(); }
+function closeBillMgr(back) {
+  const id = S.bm && S.bm.id; S.bm = null;
+  const m = $("#modal"); m.hidden = true; m.innerHTML = ""; m.classList.remove("paymodal");
+  if (back && id) openPay(id);
+}
+function renderBillMgr() {
+  const B = S.bm, id = B.id, p = partyById("sale", id), per = isPeriodCust("sale", id), m = $("#modal");
+  const ob = openBills("sale", id, "9999-12-31"), all = per ? ob.all : [];
+  // ตั้งต้นเลือกทุกบิลที่ยังค้างไว้ส่ง
+  if (B.sel == null) B.sel = all.map((b, i) => b.left > 0.004 ? i : -1).filter(i => i >= 0);
+  // ยอดนอกบิล/ยอดยกมาที่จ่ายครบแล้วไม่ต้องโชว์ (ไม่ใช่บิล) · เก็บลำดับเดิมไว้ใช้เลือกส่ง
+  const rows = all.map((b, i) => ({ b, i })).filter(({ b }) => realCut(b) || b.left > 0.004).map(({ b, i }) => { const on = B.sel.includes(i);
+    return `<div class="bmrow${on ? " on" : ""}"><button type="button" class="bmpick" data-act="bmPick" data-i="${i}" role="checkbox" aria-checked="${on}">
+      <span class="cb${on ? " on" : ""}" aria-hidden="true"></span><span class="ppd"><b>${periodName(b)}</b><span class="small">${periodRange(b)} · ยอด ${money(b.amt)}</span></span>
+      <span class="ppa">${b.left > 0.004 ? money(b.left) : `<span class="stamp">ครบ</span>`}</span></button>
+      ${realCut(b) ? `<button class="link bmedit" data-act="cutEdit" data-id="${esc(id)}" data-no="${b.no}">แก้</button>` : ""}</div>`; }).join("");
+  const n = per ? B.sel.length : ob.count;
+  m.classList.add("paymodal");
+  m.innerHTML = `<div class="modal-card paybox" role="dialog" aria-modal="true" aria-label="บิล">
+    <div class="payhead"><div class="pht"><b>บิล · ${esc(p.name)}</b>${ob.count ? `<span class="pchip">ค้าง ${money(ob.total)}</span>` : ""}</div>
+      <button class="xbtn" data-act="bmBack" aria-label="กลับไปรับเงิน">✕</button></div>
+    <div class="paybody">
+      <button class="btn" data-act="cutOpen" data-id="${esc(id)}" style="justify-self:start">＋ รวมบิลใหม่</button>
+      ${per ? `<div class="pph"><b>บิล</b><span class="pencil small">แตะเพื่อเลือกส่ง · "แก้" = เปลี่ยนวันหรือลบ</span></div><div class="pplist">${rows}</div>`
+        : `<p class="note">ยังไม่เคยรวมบิล · ลูกค้าที่จ่ายเป็นรอบ กด "＋ รวมบิลใหม่" แล้วเลือกช่วงวัน ยอดขายในช่วงนั้นจะรวมเป็น 1 บิล (แค่รวมยอดไว้ส่งลูกค้า ยังไม่ใช่การรับเงิน)</p>
+          ${ob.count ? `<p class="pencil small">ส่งรูปตอนนี้ = ใบแจ้งยอดค้าง ${ob.count} ยอด พร้อมน้ำหนัก × ราคา</p>` : ""}`}
+    </div>
+    <div class="payfoot"><div class="pfs">${n ? `<span>${per ? `เลือก ${n} บิล` : `ค้าง ${n} ยอด`}</span>` : `<span class="pencil">${per ? "เลือกบิลที่จะส่ง" : "ไม่มียอดค้าง"}</span>`}</div>
+      <button class="btn solid" data-act="bmImg" ${n ? "" : "disabled"}>ส่งรูปบิล</button></div></div>`;
+  m.hidden = false;
+}
+/* ---------- กล่องรวมบิล: สร้างใหม่ หรือแก้บิลที่ no (เปลี่ยนวัน / ลบ) · บิลต้องไม่ทับกัน ---------- */
 function cutPreview(id, from, to) {
   let amt = 0, days = 0;
   for (const d of S.dates) { if (d < from || !inBooks(d)) continue; if (d > to) break; const t = lineTotals(lineOf("sale", d, id)); if (t.amt) { amt += t.amt; days++; } }
   return { amt: r2(amt), days };
 }
-/** ค่าตั้งต้น: งวดแรกเริ่มที่ยอดเก่าสุดที่ยังไม่ได้จ่าย งวดต่อไปเริ่มวันถัดจากงวดก่อน · สิ้นสุดที่วันขายล่าสุด */
+/** ค่าตั้งต้นของบิลใหม่: บิลแรกเริ่มที่ยอดเก่าสุดที่ยังไม่ได้จ่าย บิลต่อไปเริ่มวันถัดจากบิลก่อน · สิ้นสุดที่วันขายล่าสุด */
 function cutDefaults(id) {
-  const cuts = cutsOf(id), prevTo = cuts.length ? cuts[cuts.length - 1].date : null, t = todayISO();
+  const cuts = periodList(id), prevTo = cuts.length ? cuts[cuts.length - 1].to : null, t = todayISO();
   let from = prevTo ? addDays(prevTo, 1) : null;
   if (!from) { const b = openBills("sale", id, t).bills.find(x => !x.opening); from = b ? b.date : null; }
   if (!from) for (const d of S.dates) if (inBooks(d) && lineTotals(lineOf("sale", d, id)).amt) { from = d; break; }
   let to = null; for (const d of S.dates) { if (d > t) break; if (from && d >= from && inBooks(d) && lineTotals(lineOf("sale", d, id)).amt) to = d; }
-  return { prevTo, from: from || t, to: to || t };
+  return { from: from || t, to: to || t };
 }
-function openCut(id) {
-  const p = partyById("sale", id), n = cutsOf(id).length + 1, df = cutDefaults(id), m = $("#modal");
-  m.innerHTML = `<div class="modal-card cutbox" role="dialog" aria-modal="true" aria-label="ปิดงวด">
-    <p><b>ปิดงวดที่ ${n}</b> · ${esc(p.name)}</p>
+// no = เลขบิลที่จะแก้ (ไม่ใส่ = บิลใหม่) · บิลข้างๆ ไว้กันวันทับ
+function cutCtx(id, no) {
+  const list = periodList(id), i = no ? no - 1 : list.length;
+  return { list, i, cur: no ? list[i] : null, prev: list[i - 1] || null, next: no ? list[i + 1] || null : null };
+}
+function openCut(id, no) {
+  const p = partyById("sale", id), C = cutCtx(id, no), m = $("#modal"); S.cutNo = no || 0;
+  // บิลแรกแบบเก่าไม่ได้จดวันเริ่ม = เริ่มที่วันขายวันแรก
+  const firstSale = to => { for (const d of S.dates) { if (d > to) break; if (inBooks(d) && lineTotals(lineOf("sale", d, id)).amt) return d; } return to; };
+  const df = C.cur ? { from: C.cur.from || firstSale(C.cur.to), to: C.cur.to } : cutDefaults(id);
+  m.classList.remove("paymodal");
+  const near = [C.prev ? `บิลก่อนหน้าถึง ${thShort(C.prev.to)}` : "", C.next ? `บิลถัดไปเริ่ม ${thShort(C.next.from)}` : ""].filter(Boolean).join(" · ");
+  m.innerHTML = `<div class="modal-card cutbox" role="dialog" aria-modal="true" aria-label="รวมบิล">
+    <p><b>${C.cur ? `แก้บิลที่ ${no}` : `รวมบิลที่ ${C.i + 1}`}</b> · ${esc(p.name)}</p>
     <div class="cutdates">
       <label for="cutFrom"><span class="lbl">ตั้งแต่วันที่</span><input type="date" class="fld" id="cutFrom" data-id="${esc(id)}" value="${df.from}"></label>
       <label for="cutTo"><span class="lbl">ถึงวันที่</span><input type="date" class="fld" id="cutTo" data-id="${esc(id)}" value="${df.to}"></label>
     </div>
-    <p class="note">${df.prevTo ? `งวดก่อนหน้าปิดถึง ${thShort(df.prevTo)}` : "ตั้งต้นให้เริ่มที่ยอดเก่าสุดที่ยังไม่ได้จ่าย"} · แก้วันได้ตามบิลจริง</p>
+    <p class="note">${near ? near + " · " : C.cur ? "" : "ตั้งต้นให้เริ่มที่ยอดเก่าสุดที่ยังไม่ได้จ่าย · "}รวมบิล = รวมยอดไว้ส่งลูกค้า ยังไม่ใช่การรับเงิน</p>
     <div class="sum" id="cutSum"></div><div class="err" id="cutErr" hidden></div>
-    <div class="row"><button class="btn" data-act="cutCancel">ยกเลิก</button><button class="btn solid" data-act="cutConfirm" data-id="${esc(id)}">ปิดงวด</button></div></div>`;
+    <div class="row">${C.cur ? `<button class="link" data-act="cutDel" data-id="${esc(id)}" data-no="${no}" style="color:#A12A2A;margin-right:auto">ลบบิลนี้</button>` : ""}
+      <button class="btn" data-act="cutCancel">ยกเลิก</button><button class="btn solid" data-act="cutConfirm" data-id="${esc(id)}" data-no="${no || ""}">${C.cur ? "บันทึกที่แก้" : "รวมบิล"}</button></div></div>`;
   m.hidden = false; updateCutSum(id);
 }
 function updateCutSum(id) {
   const from = $("#cutFrom").value, to = $("#cutTo").value, pv = from && to && from <= to ? cutPreview(id, from, to) : { amt: 0 };
   $("#cutSum").innerHTML = pv.amt ? `<span>${thShort(from)} – ${thShort(to)} · ขาย ${pv.days} วัน</span><b>${money(pv.amt)} บาท</b>` : `<span class="pencil">ช่วงนี้ยังไม่มียอดขาย</span>`;
-  $("#cutErr").hidden = true;
+  // วันทับบิลข้างๆ เตือนทันทีที่เลือกวัน ไม่ต้องรอกดปุ่ม
+  const C = cutCtx(id, S.cutNo || 0), ov = C.prev && from && from <= C.prev.to ? `ทับบิลก่อนหน้า (ถึง ${thShort(C.prev.to)})` : C.next && to && to >= C.next.from ? `ทับบิลถัดไป (เริ่ม ${thShort(C.next.from)})` : "";
+  $("#cutErr").textContent = ov ? ov + " เลือกวันใหม่" : ""; $("#cutErr").hidden = !ov;
 }
-async function confirmCut(id) {
-  const from = $("#cutFrom").value, to = $("#cutTo").value, err = $("#cutErr"), cuts = cutsOf(id), prevTo = cuts.length ? cuts[cuts.length - 1].date : null;
+// บิลถัดไปแบบเก่าที่ไม่ได้จดวันเริ่ม (เริ่ม = วันถัดจากบิลก่อน) จดวันเริ่มเดิมไว้ก่อน ลบ/หดบิลนี้แล้ววันขายจะได้ไม่ไหลไปรวมบิลถัดไปเงียบๆ
+async function pinNextFrom(id, C) {
+  const raw = C.next && (S.cuts[id] || []).find(c => c.date === C.next.to);
+  if (!raw || raw.from) return;
+  raw.from = C.next.from;
+  await backend.saveCut({ id, date: raw.date, deleted: true, edit: true });
+  await backend.saveCut({ id, date: raw.date, no: C.i + 2, from: raw.from, amt: cutPreview(id, raw.from, raw.date).amt });
+}
+// แก้บิล = ลบบิลเดิม (อ้างด้วยวันสิ้นสุดเดิม) แล้วเพิ่มบิลใหม่ · หลังบ้านเดิมรองรับอยู่แล้ว
+async function confirmCut(id, no) {
+  const from = $("#cutFrom").value, to = $("#cutTo").value, err = $("#cutErr"), C = cutCtx(id, no);
   const fail = msg => { err.textContent = msg; err.hidden = false; };
-  if (!from || !to) return fail("เลือกวันเริ่มและวันสิ้นสุดของงวดก่อน");
+  if (!from || !to) return fail("เลือกวันเริ่มและวันสิ้นสุดของบิลก่อน");
   if (from > to) return fail("วันเริ่มต้องไม่อยู่หลังวันสิ้นสุด");
-  if (prevTo && from <= prevTo) return fail(`วันเริ่มต้องอยู่หลังงวดก่อนหน้า (ปิดถึง ${thShort(prevTo)})`);
+  if (C.prev && from <= C.prev.to) return fail(`ทับบิลก่อนหน้า (ถึง ${thShort(C.prev.to)}) เลือกวันเริ่มหลังจากนั้น`);
+  if (C.next && to >= C.next.from) return fail(`ทับบิลถัดไป (เริ่ม ${thShort(C.next.from)}) เลือกวันสิ้นสุดก่อนหน้านั้น`);
   const pv = cutPreview(id, from, to); if (!pv.amt) return fail("ช่วงนี้ยังไม่มียอดขาย เลือกวันใหม่");
-  const no = cuts.length + 1;
-  (S.cuts[id] = S.cuts[id] || []).push({ date: to, from });
-  $("#modal").hidden = true; $("#modal").innerHTML = ""; renderDetail();
-  try { await backend.saveCut({ id, date: to, no, from, amt: pv.amt }); toast(`ปิดงวดที่ ${no} แล้ว · ${money(pv.amt)} บาท`); }
-  catch (e) { toast("ปิดงวดไม่สำเร็จ ลองอีกครั้ง"); loadAll(true); }
+  const n = C.i + 1, old = C.cur, pinning = old ? pinNextFrom(id, C) : null; // จดวันเริ่มบิลถัดไปก่อน (ส่วนในเครื่องเปลี่ยนทันที)
+  S.cuts[id] = (S.cuts[id] || []).filter(c => !old || c.date !== old.to).concat([{ date: to, from }]);
+  renderBillMgr();
+  try {
+    if (pinning) await pinning;
+    if (old) await backend.saveCut({ id, date: old.to, deleted: true, edit: true });
+    await backend.saveCut({ id, date: to, no: n, from, amt: pv.amt });
+    toast(`${old ? "แก้" : "รวม"}บิลที่ ${n} แล้ว · ${money(pv.amt)} บาท`);
+  } catch (e) { toast("บันทึกบิลไม่สำเร็จ ลองอีกครั้ง"); loadAll(true); }
 }
-async function undoCut(id) {
-  const cuts = cutsOf(id); if (!cuts.length) { toast("ยังไม่มีงวดที่ปิด"); return; }
-  const last = cuts[cuts.length - 1].date;
-  if (!(await askConfirm(`ยกเลิกปิดงวดที่ ${cuts.length} (ถึง ${thShort(last)}) ไหม? ยอดของงวดนี้จะกลับไปรวมกับงวดถัดไป`, "ยกเลิกงวด"))) return;
-  S.cuts[id] = (S.cuts[id] || []).filter(c => c.date !== last); renderDetail();
-  try { await backend.saveCut({ id, date: last, deleted: true }); toast("ยกเลิกงวดแล้ว"); } catch (e) { toast("ยกเลิกงวดไม่สำเร็จ"); loadAll(true); }
+async function deleteCut(id, no) {
+  const C = cutCtx(id, no), c = C.cur; if (!c) return;
+  if (!(await askConfirm(`ลบบิลที่ ${no} (${c.from ? thShort(c.from) + "–" : "ถึง "}${thShort(c.to)}) ไหม? แค่ยกเลิกการรวมบิล ยอดขายและเงินที่รับไม่หาย${C.next ? " · บิลถัดไปจะเลื่อนเลขขึ้นมา (ถ้าส่งรูปบิลให้ลูกค้าไปแล้ว ดูที่ช่วงวันแทนเลขบิล)" : ""}`, "ลบบิล"))) { openCut(id, no); return; }
+  const pinning = pinNextFrom(id, C);
+  S.cuts[id] = (S.cuts[id] || []).filter(x => x.date !== c.to); renderBillMgr();
+  try { await pinning; await backend.saveCut({ id, date: c.to, deleted: true }); toast(`ลบบิลที่ ${no} แล้ว`); } catch (e) { toast("ลบบิลไม่สำเร็จ"); loadAll(true); }
+}
+/* ---------- สมุดลูกหนี้ (สรุป › ลูกค้า › แตะชื่อ): ดูอย่างเดียว ไม่ลิงก์ไปหน้าไหน ----------
+   ขายแต่ละวัน (ตัว กก. ยอด จ่ายแล้ว) · จ่ายแล้วของแต่ละวันมาจากการตัดยอดจริง (วันที่เลือกตอนรับเงิน / เก่าสุดก่อน) ตรงกับหน้ารับเงินเสมอ
+   เงินเข้าแต่ละก้อน บอกว่าตัดของวันไหนไปบ้าง · รับเงิน/แก้ไข ไปทำที่แท็บรับเงิน */
+function renderLedger() {
+  const { id } = S.detail, p = partyById("sale", id); if (!p) return closeDetail();
+  const ob = openBills("sale", id, "9999-12-31"), [from, to] = stRange(), tr = ob.trace || { debits: [], pays: [] };
+  const paidOf = {}, amtOf = {};
+  for (const x of tr.debits) for (const d in x.dm) { paidOf[d] = (x.paidBy || {})[d] || 0; amtOf[d] = x.dm[d]; }
+  const rows = [], T = { n: 0, kg: 0, amt: 0, paid: 0 }, pays = [];
+  for (const d of S.dates) {
+    if (d < from) continue; if (d > to) break;
+    const l = lineOf("sale", d, id); if (!l) continue;
+    const t = lineTotals(l);
+    if (t.amt || t.kg || t.n) {
+      const books = inBooks(d), pd = books ? paidOf[d] || 0 : 0;
+      T.n += t.n; T.kg += t.kg; T.amt += t.amt; T.paid += pd;
+      const st = !books ? `<span class="pencil small">ก่อนนับหนี้</span>` : pd >= t.amt - 0.004 ? `<span class="pst ok">✓ ครบ</span>` : pd > 0.004 ? `<span class="pst part">${money(pd)}</span>` : `<span class="pencil">–</span>`;
+      rows.push(`<tr><td>${thShort(d)}</td><td class="n">${t.n ? fmtN(t.n, 0) : ""}</td><td class="n">${t.kg ? kg1(t.kg) : ""}</td><td class="n ink">${money(t.amt)}</td><td class="n">${st}</td></tr>`
+        + (t.oth || t.lab || t.dd ? `<tr class="calc"><td colspan="5">${esc(loadsDesc(t, "sale"))}</td></tr>` : ""));
+    }
+    if (t.paid || t.disc) {
+      // ก้อนเงินของวันนี้ ตัดวันไหนไปบ้าง (รวมทุกก้อนของวันนั้น) · เกินยอดค้าง = จ่ายเกิน
+      const ps = tr.pays.filter(x => x.d === d), keys = [...new Set(ps.flatMap(x => Object.keys(x.cut || {}).filter(k => x.cut[k] > 0.004)))], over = r2(ps.reduce((s, x) => s + (x.over || 0), 0));
+      pays.push({ d, l, t, keys, over, picked: allocGroups(l).length > 0 });
+    }
+  }
+  const op = num(p.opening), opDebit = tr.debits.find(x => x.opening);
+  $("#drawer").innerHTML = `<div class="book">
+    <header class="cover"><div class="k">สมุดลูกหนี้</div><h2>${esc(p.name)}</h2><button class="x" data-act="closeDetail" aria-label="ปิด">✕</button></header>
+    <div class="page">
+      <div class="headline"><div><span class="lbl">ค้างทั้งหมด</span><div class="big">${money(ob.total)}</div></div>${statusHTML(ob)}</div>
+      <p class="note" style="color:var(--text)">${throughText(ob)}</p>
+      ${op > 0 && opDebit ? `<p class="pencil small">หนี้ยกมาก่อนใช้แอป ${money(op)} · ${opDebit.left <= 0.004 ? "จ่ายครบแล้ว" : `ยังค้าง ${money(opDebit.left)}`}</p>` : ""}
+      <div class="periodbar"><div class="seg sm" role="group" aria-label="ช่วง"><button data-act="stMode" data-m="week" aria-pressed="${S.stMode === "week"}">วีค</button><button data-act="stMode" data-m="month" aria-pressed="${S.stMode === "month"}">เดือน</button></div>
+        <div class="rangenav"><button class="icon" data-act="stPrev" aria-label="ก่อนหน้า">‹</button><span class="lbl2">${S.stMode === "month" ? thMonth(from) : rangeLabel(from, to)}</span><button class="icon" data-act="stNext" aria-label="ถัดไป">›</button></div></div>
+      <div class="sec">สั่งซื้อ</div>
+      ${rows.length ? `<table class="lined daily ledger"><colgroup><col style="width:18%"><col style="width:10%"><col style="width:20%"><col style="width:26%"><col style="width:26%"></colgroup>
+        <thead><tr><th>วันที่</th><th class="n">ตัว</th><th class="n">กก.</th><th class="n">ยอด</th><th class="n">จ่ายแล้ว</th></tr></thead>
+        <tbody>${rows.join("")}
+        <tr class="tot"><td>รวม</td><td class="n">${fmtN(T.n, 0)}</td><td class="n">${kg1(T.kg)}</td><td class="n">${money(T.amt)}</td><td class="n">${money(T.paid)}</td></tr></tbody></table>
+        ${T.amt - T.paid > 0.004 ? `<p class="pencil small" style="text-align:right">ยอดในช่วงนี้ที่ยังค้าง ${money(T.amt - T.paid)}</p>` : ""}`
+        : `<p class="note">ช่วงนี้ไม่มีการสั่ง</p>`}
+      <div class="sec">เงินเข้า</div>
+      ${pays.length ? `<div class="rplist">${pays.map(x => `<div class="rprow ro"><span class="rpd">${thShort(x.d)}</span>
+        <span class="rpm"><span><b>${money(x.t.paid)}</b>${x.t.disc ? ` · ลด ${money(x.t.disc)}` : ""} <span class="pencil small">${esc(x.t.paid ? x.l.method || "" : "")}</span></span>
+        <span class="small pencil">${!inBooks(x.d) ? "ก่อนนับหนี้" : x.keys.length ? `ตัด ${esc(allocLabel(x.keys))}${x.picked ? "" : " (เก่าสุดก่อน)"}` : "ยังไม่ได้ตัดวันไหน"}${x.over ? ` · จ่ายเกิน ${money(x.over)}` : ""}</span></span></div>`).join("")}</div>`
+        : `<p class="note">ช่วงนี้ไม่มีเงินเข้า</p>`}
+      ${ob.mode === "period" ? `<div class="sec">บิล</div>
+        <table class="lined periods"><colgroup><col style="width:40%"><col style="width:30%"><col style="width:30%"></colgroup>
+          <thead><tr><th>บิล · ช่วง</th><th class="n">ยอด</th><th class="n">ค้าง</th></tr></thead>
+          <tbody>${ob.all.filter(b => realCut(b) || b.left > 0.004).slice(-8).map(b => `<tr><td class="pn">${periodName(b)}<span class="pencil small">${periodRange(b)}</span></td><td class="n">${money(b.amt)}</td>
+            <td class="n">${b.left > 0.004 ? `<span class="ink">${money(b.left)}</span>` : `<span class="stamp">ครบ</span>`}</td></tr>`).join("")}</tbody></table>` : ""}
+      <p class="note">จ่ายแล้ว = เงินที่รับ + ส่วนลด ที่ตัดวันนั้นไป · หน้านี้ดูอย่างเดียว · รับเงิน แก้ยอดรับเงิน รวมบิล ทำที่แท็บ "รับเงิน" · แก้ยอดขายทำที่หน้า "บันทึก"</p>
+    </div></div>`;
 }
 function renderDetail() {
+  if (S.detail.k === "sale") return renderLedger();
   const { k, id } = S.detail, p = partyById(k, id); if (!p) return closeDetail();
   const ob = openBills(k, id, "9999-12-31"), [from, to] = stRange(), st = statement(k, id, from, to);
   const through = throughText(ob);
@@ -2057,6 +2220,7 @@ function cashHTML(from, to) {
   <table class="lined"><colgroup><col style="width:24%"><col style="width:13%"><col style="width:20%"><col style="width:19%"><col style="width:24%"></colgroup>
     <thead><tr><th>ชนิด</th><th class="n">ตัว</th><th class="n">กก.</th><th class="n">เฉลี่ย ฿/กก.</th><th class="n">บาท</th></tr></thead>
     <tbody>${TYPES.map(ty => { const b = P.sale.by[ty] || { n: 0, kg: 0, amt: 0 }; return `<tr><td>${ty}</td><td class="n">${fmtN(b.n, 0)}</td><td class="n">${kg1(b.kg)}</td><td class="n pencil">${b.kg ? fmtN(b.meat / b.kg) : "–"}</td><td class="n ink">${money(b.amt)}</td></tr>`; }).join("")}
+    ${P.sale.oth ? `<tr><td>อื่นๆ</td><td colspan="3" class="pencil small">เลือด ไส้ ฯลฯ</td><td class="n ink">${money(P.sale.oth)}</td></tr>` : ""}
     ${P.sale.disc ? `<tr><td>ส่วนลด</td><td colspan="3"></td><td class="n ink">−${money(P.sale.disc)}</td></tr>` : ""}
     <tr class="tot"><td>ขายสุทธิ</td><td class="n">${fmtN(P.sale.n, 0)}</td><td class="n">${kg1(P.sale.kg)}</td><td></td><td class="n"><span class="dbl">${money(P.saleNet)}</span></td></tr></tbody></table>
   ${dailyHTML(from, to)}
@@ -2152,9 +2316,9 @@ function custHTML(from, to) {
   orderCust(from, to).forEach(o => { od[o.c.id] = o; });
   const T = rows.reduce((a, { s }) => { for (const f of ["opening", "amt", "paid", "disc", "closing"]) a[f] += s[f]; return a; }, { opening: 0, amt: 0, paid: 0, disc: 0, closing: 0 });
   // ไม่มีส่วนลดเลยในช่วงนี้ = ไม่ต้องมีคอลัมน์ส่วนลด
-  // ไม่มียกมา (คงค้างบอกอยู่แล้ว) · ตัว = จำนวนหมูที่สั่งในช่วงนี้
+  // ไม่มียกมา (คงค้างบอกอยู่แล้ว) · คงค้างอยู่ถัดจากชื่อ บน iPhone เห็นเลยไม่ต้องเลื่อนตาราง · ตัว = จำนวนหมูที่สั่งในช่วงนี้ (ไว้ท้ายสุด)
   const hasDisc = Math.abs(T.disc) > 0.004, cols = hasDisc ? 6 : 5, span = spanDays(from, to);
-  const w = hasDisc ? [19, 9, 19, 19, 14, 20] : [21, 10, 23, 23, 23];
+  const w = hasDisc ? [19, 20, 19, 19, 14, 9] : [21, 23, 23, 23, 10];
   let n = 0, saleDays = 0;
   for (const d of S.dates) { if (d < from) continue; if (d > to) break; const s = daySum("sale", d); n += s.n; if (s.kg || s.n) saleDays++; }
   let weeks = "";
@@ -2170,11 +2334,11 @@ function custHTML(from, to) {
       <p class="note">วีคที่คร่อมเดือนนับเต็มวีค เหมือนในไฟล์ Excel เดิม</p>`;
   }
   return seg + `<div class="tblwrap" style="overflow-x:auto"><table class="lined custsum" style="min-width:${hasDisc ? 560 : 480}px"><colgroup>${w.map(x => `<col style="width:${x}%">`).join("")}</colgroup>
-    <thead><tr><th>ลูกค้า</th><th class="n">ตัว</th><th class="n">ขาย</th><th class="n">รับเงิน</th>${hasDisc ? `<th class="n">ส่วนลด</th>` : ""}<th class="n">คงค้าง</th></tr></thead>
+    <thead><tr><th>ลูกค้า</th><th class="n">คงค้าง</th><th class="n">ขาย</th><th class="n">รับเงิน</th>${hasDisc ? `<th class="n">ส่วนลด</th>` : ""}<th class="n">ตัว</th></tr></thead>
     <tbody>${rows.map(({ c, s }) => { const o = od[c.id], ol = orderLine(o, span), act = `data-act="detail" data-kind="sale" data-id="${esc(c.id)}"`;
-      return `<tr class="tap${ol ? " tick" : ""}" ${act}><td>${esc(c.name)}</td><td class="n">${o && o.n ? fmtN(o.n, 0) : ""}</td><td class="n ink">${money(s.amt)}</td><td class="n ink">${money(s.paid)}</td>${hasDisc ? `<td class="n pencil">${s.disc ? money(s.disc) : ""}</td>` : ""}<td class="n ink">${money(s.closing)}</td></tr>`
+      return `<tr class="tap${ol ? " tick" : ""}" ${act}><td>${esc(c.name)}</td><td class="n ink"><b>${money(s.closing)}</b></td><td class="n ink">${money(s.amt)}</td><td class="n ink">${money(s.paid)}</td>${hasDisc ? `<td class="n pencil">${s.disc ? money(s.disc) : ""}</td>` : ""}<td class="n">${o && o.n ? fmtN(o.n, 0) : ""}</td></tr>`
         + (ol ? `<tr class="tap calc" ${act}><td colspan="${cols}"><span class="ol">${ol}</span></td></tr>` : ""); }).join("")}
-    <tr class="tot"><td>รวม</td><td class="n">${n ? fmtN(n, 0) : ""}</td><td class="n">${money(T.amt)}</td><td class="n">${money(T.paid)}</td>${hasDisc ? `<td class="n">${money(T.disc)}</td>` : ""}<td class="n"><span class="dbl">${money(T.closing)}</span></td></tr></tbody></table></div>
+    <tr class="tot"><td>รวม</td><td class="n"><span class="dbl">${money(T.closing)}</span></td><td class="n">${money(T.amt)}</td><td class="n">${money(T.paid)}</td>${hasDisc ? `<td class="n">${money(T.disc)}</td>` : ""}<td class="n">${n ? fmtN(n, 0) : ""}</td></tr></tbody></table></div>
     ${n ? `<p class="note">รวม ${fmtN(n, 0)} ตัว · มีขาย ${saleDays}/${span} วัน · ทุกคนรวมกันเฉลี่ยวันละ ${perDay(n, saleDays)} ตัว (นับเฉพาะวันที่มีขาย) · แตะชื่อเพื่อดูบัญชีของคนนั้น</p>` : ""}${weeks}`;
 }
 function plHTML(from, to) {
@@ -2211,7 +2375,7 @@ function reportTsv() {
 /* ================= page: ตั้งค่า ================= */
 function renderSettings() {
   setCover("Kai Account", "ตั้งค่า", "");
-  const rows = k => partiesOf(k).map((p, i, arr) => `<tr>
+  const rows = k => partiesOf(k).map((p, i, arr) => `<tr class="${p.active === false ? "off" : ""}">
     <td><input class="fld l" id="nm-${esc(p.id)}" data-pk="${k}" data-id="${esc(p.id)}" data-cf="name" value="${esc(p.name)}" aria-label="ชื่อ"></td>
     <td class="n"><input class="fld" id="op-${esc(p.id)}" data-pk="${k}" data-id="${esc(p.id)}" data-cf="opening" inputmode="decimal" value="${p.opening || 0}" aria-label="ยอดยกมา"></td>
     ${k === "sale" ? `<td class="n"><input class="fld" id="rd-${esc(p.id)}" data-pk="sale" data-id="${esc(p.id)}" data-cf="rounds" inputmode="numeric" value="${roundsOf("sale", p)}" aria-label="รอบประจำ"></td>` : ""}
@@ -2232,7 +2396,7 @@ function renderSettings() {
     ${table("sale", "หนี้ยกมา")}
     <div class="toolbar" style="margin-top:8px"><input class="fld l" id="newCust" placeholder="ชื่อลูกค้าใหม่" aria-label="ชื่อลูกค้าใหม่" style="max-width:260px"><button class="btn" data-act="addParty" data-pk="sale">เพิ่มลูกค้า</button><button class="btn" data-act="reorderOpen" data-pk="sale">จัดลำดับ</button></div>
     <p class="note"><b>หนี้ยกมา</b> = ยอดที่ลูกค้าค้างอยู่ ณ ต้นวันที่ "เริ่มนับหนี้" (${thShort(S.set.openingDate)}) · รายการขาย/รับเงินก่อนวันนั้นยังดูได้ในหน้าสรุป แต่ไม่นับเป็นหนี้ซ้ำ</p>
-    <p class="note">รอบ = จำนวนรอบส่งประจำ เช่น สำโรงส่ง 3 ที่ ใส่ 3 หน้าบันทึกจะมีรอบ 1–3 ให้เลย แต่ละรอบจำราคาแยกกัน แต่หนี้รวมเป็นยอดเดียว · ปิด "ใช้งาน" แล้วชื่อจะหายจากหน้าบันทึก แต่ประวัติยังอยู่ครบ · เรียงชื่อในหน้าบันทึก: กดค้างที่ชื่อในหน้าบันทึกแล้วลาก หรือกด "จัดลำดับ"</p>
+    <p class="note">รอบ = จำนวนรอบส่งประจำ เช่น สำโรงส่ง 3 ที่ ใส่ 3 หน้าบันทึกจะมีรอบ 1–3 ให้เลย แต่ละรอบจำราคาแยกกัน แต่หนี้รวมเป็นยอดเดียว · <b>ลูกค้าเลิกซื้อแล้ว</b>: เอาเครื่องหมายช่อง "ใช้งาน" ออก ชื่อจะไม่ขึ้นในหน้าบันทึกและสรุป ยกเว้นวันที่มีรายการ (ไม่ลบทิ้ง ประวัติยังอยู่ครบ ถ้ายังค้างเงินจะยังขึ้นในหน้ารับเงินจนจ่ายครบ) · เรียงชื่อในหน้าบันทึก: กดค้างที่ชื่อในหน้าบันทึกแล้วลาก หรือกด "จัดลำดับ"</p>
     <div class="sec">หมวดรายจ่าย</div>
     <label for="sCats"><span class="lbl">คั่นแต่ละหมวดด้วยจุลภาค (,)</span><input class="fld l" id="sCats" data-sf="expenseCats" value="${esc(S.set.expenseCats.join(", "))}"></label>
     <div class="sec">ซื้อหมูจากฟาร์ม</div>
@@ -2499,10 +2663,28 @@ document.addEventListener("click", async e => {
     case "payExDiscClear": S.pay.exDisc = 0; updatePay(); break;
     case "detail": openDetail(b.dataset.kind || "sale", b.dataset.id); break;
     case "closeDetail": closeDetail(); break;
+    case "payBills": {
+      // พิมพ์ยอดไว้แล้วยังไม่ได้กดลงรับเงิน ถามก่อน ไม่ให้ยอดที่พิมพ์หายเงียบๆ
+      const T = payTot(S.pay), id = b.dataset.id;
+      if ((T.r || T.d) && !(await askConfirm("ยังไม่ได้กดลงรับเงิน ยอดที่ใส่ไว้จะหาย ไปหน้าบิลเลยไหม?", "ไปหน้าบิล"))) { renderPay(); break; }
+      openBillMgr(id); break;
+    }
+    case "bmBack": closeBillMgr(true); break;
+    case "bmPick": { const i = +b.dataset.i, sel = new Set(S.bm.sel); if (sel.has(i)) sel.delete(i); else sel.add(i); S.bm.sel = [...sel].sort((x, y) => x - y); renderBillMgr(); break; }
+    case "bmImg": {
+      b.disabled = true; const old = b.textContent; b.textContent = "กำลังทำ…";
+      try {
+        const m = billModel("sale", S.bm.id, S.bm.sel), cv = await billCanvas(m), png = await canvasBlob(cv, "image/png");
+        const bm = { id: S.bm.id, sel: S.bm.sel.slice() }; S.bm = null; $("#modal").classList.remove("paymodal");
+        showBillFiles([{ blob: png, name: `บิล-${m.file}.png` }], "รูปบิล", () => { S.bm = bm; renderBillMgr(); });
+      } catch (e) { toast("ทำไฟล์ไม่สำเร็จ ลองอีกครั้ง"); b.disabled = false; b.textContent = old; }
+      break;
+    }
     case "cutOpen": openCut(b.dataset.id); break;
-    case "cutCancel": $("#modal").hidden = true; $("#modal").innerHTML = ""; break;
-    case "cutConfirm": confirmCut(b.dataset.id); break;
-    case "cutUndo": undoCut(b.dataset.id); break;
+    case "cutEdit": openCut(b.dataset.id, +b.dataset.no); break;
+    case "cutDel": deleteCut(b.dataset.id, +b.dataset.no); break;
+    case "cutCancel": if (S.bm) renderBillMgr(); else { $("#modal").hidden = true; $("#modal").innerHTML = ""; } break;
+    case "cutConfirm": confirmCut(b.dataset.id, +b.dataset.no || 0); break;
     case "periodBill": case "bill": {
       // เปิดหน้าบิล: แตะงวด = เลือกงวดนั้น · ปุ่มส่งบิล = เลือกทุกงวดที่ยังค้าง
       const { k, id } = S.detail;
@@ -2568,7 +2750,7 @@ document.addEventListener("click", async e => {
     }
     case "logOpen": openLog(200); break;
     case "logMore": openLog(1000); break;
-    case "logOnly": S.log.only = b.dataset.v === "1"; renderLog(); break;
+    case "logOnly": S.log.only = +b.dataset.v || 0; renderLog(); break;
     case "gotoDay": S.tab = "entry"; S.entryKind = "sale"; S.date = b.dataset.d; S.openId = null; S.draft = null; S.dirty = false; render(); window.scrollTo(0, 0); break;
     case "copyReport": { $("#copyBox").hidden = false; const ta = $("#copyText"); ta.value = reportTsv(); copyFrom(ta, "คัดลอกแล้ว วางใน Excel, Sheet หรือ LINE ได้"); break; }
     case "move": {
@@ -2641,7 +2823,7 @@ document.addEventListener("change", e => {
     const p = partyById(t.dataset.pk, t.dataset.id); if (!p) return;
     const f = t.dataset.cf;
     if (f === "name") { const v = t.value.trim(); if (!v) { t.value = p.name; return; } p.name = v; }
-    else if (f === "active") p.active = t.checked;
+    else if (f === "active") { p.active = t.checked; const tr = t.closest("tr"); if (tr) tr.classList.toggle("off", !t.checked); }
     else if (f === "rounds") { const v = Math.min(5, Math.max(1, Math.round(num(t.value)) || 1)); t.value = v; p.rounds = v; }
     else p[f] = r2(num(t.value));
     saveConfigToast("บันทึกแล้ว");
