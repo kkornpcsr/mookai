@@ -1,6 +1,6 @@
 // เก็บไฟล์หน้าแอปไว้ในเครื่อง ให้เปิดเร็ว และเปิดหน้าแอปได้แม้เน็ตหลุดชั่วคราว
 // ข้อมูลบัญชีไม่ถูกเก็บที่นี่ ยังดึงจาก Google Sheet ทุกครั้ง
-const CACHE = "papa-accounting-v2";
+const CACHE = "papa-accounting-v3";
 const SHELL = ["./", "./index.html", "./config.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", event => {
@@ -14,11 +14,12 @@ self.addEventListener("activate", event => {
 });
 
 // ไฟล์ของแอปเอง: ลองโหลดใหม่จากเน็ตก่อน (จะได้เวอร์ชันล่าสุดเสมอ) ถ้าไม่มีเน็ตค่อยใช้ของที่เก็บไว้
+// cache:"no-cache" = ถาม GitHub ทุกครั้งว่ามีไฟล์ใหม่ไหม (ไม่ใช้ของเก่าที่ browser จำไว้ 10 นาที)
 self.addEventListener("fetch", event => {
   const req = event.request;
   if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
   event.respondWith(
-    fetch(req)
+    fetch(req, { cache: "no-cache" })
       .then(res => {
         if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(cache => cache.put(req, copy)); }
         return res;
