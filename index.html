@@ -327,6 +327,9 @@ select.fld{text-align:left}
 .sec.secrow .link{letter-spacing:0;font-weight:400}
 .lined .tw{display:inline-block;width:11px;font-size:11px;color:var(--pencil)}
 .warnp,.lined td.warnp{color:#C25E00;font-weight:700}
+.labamt{font-size:20px;font-weight:700;padding:8px 0}
+.note.warnline{color:#C25E00}
+.note.warnline .link{font-weight:700}
 .lined.ledger td,.lined.ledger th{padding-left:2px;padding-right:3px}
 .lined.ledger td{font-size:13.5px}
 .lined.ledger th{font-size:11px;padding-left:1px;padding-right:2px}
@@ -452,7 +455,9 @@ function sticker(name, cls) {
 
 /* ================= state ================= */
 const DEFAULT_SET = { defaultPrice: 86, defaultLivePrice: 0, defaultBuyPrice: 0, weekStart: 2, openingDate: "2026-01-01", roundOffMax: 1000, buyEnabled: false,
-  expenseCats: ["ค่าแรง", "ค่าน้ำมัน/ขนส่ง", "ค่าน้ำ-ไฟ", "ค่าซ่อมบำรุง", "ค่าวัสดุสิ้นเปลือง", "อื่นๆ"] };
+  expenseCats: ["ค่าจ้างทำหมู", "ค่ารถขนหมู", "ค่าแรง", "อื่นๆ"] };
+// หมวดตัวอย่างชุดแรก ถ้าในชีตยังเป็นชุดนี้อยู่ (ยังไม่เคยแก้) เปลี่ยนเป็นหมวดจริงของโรงเชือดให้เอง (Korn 18 พ.ย. · ค่าหมูไปจดที่ ซื้อหมู)
+const OLD_EXP_CATS = "ค่าแรง,ค่าน้ำมัน/ขนส่ง,ค่าน้ำ-ไฟ,ค่าซ่อมบำรุง,ค่าวัสดุสิ้นเปลือง,อื่นๆ";
 const S = {
   mode: "demo", demo: false, loaded: false, loadError: null, needPin: false, pinMsg: "", pin: "", pinRequired: false, sheetUrl: "",
   rev: null, saving: 0, offline: false, staleRev: false, outbox: [], cachedAt: null, today: todayISO(),
@@ -676,16 +681,21 @@ function periodBills(id, asOf) {
   const pb = periodBuckets(id, asOf), open = pb.buckets.filter(b => b.left > 0.004), ageRef = asOf > todayISO() ? todayISO() : asOf;
   // จ่ายครบถึง = งวดสุดท้ายที่ครบต่อเนื่องจากงวดแรก · งวดใหม่กว่าที่ลูกค้าขอจ่ายข้ามไปก่อน เก็บไว้ใน skipped
   const fo = pb.buckets.findIndex(b => b.left > 0.004), paid = fo < 0 ? pb.buckets : pb.buckets.slice(0, fo);
+  // วันขายที่ยังค้าง (ในบิลที่จ่ายไม่ครบ เงินลงวันเก่าก่อน · settle ตัดตามลำดับวันอยู่แล้ว) ใช้นับ "ค้าง N วัน" แบบลูกค้ารายวัน
+  const openDays = [];
+  for (const b of open) for (const d in b.dm) if (d !== "open" && b.dm[d] - num(b.paidBy && b.paidBy[d]) > 0.004) openDays.push(d);
+  openDays.sort();
   const skipped = fo < 0 ? [] : pb.buckets.slice(fo).filter(b => b.left <= 0.004).map(b => ({ date: b.from, to: b.to, opening: !!b.opening, current: !!b.current, gap: !!b.gap, no: b.no }));
-  return { mode: "period", all: pb.buckets, credit: open.length ? 0 : pb.credit, skipped, trace: pb.trace,
+  return { mode: "period", all: pb.buckets, credit: open.length ? 0 : pb.credit, skipped, trace: pb.trace, openDays,
     bills: open.map(b => ({ date: b.from, to: b.to, amt: b.amt, left: b.left, opening: !!b.opening, current: !!b.current, no: b.no, keys: Object.keys(b.dm), age: Math.max(0, daysBetween(b.from, ageRef)) })),
     total: r2(open.reduce((s, b) => s + b.left, 0)), count: open.length, closedOpen: open.filter(b => !b.current).length,
     cur: (open.find(b => b.current) || {}).left || 0, paidThrough: paid.length ? paid[paid.length - 1].to : null, oldest: open.length ? open[0].from : null };
 }
-// ค้างกี่วัน (ลูกค้ารายวัน) / กี่บิล (ลูกค้ารวมบิล) · ยกมา บอกแยก ไม่นับเป็นวัน
+// วันขายที่ยังค้าง: ลูกค้ารายวัน = วันที่ค้าง · ลูกค้ารวมบิล = วันขายในบิลที่ยังไม่ได้จ่าย (Korn 18 พ.ย.: นับเป็นวันเหมือนคนอื่น ไม่ใช่ "x บิล")
+const owedDays = ob => ob.mode === "period" ? (ob.openDays || []) : ob.bills.filter(b => !b.opening).map(b => b.date);
+// ค้างกี่วัน · ยกมา บอกแยก ไม่นับเป็นวัน
 function owedN(ob) {
-  if (ob.mode === "period") return [ob.closedOpen ? `${ob.closedOpen} บิล` : "", ob.cur > 0.004 ? "ยังไม่รวมบิล" : ""].filter(Boolean).join(" + ");
-  const n = ob.bills.filter(b => !b.opening).length, op = ob.bills.some(b => b.opening);
+  const n = owedDays(ob).length, op = ob.bills.some(b => b.opening);
   return [op ? "ยกมา" : "", n ? `${n} วัน` : ""].filter(Boolean).join(" + ");
 }
 const oweText = ob => owedN(ob);
@@ -715,7 +725,7 @@ function openBills(k, id, asOf) {
 }
 function statusHTML(ob, short) {
   if (!ob.count) return ob.credit > 0.004 ? `<span class="stamp">จ่ายเกิน${short ? "" : " " + money(ob.credit)}</span>` : `<span class="stamp">ครบ</span>`;
-  return `<span class="owe">${short || (ob.mode === "period" && !ob.closedOpen) ? "" : "ค้าง "}${owedN(ob)}</span>`;
+  return `<span class="owe">${short ? "" : "ค้าง "}${owedN(ob)}</span>`;
 }
 function daySum(k, d) {
   const m = (S.days[d] && S.days[d][K[k].key]) || {};
@@ -850,6 +860,7 @@ function normSettings(s) {
   let cats = d.expenseCats;
   if (typeof s.expenseCats === "string" && s.expenseCats.trim()) cats = s.expenseCats.split(",").map(x => x.trim()).filter(Boolean);
   else if (Array.isArray(s.expenseCats) && s.expenseCats.length) cats = s.expenseCats;
+  if (cats.join(",") === OLD_EXP_CATS) cats = d.expenseCats;
   return {
     defaultPrice: pick(s.defaultPrice, d.defaultPrice), defaultLivePrice: pick(s.defaultLivePrice, d.defaultLivePrice),
     defaultBuyPrice: pick(s.defaultBuyPrice, d.defaultBuyPrice), weekStart: pick(s.weekStart, d.weekStart),
@@ -1023,12 +1034,18 @@ function buildDemo() {
       }
       if (line) day.lines[b.id] = line;
     });
-    expenses.push({ id: "e" + d + "a", date: d, cat: "ค่าแรง", desc: "ค่าแรงลูกน้อง 4 คน", amount: 1600, method: "เงินสด" });
-    if (dow === 3) expenses.push({ id: "e" + d + "b", date: d, cat: "ค่าน้ำมัน/ขนส่ง", desc: "เติมน้ำมันรถส่งของ", amount: 2400 + Math.round(rnd() * 6) * 100, method: "เงินสด" });
-    if (parseISO(d).getDate() === 5) expenses.push({ id: "e" + d + "c", date: d, cat: "ค่าน้ำ-ไฟ", desc: "ค่าไฟโรงเชือด", amount: 9800 + Math.round(rnd() * 20) * 100, method: "โอน" });
+    // ซื้อหมูจากฟาร์มวันละ 1 รอบ: จำนวนตัว = ตัวที่ขาย (บางวันนับต่างกัน 1 ตัว ไว้ลองเตือน "ไม่ตรงกัน")
+    const sold = Object.values(day.lines).reduce((s, l) => s + l.loads.reduce((a, x) => a + num(x.n), 0), 0);
+    if (sold && d < today) {
+      const n = sold + (rnd() < 0.15 ? 1 : 0), w = r1(n * (100 + rnd() * 10)), bl = { loads: [{ w, n, p: 68 }], paid: 0, disc: 0, method: "โอน", note: "" };
+      bl.paid = loadAmt(bl.loads[0]); day.buys.f01 = bl;
+      if (n === sold) expenses.push({ id: "e" + d + "l", date: d, cat: "ค่าจ้างทำหมู", desc: `${n} ตัว × 50 บาท`, amount: n * 50, method: "เงินสด" });
+      expenses.push({ id: "e" + d + "t", date: d, cat: "ค่ารถขนหมู", desc: "", amount: 800, method: "เงินสด" });
+    }
+    if (d < today) expenses.push({ id: "e" + d + "a", date: d, cat: "ค่าแรง", desc: "ลูกน้อง 2 คน", amount: 800, method: "เงินสด" });
     days[d] = day;
   }
-  return { customers, farms: [], settings: { defaultPrice: 86, defaultLivePrice: 72, defaultBuyPrice: "", weekStart: 2, openingDate: addDays(start, -1), roundOffMax: 1000, buyEnabled: false, expenseCats: DEFAULT_SET.expenseCats.join(",") },
+  return { customers, farms: [{ id: "f01", name: "ฟาร์มประจำ", opening: 0, active: true, rounds: 1 }], settings: { defaultPrice: 86, defaultLivePrice: 72, defaultBuyPrice: "", weekStart: 2, openingDate: addDays(start, -1), roundOffMax: 1000, buyEnabled: true, expenseCats: DEFAULT_SET.expenseCats.join(",") },
     days, expenses, cuts: { c17: [9, 19, 29].map(n => ({ date: addDays(start, n) })).filter(c => c.date < today) }, rev: 1, sheetUrl: "", pinRequired: false };
 }
 
@@ -1458,21 +1475,63 @@ async function changeDate(d) {
 }
 
 /* ---------- รายจ่าย ---------- */
-function newExpDraft() { return { id: null, cat: S.set.expenseCats[0] || "อื่นๆ", desc: "", amount: "", method: "เงินสด", err: "" }; }
+/* ค่าจ้างทำหมู = จำนวนตัว × เรท (บาท/ตัว) · เก็บในรายละเอียดเป็น "120 ตัว × 50 บาท" (ชีตรายจ่ายไม่ต้องเพิ่มคอลัมน์)
+   เรทจำจากครั้งล่าสุด (ใส่ครั้งเดียว) · จำนวนตัวดึงจากขายรวมทุกลูกค้า เทียบกับซื้อหมูจากฟาร์ม ตรงกันค่อยใส่ให้ พ่อกดยืนยันเอง */
+const LAB_CAT = "ค่าจ้างทำหมู";
+const labRe = /^(\d+)\s*ตัว\s*×\s*([\d.,]+)\s*บาท\s*(?:·\s*)?/;
+function labParse(desc) { const m = String(desc || "").match(labRe); return m ? { n: m[1], rate: String(num(m[2])), note: String(desc).slice(m[0].length).trim() } : null; }
+function labLastRate() {
+  const xs = S.expenses.filter(e => e.cat === LAB_CAT && labParse(e.desc)).sort((a, b) => a.date < b.date ? 1 : -1);
+  return xs.length ? labParse(xs[0].desc).rate : "";
+}
+// ตัวที่ขายรวม (ทุกลูกค้า) กับตัวที่ซื้อจากฟาร์ม ของวันนั้น
+function labHeads(d) { const s = daySum("sale", d).n, b = S.set.buyEnabled ? daySum("buy", d).n : 0; return { s, b, same: s > 0 && s === b }; }
+function labFill(E) {
+  if (E.cat !== LAB_CAT) return E;
+  if (!E.rate) E.rate = labLastRate();
+  if (!E.id && !E.n && !labDone(E)) { const h = labHeads(S.date); if (h.same || (h.s && !S.set.buyEnabled)) E.n = String(h.s); }
+  if (num(E.n) && num(E.rate)) E.amount = String(r2(num(E.n) * num(E.rate)));
+  return E;
+}
+// วันนี้ลงค่าจ้างทำหมูไปแล้ว (ไม่นับรายการที่กำลังแก้) กันลงซ้ำ
+const labDone = E => S.expenses.find(e => e.date === S.date && e.cat === LAB_CAT && e.id !== E.id);
+function labHint(E) {
+  const h = labHeads(S.date), use = n => `<button class="link" data-act="labUse" data-n="${n}">ใช้ ${n} ตัว</button>`;
+  const done = labDone(E);
+  if (done) return `<p class="note warnline">วันนี้ลงค่าจ้างทำหมูไปแล้ว ${esc(done.desc)} = ${money(done.amount)} (แตะในตารางข้างล่างเพื่อแก้)</p>`;
+  if (!h.s && !h.b) return `<p class="note">วันนี้ยังไม่มีจำนวนตัวในบันทึกขาย พิมพ์จำนวนตัวเองได้</p>`;
+  if (!S.set.buyEnabled) return `<p class="note">ขายรวมวันนี้ ${h.s} ตัว</p>`;
+  if (h.same) return `<p class="note">ขายรวม ${h.s} ตัว ตรงกับซื้อหมู ${h.b} ตัว ✓</p>`;
+  if (!h.b) return `<p class="note">ขายรวม ${h.s} ตัว · วันนี้ยังไม่ได้จดซื้อหมู (จดก่อนจะได้เทียบกัน) ${use(h.s)}</p>`;
+  if (!h.s) return `<p class="note">ซื้อหมู ${h.b} ตัว · วันนี้ยังไม่มีจำนวนตัวในบันทึกขาย ${use(h.b)}</p>`;
+  return `<p class="note warnline">ไม่ตรงกัน: ขายรวม ${h.s} ตัว · ซื้อหมู ${h.b} ตัว เช็กก่อนแล้วเลือก ${h.s ? use(h.s) : ""} ${h.b ? use(h.b) : ""}</p>`;
+}
+function newExpDraft() {
+  // หมวดแรกที่วันนี้ยังไม่ได้จด (ค่าจ้างทำหมู/ค่ารถ จ่ายทุกวัน ไม่ต้องเลือกเอง)
+  const done = new Set(S.expenses.filter(e => e.date === S.date).map(e => e.cat));
+  const cats = S.set.expenseCats, cat = cats.find(c => !done.has(c) && c !== "อื่นๆ") || (cats.includes("อื่นๆ") ? "อื่นๆ" : cats[cats.length - 1]) || "อื่นๆ";
+  return labFill({ id: null, cat, desc: "", amount: "", n: "", rate: "", method: "เงินสด", err: "" });
+}
 function renderExpenses() {
   const d = S.date, [mf, mt] = monthOf(d), list = S.expenses.filter(e => e.date === d);
   const dayTotal = list.reduce((s, e) => s + num(e.amount), 0);
   const monthTotal = S.expenses.filter(e => e.date >= mf && e.date <= mt).reduce((s, e) => s + num(e.amount), 0);
   const E = S.expDraft || (S.expDraft = newExpDraft());
   const cats = S.set.expenseCats.includes(E.cat) ? S.set.expenseCats : [...S.set.expenseCats, E.cat];
+  const lab = E.cat === LAB_CAT;
   $("#expArea").innerHTML = `
     <div class="sec">${E.id ? "แก้ไขรายจ่าย" : "จดรายจ่าย"}</div>
+    ${S.set.buyEnabled ? `<p class="note" style="margin-top:0">ค่าหมูจากฟาร์ม จดที่แท็บ "ซื้อหมู" (กก. × ราคา)</p>` : ""}
     <div class="setgrid">
       <label for="eCat"><span class="lbl">หมวด</span><select class="fld" id="eCat" data-ef="cat">${cats.map(c => `<option ${c === E.cat ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
-      <label for="eAmt"><span class="lbl">จำนวนเงิน (บาท)</span><input class="fld" id="eAmt" data-ef="amount" inputmode="decimal" placeholder="0" value="${esc(E.amount)}"></label>
-      <label for="eDesc"><span class="lbl">รายละเอียด</span><input class="fld l" id="eDesc" data-ef="desc" value="${esc(E.desc)}" placeholder="เช่น ค่าแรงลูกน้อง 4 คน"></label>
+      ${lab ? `<label for="eN"><span class="lbl">จำนวนตัว</span><input class="fld" id="eN" data-ef="n" inputmode="numeric" placeholder="0" value="${esc(E.n)}"></label>
+      <label for="eRate"><span class="lbl">บาท / ตัว${E.rate && E.rate === labLastRate() ? ` <span class="pencil">(เรทเดิม)</span>` : ""}</span><input class="fld" id="eRate" data-ef="rate" inputmode="decimal" placeholder="ใส่ครั้งแรกครั้งเดียว" value="${esc(E.rate)}"></label>
+      <div><span class="lbl">จำนวนเงิน</span><div class="labamt" id="eLabAmt">${num(E.n) && num(E.rate) ? `${money(num(E.n) * num(E.rate))} บาท` : `<span class="pencil">ตัว × บาท</span>`}</div></div>`
+      : `<label for="eAmt"><span class="lbl">จำนวนเงิน (บาท)</span><input class="fld" id="eAmt" data-ef="amount" inputmode="decimal" placeholder="0" value="${esc(E.amount)}"></label>`}
+      <label for="eDesc"><span class="lbl">${lab ? "หมายเหตุ" : "รายละเอียด"}</span><input class="fld l" id="eDesc" data-ef="desc" value="${esc(E.desc)}" placeholder="${lab ? "ถ้ามี" : E.cat === "ค่ารถขนหมู" ? "เช่น 2 เที่ยว" : "เช่น ค่าแรงลูกน้อง 4 คน"}"></label>
       <div><span class="lbl">จ่ายเป็น</span><div class="seg" role="group" aria-label="จ่ายเป็น">${METHODS.map(m => `<button data-act="emethod" data-m="${m}" aria-pressed="${E.method === m}">${m}</button>`).join("")}</div></div>
     </div>
+    ${lab ? labHint(E) : ""}
     <div class="err" id="eErr" ${E.err ? "" : "hidden"}>${esc(E.err)}</div>
     <div class="actions" style="margin-top:12px"><button class="btn solid" data-act="expSave">${E.id ? "บันทึกที่แก้" : "ลงบัญชีรายจ่าย"}</button>${E.id ? `<button class="btn" data-act="expCancel">ยกเลิก</button><button class="link" data-act="expDelete" style="color:#A12A2A">ลบรายการนี้</button>` : ""}</div>
     <div class="sec">รายจ่ายวันนี้ <span class="pencil" style="font-weight:400">· ทั้งเดือน ${money(monthTotal)}</span></div>
@@ -1483,9 +1542,15 @@ function renderExpenses() {
       ${list.length ? `<tr class="tot"><td colspan="3">รวม${dayWord(d)}</td><td class="n"><span class="dbl">${money(dayTotal)}</span></td></tr>` : ""}</tbody></table>`;
 }
 async function saveExpense() {
-  const E = S.expDraft, amt = r2(num(E.amount));
+  const E = S.expDraft, lab = E.cat === LAB_CAT;
+  if (lab) {
+    const n = Math.round(num(E.n)), rate = r2(num(E.rate));
+    if (!n || !rate) { E.err = !n ? "ใส่จำนวนตัวก่อนลงบัญชี" : "ใส่บาท/ตัว ก่อน (ใส่ครั้งเดียว ครั้งหน้าจำให้)"; renderExpenses(); $(!n ? "#eN" : "#eRate").focus(); return; }
+    E.amount = String(r2(n * rate)); E.descOut = `${n} ตัว × ${fmtN(rate)} บาท${String(E.desc || "").trim() ? " · " + String(E.desc).trim() : ""}`;
+  }
+  const amt = r2(num(E.amount));
   if (!amt) { E.err = "ใส่จำนวนเงินก่อนลงบัญชี"; renderExpenses(); $("#eAmt").focus(); return; }
-  const e = { id: E.id || uid("e"), date: S.date, cat: E.cat, desc: String(E.desc || "").trim(), amount: amt, method: E.method };
+  const e = { id: E.id || uid("e"), date: S.date, cat: E.cat, desc: lab ? E.descOut : String(E.desc || "").trim(), amount: amt, method: E.method };
   const i = S.expenses.findIndex(x => x.id === e.id);
   if (i >= 0) S.expenses[i] = e; else S.expenses.push(e);
   S.expDraft = null; renderExpenses();
@@ -1519,16 +1584,10 @@ function renderDebts() {
 }
 // ช่วงวันแบบสั้น: เดือนเดียวกัน = "9–13 พ.ย." · ข้ามเดือน = "31 ต.ค.–9 พ.ย."
 const dRange = (a, b) => a === b ? thShort(a) : a.slice(0, 7) === b.slice(0, 7) ? `${+a.slice(8)}–${thShort(b)}` : `${thShort(a)}–${thShort(b)}`;
-/** ค้างวันไหน แบบสั้น: วันต่อกัน = "ค้าง 7–13 พ.ย. (7 วัน)" · มีวันที่จ่ายข้ามไป = "ค้าง 7 วัน ตั้งแต่ 7 พ.ย." · ลูกค้ารวมบิลบอกเป็นบิล */
+/** ค้างวันไหน แบบสั้น: วันต่อกัน = "ค้าง 7–13 พ.ย. (7 วัน)" · มีวันที่จ่ายข้ามไป = "ค้าง 7 วัน ตั้งแต่ 7 พ.ย." · ลูกค้ารวมบิลก็นับแบบเดียวกัน */
 function owedSince(id, ob) {
   if (!ob.count) return "";
-  const b0 = ob.bills[0];
-  if (ob.mode === "period") {
-    const named = ob.bills.filter(b => !b.current && !b.opening), cur = ob.bills.find(b => b.current);
-    if (!named.length && !ob.bills.some(b => b.opening)) return `ยังไม่รวมบิล ตั้งแต่ ${thShort(cur.date)}`;
-    return "ค้าง " + [ob.bills.some(b => b.opening) ? "ยกมา" : "", named.length === 1 ? periodName({ ...named[0], from: named[0].date }) : named.length ? `${named.length} บิล` : "", cur ? "ยังไม่รวมบิล" : ""].filter(Boolean).join(" + ");
-  }
-  const days = ob.bills.filter(b => !b.opening).map(b => b.date), op = ob.bills.some(b => b.opening);
+  const days = owedDays(ob), op = ob.bills.some(b => b.opening);
   if (!days.length) return "ค้างยกมา";
   const first = days[0], last = days[days.length - 1];
   // วันขายทุกวันระหว่างวันแรกกับวันสุดท้ายที่ค้าง ยังค้างทั้งหมดไหม (ไม่มีวันที่จ่ายข้ามไปแล้ว)
@@ -2937,8 +2996,9 @@ document.addEventListener("click", async e => {
     case "noteShow": S.draft.showNote = true; renderPanel(); { const f = $("#pNote"); if (f) f.focus(); } break;
     case "emethod": S.expDraft.method = b.dataset.m; $$('[data-act="emethod"]').forEach(x => x.setAttribute("aria-pressed", String(x.dataset.m === S.expDraft.method))); break;
     case "expSave": saveExpense(); break;
+    case "labUse": if (S.expDraft) { S.expDraft.n = b.dataset.n; labFill(S.expDraft); renderExpenses(); } break;
     case "expCancel": S.expDraft = null; renderExpenses(); break;
-    case "expEdit": { const x = S.expenses.find(y => y.id === b.dataset.id); if (!x) return; S.expDraft = { id: x.id, cat: x.cat, desc: x.desc || "", amount: String(x.amount), method: x.method || "เงินสด", err: "" }; renderExpenses(); window.scrollTo(0, 0); break; }
+    case "expEdit": { const x = S.expenses.find(y => y.id === b.dataset.id); if (!x) return; const lp = x.cat === LAB_CAT ? labParse(x.desc) : null; S.expDraft = { id: x.id, cat: x.cat, desc: lp ? lp.note : x.desc || "", amount: String(x.amount), n: lp ? lp.n : "", rate: lp ? lp.rate : "", method: x.method || "เงินสด", err: "" }; renderExpenses(); window.scrollTo(0, 0); break; }
     case "expDelete": {
       const id = S.expDraft && S.expDraft.id; if (!id || !(await askConfirm("ลบรายจ่ายนี้?", "ลบ"))) return;
       S.expenses = S.expenses.filter(x => x.id !== id); S.expDraft = null; renderExpenses();
@@ -3104,8 +3164,9 @@ document.addEventListener("input", e => {
     setPick(S.pay, t.dataset.key, t.dataset.pr, num(t.value)); renderPayInputs();
     updatePay();
   } else if (t.dataset.ef && S.expDraft) {
-    S.expDraft[t.dataset.ef] = t.value;
-    if (t.dataset.ef === "amount" && S.expDraft.err) { S.expDraft.err = ""; $("#eErr").hidden = true; }
+    const E = S.expDraft; E[t.dataset.ef] = t.value;
+    if (t.dataset.ef !== "desc" && E.err) { E.err = ""; $("#eErr").hidden = true; }
+    if ((t.dataset.ef === "n" || t.dataset.ef === "rate") && $("#eLabAmt")) $("#eLabAmt").innerHTML = num(E.n) && num(E.rate) ? `${money(num(E.n) * num(E.rate))} บาท` : `<span class="pencil">ตัว × บาท</span>`;
   }
 });
 document.addEventListener("change", e => {
@@ -3126,7 +3187,7 @@ document.addEventListener("change", e => {
     backend.writePrice(S.date, { [pk]: p }).then(() => toast(`ราคา${k === "buy" ? "ซื้อ" : ty}วันนี้ ${fmtN(p)} บาท/กก.`)).catch(() => toast("บันทึกราคาไม่สำเร็จ"));
   }
   else if (t.id === "sumFrom" || t.id === "sumTo") { if (t.value) { S[t.id] = t.value; render(); } }
-  else if (t.dataset.ef === "cat" && S.expDraft) S.expDraft.cat = t.value;
+  else if (t.dataset.ef === "cat" && S.expDraft) { const E = S.expDraft; if (E.cat === LAB_CAT) E.amount = ""; E.cat = t.value; E.err = ""; labFill(E); renderExpenses(); }
   else if (t.dataset.sf) {
     const f = t.dataset.sf;
     if (f === "expenseCats") { const cats = t.value.split(",").map(x => x.trim()).filter(Boolean); if (!cats.length) { t.value = S.set.expenseCats.join(", "); return; } S.set.expenseCats = cats; }
