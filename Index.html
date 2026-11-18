@@ -180,6 +180,10 @@ select.fld{text-align:left}
 .dsrow .dsty{flex:0 0 auto;min-width:64px;color:var(--ink)}
 .dsrow .dsamt{margin-left:auto;white-space:nowrap}
 .dsrow .dsmid{min-width:0}
+.dsrow.loss{font-size:13px;color:var(--pencil)}
+.dsrow.loss .dsty{color:var(--pencil)}
+.dsrow.loss .dsamt{color:var(--text);font-weight:600}
+.dsrow.loss.odd .dsamt,.dsrow.loss.odd .dsty{color:#C25E00}
 .dsavg{display:inline-block;color:var(--pencil);font-size:13px;white-space:nowrap}
 .dsrow.tot{border-top:1px dashed var(--rule);margin-top:3px;padding-top:4px}
 .dayshare{display:flex;justify-content:flex-end;margin-top:8px}
@@ -249,10 +253,10 @@ select.fld{text-align:left}
 .bmpick{flex:1;min-width:0;display:flex;align-items:flex-start;gap:10px;min-height:56px;padding:10px;border:0;background:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
 .bmpick .cb{margin:1px 0 0}
 .bmedit{flex:none;min-height:44px;padding:0 14px;font-weight:700}
-/* หน้าต่างรับเงิน: หัว (ชื่อ ยอดค้าง) กับท้าย (ยอดรวม + ปุ่มลงรับเงิน) อยู่กับที่ ตรงกลางเลื่อนได้ ปุ่มไม่หลุดจอ */
+/* หน้าต่างรับเงิน: หัว (ชื่อ ยอดค้าง) กับท้าย (ยอดรวม + ปุ่มบันทึกรับเงิน) อยู่กับที่ ตรงกลางเลื่อนได้ ปุ่มไม่หลุดจอ */
 .modal.paymodal{padding:8px;place-items:start center}
 .modal-card.paybox{max-width:440px;padding:0;gap:0;display:flex;flex-direction:column;max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);overflow:hidden}
-/* มือถือ: หน้าต่างสูงคงที่ แตะวันแล้วแถวอื่นกับปุ่มลงรับเงินไม่เลื่อนหนี */
+/* มือถือ: หน้าต่างสูงคงที่ แตะวันแล้วแถวอื่นกับปุ่มบันทึกรับเงินไม่เลื่อนหนี */
 @media (max-width:600px){.modal-card.paybox{height:calc(100vh - 16px);height:calc(100dvh - 16px)}}
 .payhead{display:flex;align-items:flex-start;gap:8px;padding:12px 14px 10px;border-bottom:1px solid var(--rule)}
 .pht{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:17px}
@@ -327,6 +331,59 @@ select.fld{text-align:left}
 .sec.secrow .link{letter-spacing:0;font-weight:400}
 .lined .tw{display:inline-block;width:11px;font-size:11px;color:var(--pencil)}
 .warnp,.lined td.warnp{color:#C25E00;font-weight:700}
+/* รายจ่าย (v3.22): แถวเตี้ย ชื่อซ้าย ยอดขวา */
+.xsec{display:flex;justify-content:space-between;align-items:baseline;margin:18px 0 4px;font-size:13px;font-weight:700;color:#B54444;letter-spacing:.04em}
+.xsec .link{font-size:13px;color:var(--ink);letter-spacing:0}
+.xbox{border-top:1.5px solid var(--ink)}
+.xitem{border-bottom:1px solid var(--hair);padding:6px 0}
+.xrow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;min-height:40px}
+button.xrow{width:100%;border:0;border-bottom:1px solid var(--hair);background:none;text-align:left;font:inherit;color:inherit;padding:4px 0}
+button.xrow.sel{background:var(--tint)}
+.xn{font-weight:600;font-size:15px;line-height:1.25}
+.xsm{display:block;font-weight:400;font-size:12px;color:var(--pencil)}
+.xq{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--pencil);white-space:nowrap}
+.xin{border:0;border-bottom:1.5px dotted #8A9BC4;background:transparent;font:inherit;font-weight:600;font-size:16px;color:var(--ink);height:34px;padding:0 2px;border-radius:0;text-align:right;min-width:0}
+.xin:focus{outline:none;border-bottom:2px solid var(--ink)}
+.xin::placeholder{color:#A8B0BE;font-weight:400;font-size:13.5px}
+.xin.s{width:38px}.xin.n{width:62px}.xin.r{width:56px}.xin.a{width:96px}
+.xin.xname{flex:1;text-align:left;width:100%}
+.xin.xfarm{flex:1;text-align:left;font-size:15px}
+select.xin.xkind{text-align:left;font-size:14px;width:150px}
+.xr2{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+.xa{font-size:15.5px;text-align:right}
+.xn .xa{display:block;text-align:left;font-size:13.5px;color:var(--text)}
+.xm{border:1px solid #C9D1DE;border-radius:14px;background:#fff;font:inherit;font-size:12.5px;color:#6A7383;padding:0 9px;min-height:32px;min-width:48px}
+.xm.cash{color:#B25E00;border-color:#E3B07A;font-weight:600}
+.xm.flat{border:0;min-height:0;min-width:0;padding:0 2px;background:none}
+.xa.grey{color:var(--pencil);font-weight:600}
+#expArea{max-width:560px}
+.xitem>.xn{display:flex;justify-content:space-between;align-items:baseline;min-height:30px}
+.xitem>.xn .xa{display:inline;font-size:13.5px}
+.xhint{min-height:20px}
+.xadd.sel{background:var(--tint)}
+.xedit{display:block;padding:6px 0}
+.xedit .xname{display:block;width:100%;font-size:15.5px}
+.xedit .xpt{margin-top:2px}
+.xedit select.xkind{flex:1;width:auto}
+.xpig{padding:2px 0 4px 10px;border-left:2px solid var(--rule);margin:2px 0 4px}
+.xpt{display:flex;align-items:center;gap:6px}
+.xpig .xq{flex-wrap:wrap;row-gap:2px}
+.xsub{margin-left:auto;font-size:14px}
+.xdel,.xmv{border:0;background:none;color:#A12A2A;font-size:15px;padding:6px 8px;min-width:32px}
+.xmv{color:var(--ink)}.xmv:disabled{opacity:.25}
+.xhint{font-size:12.5px;color:var(--pencil);margin-top:2px}
+.xhint .link{font-size:12.5px;padding:2px 4px}
+.xadd{grid-template-columns:minmax(0,1fr) auto auto}
+.xchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.xchips .chip{border:1px solid #8A9BC4;border-radius:14px;background:#fff;font:inherit;font-size:13px;color:var(--ink);padding:3px 10px;min-height:30px}
+.xchips .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.xchips .chip.on::before{content:"✓ "}
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.fa{min-width:520px}
+.dbl.neg{color:#A12A2A}
+.xact{display:flex;gap:10px;align-items:center;margin:10px 0 4px}
+.xedit{grid-template-columns:minmax(0,1fr) auto auto}
+.xfoot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}
 .dx .dxname{font-weight:700;font-size:15.5px}
 .dxrow,.dxpig{padding:8px 0 10px;border-bottom:1px solid var(--hair)}
 .dxtop{display:flex;align-items:center;gap:8px}
@@ -467,9 +524,8 @@ function sticker(name, cls) {
 
 /* ================= state ================= */
 const DEFAULT_SET = { defaultPrice: 86, defaultLivePrice: 0, defaultBuyPrice: 0, weekStart: 2, openingDate: "2026-01-01", roundOffMax: 1000, buyEnabled: false,
-  expenseCats: ["ค่าแรง", "ค่าซ่อม", "อื่นๆ"] };
-// หมวด "จ่ายอื่นๆ" (ที่ไม่ได้จ่ายทุกวัน) · ค่าหมู ค่ารถ ค่าจ้างทำ อยู่ในแถวจ่ายทุกวันแล้ว
-// ถ้าในชีตยังเป็นชุดตัวอย่างเก่า (v3.19 หรือ v3.20) เปลี่ยนให้เอง
+  expenseCats: ["ค่าหมู|หมู", "ค่ารถ 10 ล้อ|เที่ยว", "ค่าจ้างทำหมู|ตัว", "ค่ารถกระบะ|เที่ยว", "ค่าแรง|เดือน"] };
+// รายการรายจ่าย = "ชื่อ|แบบ" (แก้ในแอปที่ รายจ่าย › แก้รายการ) · รายการแบบเก่าที่ไม่มี "|" (ชุดตัวอย่าง v3.19–3.21) เปลี่ยนเป็นชุดตั้งต้นให้เอง
 const OLD_EXP_CATS = ["ค่าแรง,ค่าน้ำมัน/ขนส่ง,ค่าน้ำ-ไฟ,ค่าซ่อมบำรุง,ค่าวัสดุสิ้นเปลือง,อื่นๆ", "ค่าจ้างทำหมู,ค่ารถขนหมู,ค่าแรง,อื่นๆ"];
 const S = {
   mode: "demo", demo: false, loaded: false, loadError: null, needPin: false, pinMsg: "", pin: "", pinRequired: false, sheetUrl: "",
@@ -496,7 +552,7 @@ const loadAmt = x => num(x.w) * num(x.p) + labOf(x) - num(x.dd);
 function lineTotals(l) {
   // oth = ขายอื่นๆ ทั้งวัน (เลือด ไส้ ฯลฯ) ใส่เป็นบาท รวมอยู่ในยอดขาย แต่ไม่เข้าชนิดซาก/หมูเป็น
   const oth = num(l && l.oth);
-  const t = { kg: 0, n: 0, kgn: 0, amt: oth, oth, lab: 0, dd: 0, ddn: [], paid: num(l && l.paid), disc: num(l && l.disc), method: (l && l.method) || "เงินสด", by: {} };
+  const t = { kg: 0, n: 0, kgn: 0, amt: oth, oth, lab: 0, dd: 0, ddn: [], paid: num(l && l.paid), disc: num(l && l.disc), method: (l && l.method) || "โอน", by: {} };
   for (const x of (l && l.loads) || []) {
     if (x.skip) continue;
     const w = num(x.w), n = num(x.n), a = loadAmt(x), ty = x.t === "หมูเป็น" ? "หมูเป็น" : "ซาก";
@@ -765,7 +821,7 @@ function periodTotals(from, to) {
   }
   for (const e of S.expenses) {
     if (e.date < from || e.date > to) continue;
-    const a = num(e.amount), c = e.cat || "อื่นๆ", mm = e.method || "เงินสด";
+    const a = num(e.amount), c = e.cat || "อื่นๆ", mm = e.method || "โอน";
     P.exp.total += a; P.exp.cat[c] = (P.exp.cat[c] || 0) + a; P.exp.m[mm] = (P.exp.m[mm] || 0) + a;
   }
   P.saleNet = r2(P.sale.amt - P.sale.disc); P.buyNet = r2(P.buy.amt - P.buy.disc);
@@ -779,7 +835,7 @@ function monthOf(s) { const d = parseISO(s); return [iso(new Date(d.getFullYear(
 const LS_PIN = "papa-accounting-pin";
 function getPin() { try { return localStorage.getItem(LS_PIN) || ""; } catch (e) { return ""; } }
 function setPin(p) { try { if (p) localStorage.setItem(LS_PIN, p); else localStorage.removeItem(LS_PIN); } catch (e) { /* storage blocked */ } }
-// กล่องรอส่ง: รายการที่ลงบัญชีแล้วแต่ยังส่งขึ้นชีตไม่ได้ (เน็ตหลุด) เก็บไว้ในเครื่อง แล้วส่งให้เองตอนเน็ตกลับมา
+// กล่องรอส่ง: รายการที่บันทึกแล้วแต่ยังส่งขึ้นชีตไม่ได้ (เน็ตหลุด) เก็บไว้ในเครื่อง แล้วส่งให้เองตอนเน็ตกลับมา
 // ข้อมูลล่าสุดที่โหลดได้ก็เก็บไว้ด้วย ไม่มีเน็ตก็ยังเปิดดูได้
 const LS_OUT = "papa-accounting-outbox", LS_CACHE = "papa-accounting-cache", LS_DEV = "papa-accounting-dev";
 // ชื่อเครื่องนี้ (โชว์ในประวัติการแก้ไขว่าแก้จากเครื่องไหน) ตั้งเองได้ในหน้าตั้งค่า ไม่ตั้ง = เดาจากชนิดเครื่อง
@@ -817,7 +873,7 @@ function flushOutbox() {
     const tried = new Set();
     for (let x; !S.needPin && (x = S.outbox.find(y => !tried.has(y)));) {
       tried.add(x);
-      try { await backend.writeLine(x.k, x.date, x.id, x.line); }
+      try { if (x.k === "exp") await backend.saveExpense(x.exp); else await backend.writeLine(x.k, x.date, x.id, x.line); }
       catch (e) {
         if (isNetErr(e) || S.needPin) break; // เน็ตหลุด หยุดไว้ก่อน
         x.err = errText(e); saveOutbox(); continue; // หลังบ้านไม่รับรายการนี้ ข้ามไปส่งรายการอื่นก่อน ไม่ให้ค้างทั้งกล่อง
@@ -829,8 +885,18 @@ function flushOutbox() {
   })().finally(() => { flushing = null; });
   return flushing;
 }
+// รายจ่ายเข้ากล่องรอส่งแบบเดียวกับฝั่งขาย (เน็ตหลุดไม่หาย) · ส่งแล้วบอกผลครั้งเดียว
+function queueExpense(e) { const key = "exp|" + e.id; S.outbox = S.outbox.filter(x => x.key !== key).concat([{ key, k: "exp", id: e.id, exp: clone(e) }]); saveOutbox(); return key; }
+async function sendExpenses(ops, okMsg) {
+  if (!ops.length) return;
+  const keys = ops.map(queueExpense); saveCache();
+  await flushOutbox();
+  const left = S.outbox.filter(x => keys.includes(x.key));
+  toast(!left.length ? okMsg : left.some(x => x.err) ? `บันทึกไม่สำเร็จ: ${left.find(x => x.err).err}` : "เน็ตไม่ดี เก็บไว้ในเครื่องแล้ว จะส่งให้เองตอนเน็ตกลับมา");
+}
 function reapplyOutbox() {
   for (const x of S.outbox) {
+    if (x.k === "exp") { const i = S.expenses.findIndex(y => y.id === x.id); if (x.exp.deleted) { if (i >= 0) S.expenses.splice(i, 1); } else if (i >= 0) S.expenses[i] = clone(x.exp); else S.expenses.push(clone(x.exp)); continue; }
     const day = S.days[x.date] || (S.days[x.date] = { date: x.date, lines: {}, buys: {} });
     day[K[x.k].key] = Object.assign({}, day[K[x.k].key], { [x.id]: clone(x.line) });
   }
@@ -839,7 +905,7 @@ function reapplyOutbox() {
 function checkNewDay() {
   const t = todayISO(); if (t === S.today) return;
   // กำลังกรอกค้างอยู่: ยังไม่ย้ายวัน แค่ให้ป้ายวันที่ขึ้นแดง "ไม่ใช่วันนี้" แล้วรอบหน้าค่อยลองใหม่
-  if (S.dirty || !S.loaded) { if ($("#dDow") && S.entryKind !== "expense") fillDateBar(); return; }
+  if (S.dirty || expDirty() || !S.loaded) { if ($("#dDow") && S.entryKind !== "expense") fillDateBar(); return; }
   const was = S.today; S.today = t;
   if (S.date === was) {
     S.date = t; S.openId = null; S.draft = null;
@@ -873,7 +939,7 @@ function normSettings(s) {
   let cats = d.expenseCats;
   if (typeof s.expenseCats === "string" && s.expenseCats.trim()) cats = s.expenseCats.split(",").map(x => x.trim()).filter(Boolean);
   else if (Array.isArray(s.expenseCats) && s.expenseCats.length) cats = s.expenseCats;
-  if (OLD_EXP_CATS.includes(cats.join(","))) cats = d.expenseCats;
+  if (OLD_EXP_CATS.includes(cats.join(",")) || !cats.some(c => String(c).includes("|"))) cats = d.expenseCats;
   return {
     defaultPrice: pick(s.defaultPrice, d.defaultPrice), defaultLivePrice: pick(s.defaultLivePrice, d.defaultLivePrice),
     defaultBuyPrice: pick(s.defaultBuyPrice, d.defaultBuyPrice), weekStart: pick(s.weekStart, d.weekStart),
@@ -881,6 +947,7 @@ function normSettings(s) {
     roundOffMax: pick(s.roundOffMax, d.roundOffMax),
     buyEnabled: s.buyEnabled === true || String(s.buyEnabled).toUpperCase() === "TRUE",
     expenseCats: cats,
+    faCustomers: (Array.isArray(s.faCustomers) ? s.faCustomers : String(s.faCustomers || "").split(",")).map(x => String(x).trim()).filter(Boolean),
   };
 }
 function applyLoad(d) {
@@ -941,7 +1008,7 @@ const backend = {
   saveConfig: () => write("apiSaveConfig", {
     customers: S.customers, farms: S.farms,
     settings: { defaultPrice: S.set.defaultPrice, defaultLivePrice: S.set.defaultLivePrice, defaultBuyPrice: S.set.defaultBuyPrice, weekStart: S.set.weekStart,
-      openingDate: S.set.openingDate, roundOffMax: S.set.roundOffMax, buyEnabled: S.set.buyEnabled ? "TRUE" : "FALSE", expenseCats: S.set.expenseCats.join(",") },
+      openingDate: S.set.openingDate, roundOffMax: S.set.roundOffMax, buyEnabled: S.set.buyEnabled ? "TRUE" : "FALSE", expenseCats: S.set.expenseCats.join(","), faCustomers: (S.set.faCustomers || []).join(",") },
   }),
   writeLine: (k, date, id, line) => write("apiSaveLine", k, date, id, line),
   writePrice: (date, prices) => write("apiSavePrice", date, prices),
@@ -1050,13 +1117,14 @@ function buildDemo() {
     // จ่ายทุกวัน: ค่าหมู (บางวัน 2 ฟาร์ม · บางวันนับตัวต่างจากที่ขาย 1 ตัว ไว้ลองเตือน) ค่ารถ 10 ล้อ ค่าจ้างทำ ค่ารถกระบะ
     const sold = Object.values(day.lines).reduce((s, l) => s + l.loads.reduce((a, x) => a + num(x.n), 0), 0);
     if (sold && d < today) {
-      const n = sold + (rnd() < 0.15 ? 1 : 0), two = rnd() < 0.3, n2 = two ? Math.min(4, n - 1) : 0, pig = (f, k, p) => { const w = r1(k * (100 + rnd() * 10)); return { desc: `${f} · ${w} กก. × ${p} บาท · ${k} ตัว`, amount: r2(w * p) }; };
-      [["ฟาร์มลุงชัย", n - n2, 68], ...(n2 > 0 ? [["ฟาร์มบ้านนา", n2, 67]] : [])].forEach(([f, k, p], i) => expenses.push({ id: "e" + d + "p" + i, date: d, cat: "ค่าหมู", ...pig(f, k, p), method: "โอน" }));
-      expenses.push({ id: "e" + d + "t", date: d, cat: "ค่ารถ 10 ล้อ", desc: "1 เที่ยว × 1500 บาท", amount: 1500, method: "เงินสด" });
-      if (n === sold) expenses.push({ id: "e" + d + "l", date: d, cat: "ค่าจ้างทำหมู", desc: `${n} ตัว × 50 บาท`, amount: n * 50, method: "เงินสด" });
-      const k = 1 + (rnd() < 0.4 ? 1 : 0); expenses.push({ id: "e" + d + "k", date: d, cat: "ค่ารถกระบะ", desc: `${k} เที่ยว × 300 บาท`, amount: k * 300, method: "เงินสด" });
+      const n = sold + (rnd() < 0.15 ? 1 : 0), two = rnd() < 0.3, n2 = two ? Math.min(4, n - 1) : 0, kgIn = Object.values(day.lines).reduce((s, l) => s + l.loads.reduce((a, x) => a + (num(x.n) ? num(x.w) / (x.t === "หมูเป็น" ? 1 : 0.76 + rnd() * 0.04) : 0), 0), 0), pig = (f, k, p) => { const w = r1(kgIn * k / n); return { desc: `${f} · ${w} กก. × ${p} บาท · ${k} ตัว`, amount: r2(w * p) }; };
+      [["ฟาร์มลุงชัย", n - n2, 58], ...(n2 > 0 ? [["ฟาร์มบ้านนา", n2, 57]] : [])].forEach(([f, k, p], i) => expenses.push({ id: "e" + d + "p" + i, date: d, cat: "ค่าหมู", ...pig(f, k, p), method: "โอน" }));
+      expenses.push({ id: "e" + d + "t", date: d, cat: "ค่ารถ 10 ล้อ", desc: "1 เที่ยว × 1500 บาท", amount: 1500, method: "โอน" });
+      if (n === sold) expenses.push({ id: "e" + d + "l", date: d, cat: "ค่าจ้างทำหมู", desc: `${n} ตัว × 50 บาท`, amount: n * 50, method: "โอน" });
+      const k = 1 + (rnd() < 0.4 ? 1 : 0); expenses.push({ id: "e" + d + "k", date: d, cat: "ค่ารถกระบะ", desc: `${k} เที่ยว × 300 บาท`, amount: k * 300, method: "โอน" });
     }
-    if (d < today && dow === 6) expenses.push({ id: "e" + d + "a", date: d, cat: "ค่าแรง", desc: "ลูกน้อง 2 คน", amount: 1600, method: "เงินสด" });
+    if (d < today && parseISO(d).getDate() === 5) expenses.push({ id: "e" + d + "a", date: d, cat: "ค่าแรง", desc: "", amount: 24000, method: "โอน" });
+    if (d < today && parseISO(d).getDate() === 12) expenses.push({ id: "e" + d + "o", date: d, cat: "ค่าซ่อมรถ", desc: "", amount: 2500, method: "เงินสด" });
     days[d] = day;
   }
   return { customers, farms: [], settings: { defaultPrice: 86, defaultLivePrice: 72, defaultBuyPrice: "", weekStart: 2, openingDate: addDays(start, -1), roundOffMax: 1000, buyEnabled: false, expenseCats: DEFAULT_SET.expenseCats.join(",") },
@@ -1120,7 +1188,7 @@ function renderEntry() {
   $("#main").innerHTML = `<div class="spread"><div class="page">${top}
       <div class="daysum" id="daySum"></div>
       <div id="plist"></div></div>
-    <aside class="panel" id="panel" aria-label="ลงบัญชี"></aside></div>`;
+    <aside class="panel" id="panel" aria-label="บันทึก"></aside></div>`;
   bindListDrag($("#plist")); fillDateBar(); fillEntryList(); renderPanel();
 }
 const dayWord = d => d === todayISO() ? "วันนี้" : "วันที่ " + thShort(d);
@@ -1148,6 +1216,7 @@ function fillEntryList() {
   $("#daySum").innerHTML = tys.map(ty => { const b = s.by[ty];
       return `<div class="dsrow"><span class="dsty">${ty}</span><span class="dsmid"><b>${fmtN(b.n, 0)}</b> ตัว · <b>${kg1(b.kg)}</b> กก.${avg(b)}</span><b class="dsamt">${money(b.amt)}</b></div>`; }).join("")
     + (s.oth ? `<div class="dsrow"><span class="dsty">อื่นๆ</span><span class="dsmid pencil">เลือด ไส้ ฯลฯ</span><b class="dsamt">${money(s.oth)}</b></div>` : "")
+    + (k === "sale" ? lossLine(d) : "")
     + `<div class="dsrow tot"><span class="dsty">รวม${dayWord(d)}</span><span class="dsmid"><b>${fmtN(s.n, 0)}</b> ตัว · <b>${kg1(s.kg)}</b> กก.${tys.length ? "" : avg(s)}</span><b class="dsamt">${money(s.amt)}</b></div>`
     + (k === "sale" ? `<div class="dayshare"><button class="btn" data-act="dayImg">ส่งรูปบัญชี${dayWord(d)}เข้า LINE</button></div>`
       : `<div class="dsrow"><span class="dsty">${K[k].payLabel}</span><span></span><b class="dsamt">${money(s.paid)}</b></div>`);
@@ -1216,13 +1285,13 @@ function renderPanel() {
   const k = S.entryKind, KK = K[k], id = S.openId, p = id && partyById(k, id);
   if (!p) {
     el.classList.remove("open");
-    el.innerHTML = `<div class="page"><div class="empty"><b>แตะชื่อ${KK.party}ทางซ้ายเพื่อลงบัญชี</b>ใส่น้ำหนัก จำนวนตัว และราคา ระบบคิดเงินให้${k === "sale" ? " · เงินที่ลูกค้าโอนมา ลงที่แท็บรับเงิน" : ""}</div></div>`;
+    el.innerHTML = `<div class="page"><div class="empty"><b>แตะชื่อ${KK.party}ทางซ้ายเพื่อบันทึก</b>ใส่น้ำหนัก จำนวนตัว และราคา ระบบคิดเงินให้${k === "sale" ? " · เงินที่ลูกค้าโอนมา ลงที่แท็บรับเงิน" : ""}</div></div>`;
     return;
   }
   el.classList.add("open");
   const D = S.draft, sale = k === "sale";
   el.innerHTML = `
-    <header class="cover"><div class="k">ลงบัญชี${KK.label} · ${thLong(S.date)}</div><h2>${esc(p.name)}</h2><button class="x" data-act="close" aria-label="ปิด">✕</button></header>
+    <header class="cover"><div class="k">บันทึก${KK.label} · ${thLong(S.date)}</div><h2>${esc(p.name)}</h2><button class="x" data-act="close" aria-label="ปิด">✕</button></header>
     <div class="page">
       ${inBooks(S.date) ? "" : `<div class="warn">วันนี้อยู่ก่อนวันเริ่มนับหนี้ (${thShort(S.set.openingDate)}) ยอดที่ลงจะดูได้ในสรุป แต่ไม่มีผลกับหนี้</div>`}
       ${sale ? "" : `<div class="frow"><span class="pencil">ยกมา</span><span class="v" id="pBefore"></span><button class="link" data-act="detail" data-id="${esc(id)}" data-kind="${k}">ดูบัญชี</button></div>`}
@@ -1243,7 +1312,7 @@ function renderPanel() {
       <div class="warn" id="pWarn" hidden></div>
       ${D.showNote || D.note ? `<label for="pNote" style="display:block;margin-top:8px"><span class="lbl">หมายเหตุ</span><input class="fld l" id="pNote" data-f="note" value="${esc(D.note)}"></label>`
         : `<button class="link ddlink" data-act="noteShow">＋ หมายเหตุ</button>`}
-      <div class="panel-actions one"><button class="btn solid lg" data-act="save">ลงบัญชี</button></div>` : `
+      <div class="panel-actions one"><button class="btn solid lg" data-act="save">บันทึก</button></div>` : `
       <div class="frow"><span>${KK.amountLabel}${dayWord(S.date)}</span><span class="v" id="pAmt"></span></div>
       <div class="frow"><span>รวมต้องจ่าย</span><span class="v" id="pDue"></span></div>
       <div class="payline">
@@ -1256,7 +1325,7 @@ function renderPanel() {
       <div class="frow total"><span class="l">${KK.balLabel}</span><span class="v" id="pAfter"></span></div>
       <div class="warn" id="pWarn" hidden></div>
       <label for="pNote" style="display:block;margin-top:8px"><span class="lbl">หมายเหตุ</span><input class="fld l" id="pNote" data-f="note" value="${esc(D.note)}"></label>
-      <div class="panel-actions one"><button class="btn solid lg" data-act="save">ลงบัญชี</button></div>`}
+      <div class="panel-actions one"><button class="btn solid lg" data-act="save">บันทึก</button></div>`}
       <div style="text-align:center"><button class="link" data-act="clear" style="color:var(--pencil)">ล้างรายการของ${dayWord(S.date)}</button></div>
     </div>`;
   updatePanelCalc();
@@ -1411,7 +1480,7 @@ function updatePanelCalc() {
   $("#pAfter").textContent = after < -0.004 ? "จ่ายเกิน " + money(-after) : money(after);
 }
 async function openParty(id, round) {
-  if (S.dirty && S.openId && S.openId !== id && !(await askConfirm("ยังไม่ได้ลงบัญชีรายการนี้ จะทิ้งที่แก้ไว้ไหม?", "ทิ้ง"))) return;
+  if (S.dirty && S.openId && S.openId !== id && !(await askConfirm("ยังไม่ได้บันทึกรายการนี้ จะทิ้งที่แก้ไว้ไหม?", "ทิ้ง"))) return;
   if (S.openId !== id || !S.draft) { S.openId = id; S.draft = draftFor(S.entryKind, S.date, id); S.dirty = false; }
   $$("#plist tr.tap").forEach(r => r.classList.toggle("sel", r.dataset.id === id));
   renderPanel();
@@ -1419,7 +1488,7 @@ async function openParty(id, round) {
   const w = $("#w" + Math.max(0, at)); if (w && (wide() || round)) w.focus();
 }
 async function closePanel(force) {
-  if (!force && S.dirty && !(await askConfirm("ยังไม่ได้ลงบัญชีรายการนี้ จะปิดเลยไหม?", "ปิดเลย"))) return false;
+  if (!force && S.dirty && !(await askConfirm("ยังไม่ได้บันทึกรายการนี้ จะปิดเลยไหม?", "ปิดเลย"))) return false;
   S.openId = null; S.draft = null; S.dirty = false;
   $$("#plist tr.tap").forEach(r => r.classList.remove("sel"));
   renderPanel(); return true;
@@ -1434,14 +1503,14 @@ async function saveLine(skipConfirm) {
   const bad = [[noP, "#p", x => `รอบ ${x.r} ยังไม่มีราคา พิมพ์ราคา หรือเลือก "ราคาเดิม"`], [noW, "#w", x => `รอบ ${x.r} ใส่จำนวนตัวแล้ว แต่ยังไม่ใส่น้ำหนัก`],
     [noN, "#n", x => `หมูเป็นรอบ ${x.r} มีค่าทำ ใส่จำนวนตัวด้วย`]].find(([i]) => i >= 0);
   if (bad) { const [i, f, msg] = bad; toast(msg(D.loads[i])); const el = $(f + i); if (el) el.focus(); return; }
-  // ตัวเลขแปลกไปจากที่ลูกค้าคนนี้ซื้อปกติ: ถามก่อน 1 ครั้ง (พ่อกดลงบัญชีต่อได้ถ้าถูกแล้ว)
+  // ตัวเลขแปลกไปจากที่ลูกค้าคนนี้ซื้อปกติ: ถามก่อน 1 ครั้ง (พ่อกดบันทึกต่อได้ถ้าถูกแล้ว)
   const ws = k === "sale" && !skipConfirm ? draftWarns() : [];
-  if (ws.length && !(await askConfirm(`ตัวเลขดูแปลกไปจากปกติ ช่วยเช็กอีกที\n\n${ws.join("\n")}\n\nถูกแล้ว ลงบัญชีเลยไหม?`, "ถูกแล้ว ลงบัญชี"))) return;
+  if (ws.length && !(await askConfirm(`ตัวเลขดูแปลกไปจากปกติ ช่วยเช็กอีกที\n\n${ws.join("\n")}\n\nถูกแล้ว บันทึกเลยไหม?`, "ถูกแล้ว บันทึก"))) return;
   const line = {
     loads: D.loads.filter(x => num(x.w) || num(x.n)).map(x => ({ w: r2(num(x.w)), n: num(x.n), p: r2(num(x.p)), t: k === "sale" ? x.t : "ซาก", r: x.r,
       ...(k === "sale" && isLive(x) && num(x.lab) ? { lab: r2(num(x.lab)) } : {}),
       ...(k === "sale" && num(x.dd) ? { dd: r2(num(x.dd)), ddn: String(x.ddn || "").trim() } : {}) })),
-    paid: r2(num(D.paid)), disc: r2(num(D.disc)), method: D.method || "เงินสด", note: String(D.note || "").trim(),
+    paid: r2(num(D.paid)), disc: r2(num(D.disc)), method: D.method || "โอน", note: String(D.note || "").trim(),
   };
   if (k === "sale" && num(D.oth) > 0) line.oth = r2(num(D.oth));
   // รอบประจำที่พ่อกด ✕ ออก จดไว้ว่า "วันนี้ไม่มีรอบนี้" จะได้ไม่โผล่กลับมา
@@ -1474,35 +1543,37 @@ async function saveLine(skipConfirm) {
   await closePanel(true); // ลงแล้วกลับไปหน้ารายชื่อ (ลำดับลูกค้าแต่ละวันไม่แน่นอน)
   await flushOutbox();
   const left = S.outbox.find(x => x.key === key);
-  if (!left) toast(`ลงบัญชี ${p.name} แล้ว`);
-  else if (left.err) toast(`ลงบัญชี ${p.name} ไม่สำเร็จ: ${left.err}`);
+  if (!left) toast(`บันทึก ${p.name} แล้ว`);
+  else if (left.err) toast(`บันทึก ${p.name} ไม่สำเร็จ: ${left.err}`);
   else if (!S.needPin) toast(`เน็ตไม่ดี เก็บรายการ ${p.name} ไว้ในเครื่องแล้ว จะส่งให้เองตอนเน็ตกลับมา`);
   checkNewDay();
 }
 async function changeDate(d) {
   if (d === S.date) return;
-  if (S.dirty && !(await askConfirm("ยังไม่ได้ลงบัญชีรายการนี้ จะเปลี่ยนวันเลยไหม?", "เปลี่ยนวัน"))) { $("#dateInput").value = S.date; return; }
-  S.date = d; S.dirty = false;
+  if ((S.dirty || expDirty()) && !(await askConfirm(S.dirty ? "ยังไม่ได้บันทึกรายการนี้ จะเปลี่ยนวันเลยไหม?" : "รายจ่ายที่กรอกไว้ยังไม่ได้บันทึก จะเปลี่ยนวันเลยไหม?", "เปลี่ยนวัน"))) { $("#dateInput").value = S.date; return; }
+  S.date = d; S.dirty = false; S.dx = null; S.expDraft = null;
   if (S.entryKind === "expense") { S.expDraft = null; S.dx = null; fillDateBar(); renderExpenses(); return; }
   if (S.openId) S.draft = draftFor(S.entryKind, d, S.openId);
   fillEntryList(); renderPanel();
 }
 
 /* ---------- รายจ่าย ---------- */
-/* รายจ่าย (Korn 18 พ.ย.): ทุกอย่างอยู่หน้านี้หน้าเดียว
-   ข้างบน "จ่ายทุกวัน" = แถวรอไว้ ไม่ต้องเลือกหมวด กรอกแล้วกดลงบัญชีทีเดียว
-     ค่าหมู (หลายฟาร์ม) → รายละเอียด "ฟาร์ม ก · 1900 กก. × 68 บาท · 18 ตัว"
-     ค่ารถ 10 ล้อ / ค่ารถกระบะ → "1 เที่ยว × 1500 บาท" · ค่าจ้างทำหมู → "18 ตัว × 50 บาท"
-     ราคาต่อเที่ยว/ต่อตัว จำจากครั้งล่าสุด · ชีตรายจ่ายใช้คอลัมน์เดิม ไม่ต้องแก้ Code.gs
-     จำนวนตัวค่าจ้างทำ = ตัวที่ขายรวมทุกลูกค้า ถ้าตรงกับตัวในค่าหมู ใส่ให้ · พ่อกดลงบัญชีเอง
-   ข้างล่าง "จ่ายอื่นๆ" = ที่ไม่ได้จ่ายทุกวัน ค่อยเลือกว่าค่าอะไร */
-const PIG_CAT = "ค่าหมู", LAB_CAT = "ค่าจ้างทำหมู";
-const DAILY = [
-  { k: "truck", cat: "ค่ารถ 10 ล้อ", sub: "รับหมูจากฟาร์ม", unit: "เที่ยว", m: "เงินสด", one: true },
-  { k: "lab", cat: LAB_CAT, sub: "", unit: "ตัว", m: "เงินสด" },
-  { k: "pick", cat: "ค่ารถกระบะ", sub: "ส่งหมูไปตลาด", unit: "เที่ยว", m: "เงินสด" },
-];
-const DAILY_CATS = [PIG_CAT, ...DAILY.map(r => r.cat)];
+/* ---------- รายจ่าย (v3.22, Korn 18 พ.ย.) ----------
+   หน้าเดียว 3 ส่วน: ประจำวัน · รายเดือน · อื่นๆ
+   รายการประจำวัน/รายเดือน แก้ในแอปได้ (ปุ่ม "แก้รายการ") เก็บในชีตตั้งค่า expenseCats แบบ "ชื่อ|แบบ" คั่นด้วย ,
+     แบบ หมู = แยกฟาร์ม กก. × ราคา · เที่ยว / ตัว = จำนวน × ราคาต่อหน่วย (จำราคาครั้งล่าสุด) · ยอด = พิมพ์ยอดเอง · เดือน = จ่ายเดือนละครั้ง
+   รายละเอียดในชีต: หมู "ฟาร์ม · 1050 กก. × 68 บาท · 10 ตัว" · เที่ยว/ตัว "1 เที่ยว × 1500 บาท" (ไม่ต้องเพิ่มคอลัมน์ ไม่ต้องแก้ Code.gs)
+   แบบ ตัว: จำนวนตัว = ขายรวมทุกลูกค้า ถ้าตรงกับตัวในค่าหมู ใส่ให้ · พ่อกดบันทึกเอง
+   อื่นๆ: พิมพ์ว่าค่าอะไร ครั้งหน้าชื่อนั้นขึ้นให้แตะ · ทุกอย่างเริ่มที่ โอน */
+const EXP_KINDS = { หมู: "ชั่งกิโล แยกฟาร์ม", เที่ยว: "นับเที่ยว", ตัว: "นับตัว", ยอด: "พิมพ์ยอด", เดือน: "รายเดือน" };
+const DEFAULT_ITEMS = ["ค่าหมู|หมู", "ค่ารถ 10 ล้อ|เที่ยว", "ค่าจ้างทำหมู|ตัว", "ค่ารถกระบะ|เที่ยว", "ค่าแรง|เดือน"];
+function expItems() {
+  const out = [];
+  for (const s of S.set.expenseCats) { const [name, kind] = String(s).split("|").map(x => x.trim()); if (name && !out.some(x => x.name === name)) out.push({ name, kind: EXP_KINDS[kind] ? kind : "ยอด" }); }
+  return out;
+}
+const dayItems = () => expItems().filter(x => x.kind !== "เดือน");
+const monthItems = () => expItems().filter(x => x.kind === "เดือน");
 const unitRe = /^(\d+(?:\.\d+)?)\s*(ตัว|เที่ยว)\s*×\s*([\d.,]+)\s*บาท/;
 function unitParse(desc) { const m = String(desc || "").match(unitRe); return m ? { n: String(num(m[1])), rate: String(num(m[3])) } : null; }
 const pigRe = /^(.*?)\s*·\s*([\d.,]+)\s*กก\.\s*×\s*([\d.,]+)\s*บาท(?:\s*·\s*(\d+)\s*ตัว)?/;
@@ -1510,147 +1581,214 @@ function pigParse(desc) { const m = String(desc || "").match(pigRe); return m ? 
 // รายการของหมวดนี้ ใหม่สุดก่อน (นับถึงวันที่ดูอยู่ แก้วันเก่าจะได้ราคาของตอนนั้น)
 const expNewest = cat => S.expenses.filter(e => e.cat === cat && e.date <= S.date).sort((a, b) => a.date < b.date ? 1 : -1);
 function lastRate(cat) { for (const e of expNewest(cat)) { const u = unitParse(e.desc); if (u) return u.rate; } return ""; }
-const lastMethod = (cat, dm) => { const e = expNewest(cat)[0]; return (e && e.method) || dm; };
-function pigFarms() { const out = []; for (const e of expNewest(PIG_CAT)) { const p = pigParse(e.desc); if (p && p.farm && !out.includes(p.farm)) out.push(p.farm); } return out; }
-function pigLastPrice(farm) { for (const e of expNewest(PIG_CAT)) { const p = pigParse(e.desc); if (p && p.farm === farm) return p.p; } return ""; }
+const lastMethod = cat => { const e = expNewest(cat)[0]; return (e && e.method) || "โอน"; };
+function pigFarms(cat) { const out = []; for (const e of expNewest(cat)) { const p = pigParse(e.desc); if (p && p.farm && !out.includes(p.farm)) out.push(p.farm); } return out; }
+function pigLastPrice(cat, farm) { for (const e of expNewest(cat)) { const p = pigParse(e.desc); if (p && p.farm === farm) return p.p; } return ""; }
 const pigAmt = p => r2(num(p.kg) * num(p.p));
-const rowAmt = x => r2(num(x.n) * num(x.rate));
-const dxTotal = X => r2(X.pigs.reduce((s, p) => s + pigAmt(p), 0) + DAILY.reduce((s, r) => s + rowAmt(X.rows[r.k]), 0));
+function rowAmt(it, x) { return it.kind === "ยอด" ? r2(num(x.amt)) : r2(num(x.n) * num(x.rate)); }
+/** สร้างหน้าจอจากรายการที่บันทึกไว้ของวันนั้น (หรือค่าที่เตรียมไว้ให้) */
 function dxBuild() {
-  const d = S.date, today = S.expenses.filter(e => e.date === d), used = new Set();
-  const X = { date: d, pigs: [], rows: {}, removed: [], err: "", dirty: false, used };
-  for (const e of today) if (e.cat === PIG_CAT) { const p = pigParse(e.desc); if (p) { X.pigs.push({ id: e.id, ...p, m: e.method || "โอน" }); used.add(e.id); } }
-  // ใส่ 10 ล้อ 1 เที่ยวรอไว้ เฉพาะวันที่มีขายและยังไม่ได้ลงอะไร (วันหยุดไม่ขึ้นยอด)
-  const saved = today.some(e => DAILY_CATS.includes(e.cat)), work = daySum("sale", d).amt > 0;
-  for (const r of DAILY) {
-    const e = today.find(x => x.cat === r.cat && !used.has(x.id) && unitParse(x.desc));
-    if (e) { used.add(e.id); X.rows[r.k] = { id: e.id, ...unitParse(e.desc), m: e.method || r.m }; }
-    else { const rate = lastRate(r.cat); X.rows[r.k] = { id: null, n: !saved && work && r.one && rate ? "1" : "", rate, m: lastMethod(r.cat, r.m) }; }
+  const d = S.date, today = S.expenses.filter(e => e.date === d), used = new Set(), its = dayItems();
+  const X = { date: d, pigs: {}, rows: {}, mon: {}, removed: [], err: "", dirty: false, used, labTouched: {} };
+  const saved = today.some(e => its.some(it => it.name === e.cat)), work = daySum("sale", d).amt > 0;
+  for (const it of its) {
+    if (it.kind === "หมู") {
+      const rows = [];
+      for (const e of today) if (e.cat === it.name && !used.has(e.id)) { const p = pigParse(e.desc); if (p) { rows.push({ id: e.id, ...p, m: e.method || "โอน" }); used.add(e.id); } }
+      if (!rows.length) rows.push({ id: null, farm: pigFarms(it.name)[0] || "", kg: "", n: "", p: "", m: lastMethod(it.name) });
+      X.pigs[it.name] = rows; continue;
+    }
+    const e = today.find(x => x.cat === it.name && !used.has(x.id) && (it.kind === "ยอด" || unitParse(x.desc)));
+    if (e) { used.add(e.id); X.rows[it.name] = { id: e.id, ...(unitParse(e.desc) || {}), amt: String(e.amount), m: e.method || "โอน" }; X.labTouched[it.name] = true; }
+    else {
+      const rate = it.kind === "ยอด" ? "" : lastRate(it.name);
+      // รถรับหมู (นับเที่ยว รายการแรก) ใส่ 1 เที่ยวรอไว้ เฉพาะวันที่มีขายและยังไม่ได้บันทึกอะไร
+      const first = it.kind === "เที่ยว" && its.find(x => x.kind === "เที่ยว") === it;
+      X.rows[it.name] = { id: null, n: !saved && work && first && rate ? "1" : "", rate, amt: "", m: lastMethod(it.name) };
+    }
+  }
+  // รายเดือน: บันทึกในเดือนนี้แล้วหรือยัง (วันไหนก็ได้ในเดือน)
+  const [mf, mt] = monthOf(d);
+  for (const it of monthItems()) {
+    const inM = S.expenses.filter(e => e.cat === it.name && e.date >= mf && e.date <= mt).sort((a, b) => a.date < b.date ? -1 : 1);
+    const here = inM.find(e => e.date === d), prev = expNewest(it.name).find(e => e.date < mf);
+    if (here) used.add(here.id);
+    X.mon[it.name] = { id: here ? here.id : null, amt: here ? String(here.amount) : "", m: here ? here.method || "โอน" : lastMethod(it.name),
+      other: inM.filter(e => e !== here), last: prev ? num(prev.amount) : 0 };
   }
   X.saved = saved;
-  if (!X.pigs.length) X.pigs.push({ id: null, farm: pigFarms()[0] || "", kg: "", n: "", p: "", m: lastMethod(PIG_CAT, "โอน") });
-  X.labTouched = !!X.rows.lab.id; dxAutoLab(X);
+  dxAutoLab(X);
   return X;
 }
-// ตัวที่ขายรวม (ทุกลูกค้า) กับตัวที่ใส่ในค่าหมู ของวันนั้น
-function dxHeads(X) { const s = daySum("sale", X.date).n, b = X.pigs.reduce((a, p) => a + Math.round(num(p.n)), 0); return { s, b, same: s > 0 && s === b }; }
-function dxAutoLab(X) { if (X.labTouched) return; const h = dxHeads(X); X.rows.lab.n = h.same ? String(h.s) : ""; }
-function labHint(X) {
-  const h = dxHeads(X), use = n => `<button type="button" class="link" data-act="labUse" data-n="${n}">ใช้ ${n} ตัว</button>`;
+// ตัวที่ขายรวม (ทุกลูกค้า) กับตัวที่ใส่ในค่าหมู (หมูเข้า) ของวันนั้น
+function dxHeads(X) { const s = daySum("sale", X.date).n, b = Object.values(X.pigs).flat().reduce((a, p) => a + Math.round(num(p.n)), 0); return { s, b, same: s > 0 && s === b }; }
+function dxAutoLab(X) { const h = dxHeads(X); for (const it of dayItems()) if (it.kind === "ตัว" && !X.labTouched[it.name]) X.rows[it.name].n = h.same ? String(h.s) : ""; }
+function labHint(X, i) {
+  const h = dxHeads(X), use = n => `<button type="button" class="link" data-act="labUse" data-i="${i}" data-n="${n}">ใช้ ${n}</button>`;
   if (!h.s && !h.b) return "";
-  if (h.same) return `<span class="okc">ขาย ${h.s} ตัว ตรงกับค่าหมู ${h.b} ตัว ✓</span>`;
-  if (!h.b) return `ขาย ${h.s} ตัว · ค่าหมูยังไม่ได้ใส่ตัว ${use(h.s)}`;
-  if (!h.s) return `ค่าหมู ${h.b} ตัว · บันทึกขายยังไม่มีจำนวนตัว ${use(h.b)}`;
-  return `<span class="warnp">ไม่ตรงกัน ขาย ${h.s} ตัว · ค่าหมู ${h.b} ตัว</span> ${use(h.s)} ${use(h.b)}`;
+  if (h.same) return `<span class="okc">ขาย ${h.s} ตัว = หมูเข้า ${h.b} ตัว ✓</span>`;
+  if (!h.b) return `ขาย ${h.s} ตัว · ค่าหมูยังไม่ใส่จำนวนตัว ${use(h.s)}`;
+  if (!h.s) return `หมูเข้า ${h.b} ตัว · หน้าขายยังไม่ใส่จำนวนตัว ${use(h.b)}`;
+  return `<span class="warnp">ไม่ตรงกัน ขาย ${h.s} ตัว หมูเข้า ${h.b} ตัว</span> ${use(h.s)} ${use(h.b)}`;
 }
+const mBtn = (act, k, m) => `<button type="button" class="xm${m === "เงินสด" ? " cash" : ""}" data-act="${act}" data-k="${esc(k)}" aria-label="จ่ายเป็น${m} แตะเพื่อเปลี่ยน">${m}</button>`;
+function dxTotal(X) {
+  let t = 0;
+  for (const it of dayItems()) t += it.kind === "หมู" ? (X.pigs[it.name] || []).reduce((s, p) => s + pigAmt(p), 0) : rowAmt(it, X.rows[it.name]);
+  for (const it of monthItems()) t += num(X.mon[it.name].amt);
+  return r2(t);
+}
+// รวมวันนี้ = ที่กรอกในประจำวัน/รายเดือน + อื่นๆ ของวันนี้ (ตัวที่กำลังแก้ใช้ยอดใหม่) + อื่นๆ ที่กำลังพิมพ์
+function pageTotal() {
+  const X = S.dx, E = S.expDraft || {};
+  const others = S.expenses.filter(e => e.date === X.date && !X.used.has(e.id)).reduce((s, e) => s + (E.id === e.id ? num(E.amount) : num(e.amount)), 0);
+  return r2(dxTotal(X) + others + (!E.id ? num(E.amount) : 0));
+}
+const expDirty = () => !!((S.dx && S.dx.dirty) || (S.expDraft && S.expDraft.touched));
 function dxHTML(X) {
-  const mchip = (act, i, m) => `<button type="button" class="mchip" data-act="${act}" data-i="${i}" aria-label="จ่ายเป็น ${m} แตะเพื่อเปลี่ยน">${m}</button>`;
-  const amt = (v, id) => `<b class="dxamt" id="${id}">${v ? money(v) : ""}</b>`;
-  const pig = (p, i) => { const lp = pigLastPrice(p.farm); return `<div class="dxpig">
-      <div class="dxtop"><input class="fld l dxfarm" data-dxp="${i}" data-f="farm" value="${esc(p.farm)}" placeholder="ชื่อฟาร์ม" list="farmList" aria-label="ชื่อฟาร์ม">${mchip("dxPm", i, p.m)}${X.pigs.length > 1 ? `<button type="button" class="link dxdel" data-act="dxPdel" data-i="${i}" aria-label="เอาฟาร์มนี้ออก">✕</button>` : ""}</div>
-      <div class="dxin">
-        <label><span class="lbl">กก.</span><input class="fld" data-dxp="${i}" data-f="kg" inputmode="decimal" value="${esc(p.kg)}"></label>
-        <label><span class="lbl">ตัว</span><input class="fld" data-dxp="${i}" data-f="n" inputmode="numeric" value="${esc(p.n)}"></label>
-        <label><span class="lbl">บาท/กก.</span><input class="fld" data-dxp="${i}" data-f="p" inputmode="decimal" value="${esc(p.p)}"></label>
-        ${amt(pigAmt(p), "dxa-p" + i)}</div>
-      ${!num(p.p) && lp ? `<button type="button" class="link small" data-act="dxPrice" data-i="${i}">ราคาเดิม ${fmtN(num(lp))}</button>` : ""}</div>`; };
-  const row = r => { const x = X.rows[r.k]; return `<div class="dxrow">
-      <div class="dxtop"><span class="dxname">${r.cat}${r.sub ? ` <span class="pencil">${r.sub}</span>` : ""}</span>${mchip("dxM", r.k, x.m)}</div>
-      <div class="dxin u">
-        <label><span class="lbl">${r.unit}</span><input class="fld" data-dx="${r.k}" data-f="n" inputmode="numeric" value="${esc(x.n)}"></label>
-        <span class="dxx" aria-hidden="true">×</span>
-        <label><span class="lbl">บาท/${r.unit}</span><input class="fld" data-dx="${r.k}" data-f="rate" inputmode="decimal" value="${esc(x.rate)}" placeholder="${x.rate ? "" : "ใส่ครั้งแรก"}"></label>
-        ${amt(rowAmt(x), "dxa-" + r.k)}</div>
-      ${r.k === "lab" ? `<div class="note dxhint" id="dxLabHint">${labHint(X)}</div>` : ""}</div>`; };
-  return `<div class="sec">จ่ายทุกวัน</div>
-    <div class="dx">
-      <div class="dxname">ค่าหมู</div>
-      ${X.pigs.map(pig).join("")}
-      <button type="button" class="link" data-act="dxPadd">＋ อีกฟาร์ม</button>
-      <datalist id="farmList">${pigFarms().map(f => `<option value="${esc(f)}">`).join("")}</datalist>
-      ${DAILY.map(row).join("")}
-      <div class="err" id="dxErr" ${X.err ? "" : "hidden"}>${esc(X.err)}</div>
-      <div class="dxfoot"><span>รวม <b id="dxTot">${money(dxTotal(X))}</b>${X.saved && !X.dirty ? ` <span class="stamp" id="dxStamp">ลงแล้ว</span>` : ""}</span><button class="btn solid" data-act="dxSave">ลงบัญชี</button></div>
-    </div>`;
+  const its = dayItems(), mons = monthItems();
+  const pigHTML = (it, i) => { const rows = X.pigs[it.name], tot = rows.reduce((s, p) => s + pigAmt(p), 0); return `<div class="xitem">
+      <div class="xn">${esc(it.name)}<b class="xa" id="xa${i}">${tot ? money(tot) : ""}</b></div>
+      ${rows.map((p, j) => { const lp = pigLastPrice(it.name, p.farm), k = i + "." + j; return `<div class="xpig">
+        <div class="xpt"><input class="xin xfarm" data-xp="${k}" data-f="farm" value="${esc(p.farm)}" placeholder="ชื่อฟาร์ม" list="farmList${i}" aria-label="ชื่อฟาร์ม">${mBtn("xPm", k, p.m)}${rows.length > 1 ? `<button type="button" class="xdel" data-act="xPdel" data-k="${k}" aria-label="เอาฟาร์มนี้ออก">✕</button>` : ""}</div>
+        <div class="xq"><input class="xin n" data-xp="${k}" data-f="kg" inputmode="decimal" value="${esc(p.kg)}" aria-label="กิโล"><span>กก.</span>
+          <input class="xin s" data-xp="${k}" data-f="n" inputmode="numeric" value="${esc(p.n)}" aria-label="จำนวนตัว"><span>ตัว ×</span>
+          <input class="xin r" data-xp="${k}" data-f="p" inputmode="decimal" value="${esc(p.p)}" placeholder="ราคา" aria-label="บาทต่อกิโล"><span>/กก.</span></div>
+        <div class="xhint">${!num(p.p) && lp ? `<button type="button" class="link" data-act="xPrice" data-k="${k}">ใช้ราคาเดิม ${fmtN(num(lp))}</button>` : ""}</div></div>`; }).join("")}
+      <button type="button" class="link small" data-act="xPadd" data-i="${i}">＋ ฟาร์ม</button>
+      <datalist id="farmList${i}">${pigFarms(it.name).map(f => `<option value="${esc(f)}">`).join("")}</datalist></div>`; };
+  const rowHTML = (it, i) => { const x = X.rows[it.name]; return `<div class="xitem"><div class="xrow">
+      <span class="xn">${esc(it.name)}${it.kind === "ยอด" ? "" : `<b class="xa" id="xa${i}">${rowAmt(it, x) ? money(rowAmt(it, x)) : ""}</b>`}</span>
+      ${it.kind === "ยอด" ? `<span class="xq"><input class="xin a" data-xr="${i}" data-f="amt" inputmode="decimal" value="${esc(x.amt)}" placeholder="ยอด" aria-label="${esc(it.name)} บาท"></span>`
+        : `<span class="xq"><input class="xin s" data-xr="${i}" data-f="n" inputmode="numeric" value="${esc(x.n)}" aria-label="จำนวน${it.kind}"><span>${it.kind} ×</span><input class="xin r" data-xr="${i}" data-f="rate" inputmode="decimal" value="${esc(x.rate)}" placeholder="ราคา" aria-label="บาทต่อ${it.kind}"></span>`}
+      <span class="xr2">${mBtn("xM", i, x.m)}</span></div>
+      ${it.kind === "ตัว" ? `<div class="xhint" id="xh${i}">${labHint(X, i)}</div>` : ""}</div>`; };
+  // รายเดือน: จ่ายวันอื่นในเดือนนี้แล้ว = บอกวันกับยอด (สีเทา ไม่นับในรวมวันนี้) แตะเพื่อไปแก้วันนั้น · ยังไม่จ่าย = ช่องใส่ยอด
+  const monHTML = (it, i) => { const x = X.mon[it.name], o = x.other[x.other.length - 1];
+    if (o && !x.id) return `<button type="button" class="xrow xlist" data-act="goDate" data-d="${o.date}"><span class="xn">${esc(it.name)}<span class="xsm">จ่ายแล้ว ${thShort(o.date)}${x.other.length > 1 ? ` (${x.other.length} ครั้ง)` : ""} · แตะเพื่อแก้</span></span><span></span><span class="xr2"><span class="xa grey">${money(x.other.reduce((s, e) => s + num(e.amount), 0))}</span></span></button>`;
+    return `<div class="xitem"><div class="xrow">
+      <span class="xn">${esc(it.name)}${x.last && !x.amt ? `<span class="xsm">เดือนก่อน ${money(x.last)}</span>` : ""}</span>
+      <span class="xq"><input class="xin a" data-xmo="${i}" value="${esc(x.amt)}" inputmode="decimal" placeholder="ยอด" aria-label="${esc(it.name)} บาท"></span>
+      <span class="xr2">${mBtn("xMm", i, x.m)}</span></div></div>`; };
+  return `<div class="xsec"><span>ประจำวัน</span><button type="button" class="link small" data-act="itemsEdit">จัดหัวข้อ</button></div>
+    <div class="xbox">${its.map((it, i) => it.kind === "หมู" ? pigHTML(it, i) : rowHTML(it, i)).join("") || `<p class="note">ยังไม่มีหัวข้อ กด "จัดหัวข้อ" เพื่อเพิ่ม</p>`}</div>
+    ${mons.length ? `<div class="xsec"><span>รายเดือน · ${thMonth(X.date)}</span></div><div class="xbox">${mons.map(monHTML).join("")}</div>` : ""}`;
 }
-// พิมพ์ในแถวจ่ายทุกวัน: อัปเดตตัวเลขตรงนั้น ไม่วาดหน้าใหม่ (คีย์บอร์ดไม่หุบ)
+// พิมพ์: อัปเดตตัวเลขตรงนั้น ไม่วาดหน้าใหม่ (คีย์บอร์ดไม่หุบ)
 function dxInput(t) {
   const X = S.dx; if (!X) return;
-  const f = t.dataset.f, o = t.dataset.dxp != null ? X.pigs[+t.dataset.dxp] : X.rows[t.dataset.dx]; if (!o) return;
-  o[f] = t.value; X.dirty = true; X.err = "";
-  if (t.dataset.dx === "lab" && f === "n") X.labTouched = true;
-  if (t.dataset.dxp != null && f === "n") { dxAutoLab(X); const li = $('[data-dx="lab"][data-f="n"]'); if (li && li !== t) li.value = X.rows.lab.n; }
-  X.pigs.forEach((p, i) => { const a = $("#dxa-p" + i); if (a) a.textContent = pigAmt(p) ? money(pigAmt(p)) : ""; });
-  DAILY.forEach(r => { const a = $("#dxa-" + r.k); if (a) a.textContent = rowAmt(X.rows[r.k]) ? money(rowAmt(X.rows[r.k])) : ""; });
-  const h = $("#dxLabHint"); if (h) h.innerHTML = labHint(X);
-  $("#dxTot").textContent = money(dxTotal(X));
-  const st = $("#dxStamp"); if (st) st.remove();
-  $("#dxErr").hidden = true;
+  const its = dayItems(), f = t.dataset.f;
+  if (t.dataset.xp) { const [i, j] = t.dataset.xp.split(".").map(Number), p = X.pigs[its[i].name][j]; p[f] = t.value; if (f === "n") dxAutoLab(X); }
+  else if (t.dataset.xr) { const it = its[+t.dataset.xr]; X.rows[it.name][f] = t.value; if (it.kind === "ตัว" && f === "n") X.labTouched[it.name] = true; }
+  else if (t.dataset.xmo) X.mon[monthItems()[+t.dataset.xmo].name].amt = t.value;
+  X.dirty = true; X.err = "";
+  its.forEach((it, i) => {
+    const a = $("#xa" + i), v = it.kind === "หมู" ? X.pigs[it.name].reduce((s, p) => s + pigAmt(p), 0) : rowAmt(it, X.rows[it.name]);
+    if (a) a.textContent = v ? money(v) : "";
+    if (it.kind === "ตัว") { const li = $(`[data-xr="${i}"][data-f="n"]`); if (li && li !== t) li.value = X.rows[it.name].n; const h = $("#xh" + i); if (h) h.innerHTML = labHint(X, i); }
+  });
+  footUpdate();
 }
+function footUpdate() {
+  const tt = $("#dxTot"); if (tt) tt.textContent = money(pageTotal());
+  const st = $("#dxStamp"); if (st && expDirty()) st.remove();
+  const er = $("#dxErr"); if (er) er.hidden = true;
+}
+// ปุ่มบันทึกปุ่มเดียว = บันทึกทั้งหน้า (ประจำวัน รายเดือน และอื่นๆ ที่กรอกไว้)
 async function dxSave() {
   const X = S.dx; if (!X) return;
-  const errs = [];
-  X.pigs.forEach(p => {
-    if ((num(p.kg) || num(p.n)) && !num(p.p)) errs.push("ค่าหมู ใส่ราคา บาท/กก.");
-    if (num(p.p) && !num(p.kg) && num(p.n)) errs.push("ค่าหมู ใส่ กก.");
-    if (pigAmt(p) && !String(p.farm).trim()) errs.push("ค่าหมู ใส่ชื่อฟาร์ม");
-  });
-  DAILY.forEach(r => { const x = X.rows[r.k]; if (num(x.n) && !num(x.rate)) errs.push(`${r.cat} ใส่บาท/${r.unit}`); });
+  const its = dayItems(), errs = [], E = S.expDraft || newExpDraft();
+  for (const it of its) {
+    if (it.kind === "หมู") X.pigs[it.name].forEach(p => {
+      if ((num(p.kg) || num(p.n)) && !num(p.p)) errs.push(`${it.name} ใส่ราคาต่อกิโล`);
+      if (pigAmt(p) && !String(p.farm).trim()) errs.push(`${it.name} ใส่ชื่อฟาร์ม`);
+    });
+    else if (it.kind !== "ยอด") { const x = X.rows[it.name]; if (num(x.n) && !num(x.rate)) errs.push(`${it.name} ใส่ราคาต่อ${it.kind}`); }
+  }
+  const eCat = String(E.cat || "").replace(/[,|]/g, " ").trim(), eAmt = r2(num(E.amount));
+  if (!E.id && (eCat || eAmt) && !(eCat && eAmt)) errs.push(!eCat ? "อื่นๆ ใส่ว่าค่าอะไร" : "อื่นๆ ใส่ยอด");
+  if (E.id && !eCat) errs.push("อื่นๆ ใส่ว่าค่าอะไร");
   if (errs.length) { X.err = [...new Set(errs)].join(" · "); X.dirty = true; renderExpenses(); return; }
-  const ops = [];
-  const put = (id, cat, desc, amount, method) => {
+  // เตรียมรายการที่จะส่ง (ยังไม่แก้ในเครื่อง จนกว่าพ่อจะยืนยัน)
+  const ops = [], notes = [];
+  const put = (id, cat, desc, amount, method, date) => {
     const old = id && S.expenses.find(y => y.id === id);
     if (amount > 0.004) {
-      if (old && old.desc === desc && Math.abs(num(old.amount) - amount) < 0.005 && old.method === method) return;
-      const e = { id: id || uid("e"), date: X.date, cat, desc, amount: r2(amount), method };
-      const i = S.expenses.findIndex(y => y.id === e.id); if (i >= 0) S.expenses[i] = e; else S.expenses.push(e);
-      ops.push(e);
-    } else if (old) { S.expenses = S.expenses.filter(y => y.id !== id); ops.push({ id, deleted: true }); }
+      if (old && old.desc === desc && Math.abs(num(old.amount) - amount) < 0.005 && old.method === method && old.cat === cat) return;
+      if (old) notes.push(`${cat}: ${money(old.amount)} → ${money(amount)}`);
+      ops.push({ id: id || uid("e"), date: old ? old.date : date || X.date, cat, desc, amount: r2(amount), method });
+    } else if (old) { notes.push(`ลบ ${old.cat} ${money(old.amount)}`); ops.push({ id, deleted: true }); }
   };
-  X.pigs.forEach(p => put(p.id, PIG_CAT, `${String(p.farm).trim()} · ${r2(num(p.kg))} กก. × ${r2(num(p.p))} บาท${num(p.n) ? ` · ${Math.round(num(p.n))} ตัว` : ""}`, pigAmt(p), p.m));
-  X.removed.forEach(id => put(id, PIG_CAT, "", 0));
-  DAILY.forEach(r => { const x = X.rows[r.k]; put(x.id, r.cat, `${r2(num(x.n))} ${r.unit} × ${r2(num(x.rate))} บาท`, rowAmt(x), x.m); });
-  const tot = dxTotal(X);
-  S.dx = null; renderExpenses();
+  for (const it of its) {
+    if (it.kind === "หมู") X.pigs[it.name].forEach(p => put(p.id, it.name, `${String(p.farm).trim()} · ${r2(num(p.kg))} กก. × ${r2(num(p.p))} บาท${num(p.n) ? ` · ${Math.round(num(p.n))} ตัว` : ""}`, pigAmt(p), p.m));
+    else { const x = X.rows[it.name]; put(x.id, it.name, it.kind === "ยอด" ? "" : `${r2(num(x.n))} ${it.kind} × ${r2(num(x.rate))} บาท`, rowAmt(it, x), x.m); }
+  }
+  for (const it of monthItems()) { const x = X.mon[it.name]; put(x.id, it.name, "", r2(num(x.amt)), x.m); }
+  X.removed.forEach(id => put(id, "", "", 0));
+  if (E.id) { const old = S.expenses.find(y => y.id === E.id); if (old) put(E.id, eCat, old.cat === eCat ? old.desc || "" : "", eAmt, E.method); }
+  else if (eCat && eAmt) put(null, eCat, "", eAmt, E.method);
   if (!ops.length) { toast("ไม่มีอะไรเปลี่ยน"); return; }
-  try { for (const e of ops) await backend.saveExpense(e); toast(`ลงรายจ่ายทุกวันแล้ว รวม ${money(tot)}`); }
-  catch (err) { toast("ลงไม่สำเร็จ ลองอีกครั้ง"); loadAll(true); }
+  // แก้ของวันก่อน หรือมีลบ: ให้ดูก่อน→หลัง แล้วยืนยัน
+  if (notes.length && (X.date < todayISO() || notes.some(n => n.startsWith("ลบ")))) {
+    if (!(await askConfirm(`${thLong(X.date)}\n\n${notes.join("\n")}\n\nบันทึกเลยไหม?`, "บันทึก"))) return;
+  }
+  for (const e of ops) { const i = S.expenses.findIndex(y => y.id === e.id); if (e.deleted) { if (i >= 0) S.expenses.splice(i, 1); } else if (i >= 0) S.expenses[i] = e; else S.expenses.push(e); }
+  S.dx = null; S.expDraft = null; renderExpenses();
+  await sendExpenses(ops, `บันทึกแล้ว รวม${dayWord(X.date)} ${money(S.expenses.filter(e => e.date === X.date).reduce((s, e) => s + num(e.amount), 0))}`);
 }
-// จ่ายอื่นๆ: หมวดในตั้งค่า (ไม่รวมหมวดจ่ายทุกวัน)
-const otherCats = () => { const c = S.set.expenseCats.filter(x => !DAILY_CATS.includes(x)); return c.length ? c : ["อื่นๆ"]; };
-function newExpDraft() { return { id: null, cat: otherCats()[0], desc: "", amount: "", method: "เงินสด", err: "" }; }
+/* อื่นๆ: พิมพ์ว่าค่าอะไร · ชื่อที่เคยใช้ขึ้นเป็นปุ่มให้แตะ */
+function otherNames() {
+  const items = new Set(expItems().map(x => x.name)), out = [];
+  for (const e of S.expenses.slice().sort((a, b) => a.date < b.date ? 1 : -1)) if (e.cat && !items.has(e.cat) && !out.includes(e.cat)) out.push(e.cat);
+  return out.slice(0, 8);
+}
+function newExpDraft() { return { id: null, cat: "", amount: "", method: "โอน", err: "", touched: false }; }
+function otherHTML(list) {
+  const E = S.expDraft || (S.expDraft = newExpDraft()), names = otherNames().filter(n => n !== E.cat);
+  return `<div class="xsec"><span>อื่นๆ</span></div>
+    <div class="xbox">
+      ${list.map(e => E.id === e.id ? "" : `<button type="button" class="xrow xlist" data-act="expEdit" data-id="${esc(e.id)}"><span class="xn">${esc(e.cat)}${e.desc ? `<span class="xsm">${esc(e.desc)}</span>` : ""}</span><span></span><span class="xr2"><b class="xa">${money(e.amount)}</b><span class="xm flat${e.method === "เงินสด" ? " cash" : ""}">${esc(e.method)}</span></span></button>`).join("")}
+      <div class="xrow xadd${E.id ? " sel" : ""}">
+        <input class="xin xname" id="eCat" data-ef="cat" value="${esc(E.cat)}" placeholder="ค่าอะไร" aria-label="ค่าอะไร">
+        <input class="xin a" id="eAmt" data-ef="amount" inputmode="decimal" value="${esc(E.amount)}" placeholder="ยอด" aria-label="บาท">
+        <span class="xr2"><button type="button" class="xm${E.method === "เงินสด" ? " cash" : ""}" data-act="emethod" aria-label="จ่ายเป็น${E.method} แตะเพื่อเปลี่ยน">${E.method}</button></span></div>
+      ${names.length && !E.id ? `<div class="xchips">${names.map(n => `<button type="button" class="chip" data-act="eName" data-n="${esc(n)}">${esc(n)}</button>`).join("")}</div>` : ""}
+      ${E.id ? `<div class="xact"><span class="pencil small">กำลังแก้ · กดบันทึกข้างล่าง</span><button class="link" data-act="expCancel">ยกเลิก</button><button class="link" data-act="expDelete" style="color:#A12A2A">ลบ</button></div>` : ""}
+    </div>`;
+}
+/* จัดหัวข้อประจำวัน/รายเดือน (ชื่อ + แบบ) ในแอป */
+function itemsEditHTML() {
+  const L = S.itemsEdit;
+  return `<div class="xsec"><span>จัดหัวข้อรายจ่าย</span></div>
+    <div class="xbox">
+      ${L.map((x, i) => `<div class="xitem xedit"><input class="xin xname" data-ie="${i}" value="${esc(x.name)}" placeholder="ชื่อหัวข้อ" aria-label="ชื่อหัวข้อ">
+        <div class="xpt"><select class="xin xkind" data-iek="${i}" aria-label="แบบ">${Object.entries(EXP_KINDS).map(([k, v]) => `<option value="${k}" ${x.kind === k ? "selected" : ""}>${v}</option>`).join("")}</select>
+        <button type="button" class="xmv" data-act="itemUp" data-i="${i}" ${i ? "" : "disabled"} aria-label="เลื่อนขึ้น">↑</button><button type="button" class="xdel" data-act="itemDel" data-i="${i}" aria-label="ลบหัวข้อ">✕</button></div></div>`).join("")}
+      <button type="button" class="link small" data-act="itemAdd">＋ เพิ่มหัวข้อ</button>
+      <p class="note">เปลี่ยนชื่อแล้ว รายการเก่ายังใช้ชื่อเดิม</p>
+      <div class="err" id="ieErr" hidden></div>
+      <div class="xact"><button class="btn solid" data-act="itemsSave">บันทึก</button><button class="btn" data-act="itemsCancel">ยกเลิก</button></div>
+    </div>`;
+}
+async function itemsSave() {
+  const L = S.itemsEdit.map(x => ({ name: String(x.name).replace(/[,|]/g, " ").trim(), kind: x.kind })).filter(x => x.name);
+  const dup = L.find((x, i) => L.findIndex(y => y.name === x.name) !== i);
+  if (dup) { const e = $("#ieErr"); e.textContent = `ชื่อ "${dup.name}" ซ้ำ`; e.hidden = false; return; }
+  S.set.expenseCats = L.length ? L.map(x => `${x.name}|${x.kind}`) : ["อื่นๆ|ยอด"];
+  S.itemsEdit = null; S.dx = null; renderExpenses();
+  try { await backend.saveConfig(); toast("บันทึกหัวข้อแล้ว"); } catch (err) { toast("บันทึกไม่สำเร็จ ลองอีกครั้ง"); loadAll(true); }
+}
 function renderExpenses() {
-  const d = S.date, [mf, mt] = monthOf(d), all = S.expenses.filter(e => e.date === d);
+  const d = S.date, all = S.expenses.filter(e => e.date === d);
+  if (S.itemsEdit) { $("#expArea").innerHTML = itemsEditHTML(); return; }
   if (!S.dx || S.dx.date !== d || !S.dx.dirty) S.dx = dxBuild();
+  if (S.expDraft && S.expDraft.id && !S.expenses.some(e => e.id === S.expDraft.id && e.date === d)) S.expDraft = null;
   const X = S.dx, list = all.filter(e => !X.used.has(e.id));
-  const dayTotal = all.reduce((s, e) => s + num(e.amount), 0);
-  const monthTotal = S.expenses.filter(e => e.date >= mf && e.date <= mt).reduce((s, e) => s + num(e.amount), 0);
-  const E = S.expDraft || (S.expDraft = newExpDraft());
-  const oc = otherCats(), cats = oc.includes(E.cat) ? oc : [...oc, E.cat];
-  $("#expArea").innerHTML = `${dxHTML(X)}
-    <div class="sec">${E.id ? "แก้รายจ่าย" : "จ่ายอื่นๆ"} <span class="pencil" style="font-weight:400">ที่ไม่ได้จ่ายทุกวัน</span></div>
-    <div class="setgrid">
-      <label for="eCat"><span class="lbl">ค่าอะไร</span><select class="fld" id="eCat" data-ef="cat">${cats.map(c => `<option ${c === E.cat ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
-      <label for="eAmt"><span class="lbl">จำนวนเงิน (บาท)</span><input class="fld" id="eAmt" data-ef="amount" inputmode="decimal" placeholder="0" value="${esc(E.amount)}"></label>
-      <label for="eDesc"><span class="lbl">รายละเอียด</span><input class="fld l" id="eDesc" data-ef="desc" value="${esc(E.desc)}" placeholder="ถ้ามี"></label>
-      <div><span class="lbl">จ่ายเป็น</span><div class="seg" role="group" aria-label="จ่ายเป็น">${METHODS.map(m => `<button data-act="emethod" data-m="${m}" aria-pressed="${E.method === m}">${m}</button>`).join("")}</div></div>
-    </div>
-    <div class="err" id="eErr" ${E.err ? "" : "hidden"}>${esc(E.err)}</div>
-    <div class="actions" style="margin-top:12px"><button class="btn" data-act="expSave">${E.id ? "บันทึกที่แก้" : "เพิ่มรายการนี้"}</button>${E.id ? `<button class="btn" data-act="expCancel">ยกเลิก</button><button class="link" data-act="expDelete" style="color:#A12A2A">ลบรายการนี้</button>` : ""}</div>
-    ${list.length ? `<table class="lined" style="margin-top:10px"><colgroup><col style="width:30%"><col style="width:36%"><col style="width:14%"><col style="width:20%"></colgroup>
-      <tbody>${list.map(e => `<tr class="tap" data-act="expEdit" data-id="${esc(e.id)}"><td>${esc(e.cat)}</td><td>${esc(e.desc) || '<span class="pencil">–</span>'}</td><td class="n pencil">${esc(e.method)}</td><td class="n ink">${money(e.amount)}</td></tr>`).join("")}</tbody></table>` : ""}
-    <div class="dxsum"><span>รวมจ่าย${dayWord(d)}</span><b>${money(dayTotal)}</b></div>
-    <p class="note">ทั้งเดือน ${money(monthTotal)} · ดูแยกค่าอะไรที่ สรุป › รายรับ-รายจ่าย</p>`;
-}
-async function saveExpense() {
-  const E = S.expDraft, amt = r2(num(E.amount));
-  if (!amt) { E.err = "ใส่จำนวนเงินก่อน"; renderExpenses(); $("#eAmt").focus(); return; }
-  const e = { id: E.id || uid("e"), date: S.date, cat: E.cat, desc: String(E.desc || "").trim(), amount: amt, method: E.method };
-  const i = S.expenses.findIndex(x => x.id === e.id);
-  if (i >= 0) S.expenses[i] = e; else S.expenses.push(e);
-  S.expDraft = null; renderExpenses();
-  try { await backend.saveExpense(e); toast(`ลง ${e.cat} ${money(amt)} แล้ว`); }
-  catch (err) { toast("ลงไม่สำเร็จ ลองอีกครั้ง"); loadAll(true); }
+  const [mf, mt] = monthOf(d), monthTotal = S.expenses.filter(e => e.date >= mf && e.date <= mt).reduce((s, e) => s + num(e.amount), 0);
+  $("#expArea").innerHTML = `${dxHTML(X)}${otherHTML(list)}
+    <div class="err" id="dxErr" ${X.err ? "" : "hidden"}>${esc(X.err)}</div>
+    <div class="xfoot"><span>รวม${dayWord(d)} <b id="dxTot">${money(pageTotal())}</b>${all.length && !expDirty() ? ` <span class="stamp" id="dxStamp">บันทึกแล้ว</span>` : ""}</span><button class="btn solid" data-act="dxSave">บันทึก</button></div>
+    <p class="note">ทั้งเดือน ${money(monthTotal)}</p>`;
 }
 
 /* ================= page: ลูกหนี้ ================= */
@@ -1689,6 +1827,8 @@ function owedSince(id, ob) {
   const open = new Set(days), solid = S.dates.every(d => d < first || d > last || !inBooks(d) || !lineTotals(lineOf("sale", d, id)).amt || open.has(d));
   const head = op ? "ค้างยกมา + " : "ค้าง ";
   if (days.length === 1) return `${head}${thShort(first)}`;
+  // ไม่เกิน 3 วัน บอกวันตรงๆ ("ค้าง 14, 18 พ.ย.") ช่วงวันที่มีวันไม่ได้ซื้อคั่นจะได้ไม่ดูขัดกับจำนวนวัน
+  if (days.length <= 3) return head + (days.every(d => d.slice(0, 7) === first.slice(0, 7)) ? days.slice(0, -1).map(d => +d.slice(8)).join(", ") + ", " + thShort(last) : days.map(thShort).join(", "));
   return solid ? `${head}${dRange(first, last)} (${days.length} วัน)` : `${head}${days.length} วัน ตั้งแต่ ${thShort(first)}`;
 }
 /** วันที่รับเงินครั้งล่าสุดของลูกค้าคนนี้ (ไม่นับวันก่อนเริ่มนับหนี้) */
@@ -1894,7 +2034,7 @@ function renderPay() {
       <div class="err" id="payErr" hidden></div>
       ${P.edit ? "" : recentPaysHTML(P.id)}
     </div>
-    <div class="payfoot"><div class="pfs" id="payFoot"></div><button class="btn solid" data-act="paySave">${P.edit ? "บันทึกที่แก้" : "ลงรับเงิน"}</button></div></div>`;
+    <div class="payfoot"><div class="pfs" id="payFoot"></div><button class="btn solid" data-act="paySave">${P.edit ? "บันทึกที่แก้" : "บันทึกรับเงิน"}</button></div></div>`;
   m.hidden = false; $("#payBody").scrollTop = y0; updatePay();
 }
 // พิมพ์ยอดโอนแล้ว ช่องรับของแต่ละวันเปลี่ยนตาม (ช่องที่กำลังพิมพ์ไม่ยุ่ง)
@@ -2600,7 +2740,7 @@ function renderDetail() {
     <div class="page">
       <div class="headline"><div><span class="lbl">${k === "sale" ? "ค้างทั้งหมด" : "ค้างจ่ายทั้งหมด"}</span><div class="big">${money(ob.total)}</div></div>${statusHTML(ob)}</div>
       <p class="note" style="color:var(--text)">${through}</p>
-      <div class="actions" style="margin:12px 0">${k === "sale" ? `<button class="btn solid" data-act="payOpen" data-id="${esc(id)}">รับเงิน</button>` : `<button class="btn solid" data-act="gotoEntry" data-kind="${k}" data-id="${esc(id)}">จ่ายเงิน / ลงบัญชีวันนี้</button>`}<button class="btn" data-act="bill">ส่งบิล LINE</button></div>
+      <div class="actions" style="margin:12px 0">${k === "sale" ? `<button class="btn solid" data-act="payOpen" data-id="${esc(id)}">รับเงิน</button>` : `<button class="btn solid" data-act="gotoEntry" data-kind="${k}" data-id="${esc(id)}">จ่ายเงิน / บันทึกวันนี้</button>`}<button class="btn" data-act="bill">ส่งบิล LINE</button></div>
       <div id="billBox" class="billbox" ${S.billOpen ? "" : "hidden"}>${S.billOpen ? billBoxHTML(k, id) : ""}</div>
       ${billsSection(k, id, ob)}
       ${k === "sale" ? recentPaysHTML(id) : ""}
@@ -2623,12 +2763,148 @@ function sumRange() {
   if (S.sumMode === "month") return monthOf(S.sumAnchor);
   return S.sumFrom <= S.sumTo ? [S.sumFrom, S.sumTo] : [S.sumTo, S.sumFrom];
 }
+/* ---------- สรุปเพิ่ม (v3.23, Korn 18 พ.ย.) ----------
+   กำไรคร่าวๆ = ขายสุทธิ − รายจ่าย (ขายนับวันที่ขาย รายจ่ายนับวันที่จ่าย ยังไม่หักภาษี)
+   % เนื้อ = กก.ซากที่ขาย ÷ (กก.หมูเข้า − กก.หมูเป็นที่ขาย) · หมูเป็นขายทั้งตัว ไม่ได้ชำแหละ เลยไม่นับ
+   หมูเข้า = แถว "ชั่งกิโล แยกฟาร์ม" ในรายจ่าย (รายละเอียด "ฟาร์ม · กก. × ราคา · ตัว") */
+function pigIn(from, to) {
+  const pigCats = new Set(expItems().filter(x => x.kind === "หมู").map(x => x.name)), farms = {};
+  let kg = 0, n = 0, kgn = 0, amt = 0;
+  for (const e of S.expenses) {
+    if (e.date < from || e.date > to || !pigCats.has(e.cat)) continue;
+    const p = pigParse(e.desc); if (!p) continue;
+    const f = farms[p.farm] || (farms[p.farm] = { farm: p.farm, kg: 0, n: 0, amt: 0, days: new Set() });
+    f.kg += num(p.kg); f.n += num(p.n); f.amt += num(e.amount); f.days.add(e.date);
+    kg += num(p.kg); n += num(p.n); kgn += num(p.n) ? num(p.kg) : 0; amt += num(e.amount);
+  }
+  return { kg: r2(kg), n, kgn: r2(kgn), amt: r2(amt), farms: Object.values(farms).sort((a, b) => b.amt - a.amt) };
+}
+/* น้ำหนักหาย (Korn 18 พ.ย.): ไว้ดูการทำงานของลูกน้อง
+   หมูเข้าเฉลี่ย กก./ตัว (ค่าหมู แถวที่ใส่ตัว) เทียบ ซากเฉลี่ย กก./ตัว (รอบขายซากที่ใส่ตัว) · หมูเป็นที่ขายทั้งตัวไม่เอามาคิด
+   หาย = เข้า − ซาก (กก./ตัว) · % = หาย ÷ เข้า */
+function lossOf(from, to) {
+  const I = pigIn(from, to); let kgn = 0, n = 0;
+  for (const d of S.dates) { if (d < from) continue; if (d > to) break; const b = daySum("sale", d).by["ซาก"]; if (b) { kgn += b.kgn; n += b.n; } }
+  if (!I.n || !n) return null;
+  const inAvg = I.kgn / I.n, outAvg = kgn / n, kg = inAvg - outAvg;
+  return { inAvg, outAvg, kg, pct: kg / inAvg * 100 };
+}
+// ปกติหายกี่ % (ค่ากลางของ 30 วันก่อนหน้า) ไว้เทียบว่าวันนี้แปลกไหม
+function lossNormal(d) {
+  const xs = [];
+  for (let i = 1; i <= 30; i++) { const x = addDays(d, -i), L = lossOf(x, x); if (L) xs.push(L.pct); }
+  if (xs.length < 5) return null;
+  xs.sort((a, b) => a - b); return xs[Math.floor(xs.length / 2)];
+}
+function lossLine(d) {
+  const L = lossOf(d, d); if (!L) return "";
+  const nm = lossNormal(d), odd = nm != null && Math.abs(L.pct - nm) > 3;
+  return `<div class="dsrow loss${odd ? " odd" : ""}"><span class="dsty">น้ำหนักหาย</span><span class="dsmid">หมูเข้า ${fmtN(L.inAvg, 1)} → ซาก ${fmtN(L.outAvg, 1)} กก./ตัว${nm != null ? ` <span class="dsavg">ปกติ ${fmtN(nm, 1)}%</span>` : ""}</span><b class="dsamt">${fmtN(L.kg, 1)} กก. · ${fmtN(L.pct, 1)}%</b></div>`;
+}
+function profitHTML(from, to) {
+  const P = periodTotals(from, to), L = lossOf(from, to), pr = P.saleNet - P.exp.total;
+  return `<div class="sec">กำไร</div>
+  <table class="lined"><colgroup><col style="width:58%"><col style="width:42%"></colgroup><tbody>
+    <tr><td>ขายสุทธิ</td><td class="n ink">${money(P.saleNet)}</td></tr>
+    <tr><td>หัก รายจ่าย</td><td class="n ink">${money(P.exp.total)}</td></tr>
+    <tr class="tot"><td>กำไร</td><td class="n"><span class="dbl${pr < 0 ? " neg" : ""}">${money(pr)}</span></td></tr>
+    ${L ? `<tr><td>น้ำหนักหาย</td><td class="n ink">${fmtN(L.kg, 1)} กก./ตัว · ${fmtN(L.pct, 1)}%</td></tr>` : ""}
+  </tbody></table>
+  <p class="note">ยังไม่หักภาษี · ขายนับตามวันที่ขาย รายจ่ายนับตามวันที่จ่าย${L ? `<br>น้ำหนักหาย = หมูเข้าเฉลี่ย ${fmtN(L.inAvg, 1)} กก./ตัว เทียบซากเฉลี่ย ${fmtN(L.outAvg, 1)} กก./ตัว (ไม่นับหมูเป็นที่ขายทั้งตัว)` : ""}</p>`;
+}
+function farmHTML(from, to) {
+  const I = pigIn(from, to); if (!I.farms.length) return "";
+  return `<div class="sec">ค่าหมูแยกฟาร์ม</div>
+  <table class="lined"><colgroup><col style="width:30%"><col style="width:12%"><col style="width:20%"><col style="width:14%"><col style="width:24%"></colgroup>
+    <thead><tr><th>ฟาร์ม</th><th class="n">ตัว</th><th class="n">กก.</th><th class="n">฿/กก.</th><th class="n">บาท</th></tr></thead>
+    <tbody>${I.farms.map(f => `<tr><td>${esc(f.farm)}<span class="xsm">${f.days.size} วัน</span></td><td class="n">${fmtN(f.n, 0)}</td><td class="n">${kg1(f.kg)}</td><td class="n pencil">${f.kg ? fmtN(f.amt / f.kg) : "–"}</td><td class="n ink">${money(f.amt)}</td></tr>`).join("")}
+    <tr class="tot"><td>รวม</td><td class="n">${fmtN(I.n, 0)}</td><td class="n">${kg1(I.kg)}</td><td class="n pencil">${I.kg ? fmtN(I.amt / I.kg) : "–"}</td><td class="n"><span class="dbl">${money(I.amt)}</span></td></tr></tbody></table>`;
+}
+/* ---------- FlowAccount: เลือกลูกค้าบริษัท แล้วเอาข้อมูลไปกรอก/นำเข้า FlowAccount ----------
+   FlowAccount นำเข้า Excel ได้เฉพาะ "ขายเงินสด" (แพ็กเกจ Standard ขึ้นไป) ใบแจ้งหนี้/ใบเสร็จต้องกรอกเอง ใช้ตารางนี้ดู
+   ลูกค้าที่เลือก เก็บในตั้งค่า faCustomers (ต้องใช้ Code.gs ที่รู้จักช่องนี้) และในเครื่องนี้ด้วย กันหาย */
+const LS_FA = "papa-accounting-fa";
+const faIds = () => new Set(S.set.faCustomers && S.set.faCustomers.length ? S.set.faCustomers : lsGet(LS_FA, []));
+const dmy = d => `${d.slice(8)}/${d.slice(5, 7)}/${d.slice(0, 4)}`;
+function faSaleRows(from, to) {
+  const ids = faIds(), rows = [];
+  for (const d of S.dates) {
+    if (d < from) continue; if (d > to) break;
+    for (const c of S.customers) {
+      if (!ids.has(c.id)) continue;
+      const l = lineOf("sale", d, c.id); if (!l) continue;
+      const ref = d.replace(/-/g, "") + "-" + c.name;
+      for (const x of l.loads || []) {
+        if (x.skip || !num(x.w)) continue;
+        const ty = x.t === "หมูเป็น" ? "หมูเป็น" : "ซาก";
+        rows.push({ d, ref, c: c.name, item: ty, q: r2(num(x.w)), u: "กก.", p: r2(num(x.p)), a: r2(num(x.w) * num(x.p)) });
+        if (labOf(x)) rows.push({ d, ref, c: c.name, item: "ค่าทำหมู", q: num(x.n), u: "ตัว", p: r2(num(x.lab)), a: r2(labOf(x)) });
+        if (num(x.dd)) rows.push({ d, ref, c: c.name, item: "ลดตำหนิ" + (x.ddn ? " " + x.ddn : ""), q: 1, u: "รายการ", p: -r2(num(x.dd)), a: -r2(num(x.dd)) });
+      }
+      if (num(l.oth)) rows.push({ d, ref, c: c.name, item: "อื่นๆ (เลือด ไส้)", q: 1, u: "รายการ", p: r2(num(l.oth)), a: r2(num(l.oth)) });
+    }
+  }
+  return rows;
+}
+function faPayRows(from, to) {
+  const ids = faIds(), rows = [];
+  for (const d of S.dates) {
+    if (d < from) continue; if (d > to) break;
+    for (const c of S.customers) {
+      if (!ids.has(c.id)) continue;
+      const l = lineOf("sale", d, c.id); if (!l || !(num(l.paid) || num(l.disc))) continue;
+      rows.push({ d, c: c.name, a: r2(num(l.paid)), disc: r2(num(l.disc)), m: num(l.paid) ? l.method || "โอน" : "", note: l.note || "" });
+    }
+  }
+  return rows;
+}
+function faHTML(from, to) {
+  const ids = faIds(), act = S.customers.filter(c => c.active !== false || ids.has(c.id));
+  const pick = S.faPick || !ids.size;
+  const sales = faSaleRows(from, to), pays = faPayRows(from, to);
+  const tot = r2(sales.reduce((s, r) => s + r.a, 0)), ptot = r2(pays.reduce((s, r) => s + r.a, 0));
+  return `<div class="sec xsec"><span>ลูกค้าบัญชีบริษัท</span>${ids.size && !S.faPick ? `<button class="link small" data-act="faPick">เลือกลูกค้า</button>` : ""}</div>
+    ${pick ? `<div class="xchips">${act.map(c => `<button type="button" class="chip${ids.has(c.id) ? " on" : ""}" data-act="faTog" data-id="${esc(c.id)}" aria-pressed="${ids.has(c.id)}">${esc(c.name)}</button>`).join("")}</div>
+      <div class="xact"><button class="btn solid" data-act="faDone">เสร็จ</button><span class="pencil small">เลือก ${ids.size} คน</span></div>`
+      : `<p class="small">${act.filter(c => ids.has(c.id)).map(c => esc(c.name)).join(" · ")}</p>`}
+    ${ids.size && !pick ? `
+    <div class="sec xsec"><span>ขาย · ${sales.length} บรรทัด</span><button class="link small" data-act="faDl" data-f="sale">ดาวน์โหลด Excel</button></div>
+    <div class="tblwrap"><table class="lined fa"><thead><tr><th>วันที่</th><th>ลูกค้า</th><th>สินค้า</th><th class="n">จำนวน</th><th class="n">ราคา/หน่วย</th><th class="n">บาท</th></tr></thead>
+      <tbody>${sales.map(r => `<tr><td>${thShort(r.d)}</td><td>${esc(r.c)}</td><td>${esc(r.item)}</td><td class="n">${fmtN(r.q)} <span class="pencil small">${r.u}</span></td><td class="n">${fmtN(r.p)}</td><td class="n ink">${money(r.a)}</td></tr>`).join("") || `<tr><td colspan="6" class="pencil">ช่วงนี้ไม่มีขาย</td></tr>`}
+      ${sales.length ? `<tr class="tot"><td colspan="5">รวม</td><td class="n"><span class="dbl">${money(tot)}</span></td></tr>` : ""}</tbody></table></div>
+    <div class="sec xsec"><span>รับเงิน · ${pays.length} ครั้ง</span><button class="link small" data-act="faDl" data-f="pay">ดาวน์โหลด Excel</button></div>
+    <table class="lined"><thead><tr><th>วันที่</th><th>ลูกค้า</th><th class="n">รับ</th><th class="n">ส่วนลด</th><th>ช่องทาง</th></tr></thead>
+      <tbody>${pays.map(r => `<tr><td>${thShort(r.d)}</td><td>${esc(r.c)}</td><td class="n ink">${money(r.a)}</td><td class="n">${r.disc ? money(r.disc) : ""}</td><td class="pencil">${esc(r.m)}</td></tr>`).join("") || `<tr><td colspan="5" class="pencil">ช่วงนี้ไม่มีรับเงิน</td></tr>`}
+      ${pays.length ? `<tr class="tot"><td colspan="2">รวม</td><td class="n"><span class="dbl">${money(ptot)}</span></td><td colspan="2"></td></tr>` : ""}</tbody></table>
+    <p class="note">FlowAccount นำเข้าได้ที่ ขายเงินสด › นำเข้ายอดขาย · ใบแจ้งหนี้ ใบเสร็จ ใช้ตารางนี้กรอก</p>` : ""}`;
+}
+// ไฟล์ CSV (UTF-8 มี BOM เปิดใน Excel ภาษาไทยไม่เพี้ยน) วันที่ วว/ดด/ปปปป ค.ศ.
+function faCsv(kind) {
+  const [f, t] = sumRange(), q = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const L = kind === "sale"
+    ? [["วันที่เอกสาร", "เลขอ้างอิง", "ชื่อลูกค้า", "ชื่อสินค้า", "จำนวน", "หน่วย", "ราคาต่อหน่วย", "จำนวนเงิน"], ...faSaleRows(f, t).map(r => [dmy(r.d), r.ref, r.c, r.item, r.q, r.u, r.p, r.a])]
+    : [["วันที่", "ชื่อลูกค้า", "รับเงิน", "ส่วนลด", "ช่องทาง", "หมายเหตุ"], ...faPayRows(f, t).map(r => [dmy(r.d), r.c, r.a, r.disc || "", r.m, r.note])];
+  return { name: `${kind === "sale" ? "ขาย" : "รับเงิน"}_บริษัท_${f}_${t}.csv`, text: "﻿" + L.map(r => r.map(q).join(",")).join("\r\n") };
+}
+function faDownload(kind) {
+  const { name, text } = faCsv(kind), blob = new Blob([text], { type: "text/csv;charset=utf-8" });
+  const file = typeof File === "function" ? new File([blob], name, { type: "text/csv" }) : null;
+  // มือถือ: เปิดหน้าแชร์ (ส่ง LINE/อีเมล/บันทึกไฟล์) · คอม: ดาวน์โหลดเลย
+  if (file && navigator.canShare && navigator.canShare({ files: [file] }) && /iPhone|iPad|Android/.test(navigator.userAgent)) { navigator.share({ files: [file], title: name }).catch(() => {}); return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast(`ดาวน์โหลด ${name} แล้ว`);
+}
+function faSave(ids) {
+  S.set.faCustomers = [...ids]; lsSet(LS_FA, S.set.faCustomers);
+  backend.saveConfig().catch(() => toast("บันทึกรายชื่อขึ้นชีตไม่สำเร็จ (เครื่องนี้จำไว้แล้ว)"));
+}
 function renderSummary() {
   if (S.sumKind === "pl" && !S.set.buyEnabled) S.sumKind = "cash";
   if (S.sumKind === "order") S.sumKind = "cust"; // ออเดอร์รวมอยู่ในหน้าลูกค้าแล้ว
   const [from, to] = sumRange();
-  setCover("Summary", { cash: "รายรับ-รายจ่าย", cust: "สรุปลูกค้า", pl: "กำไรขาดทุน" }[S.sumKind], S.sumMode === "month" ? thMonth(from) : rangeLabel(from, to));
-  const kinds = [["cust", "ลูกค้า"], ["cash", "รายรับ-รายจ่าย"], ...(S.set.buyEnabled ? [["pl", "กำไรขาดทุน"]] : [])];
+  setCover("Summary", { cash: "รายรับ-รายจ่าย", cust: "สรุปลูกค้า", pl: "กำไรขาดทุน", fa: "ส่ง FlowAccount" }[S.sumKind], S.sumMode === "month" ? thMonth(from) : rangeLabel(from, to));
+  const kinds = [["cust", "ลูกค้า"], ["cash", "รายรับ-รายจ่าย"], ...(S.set.buyEnabled ? [["pl", "กำไรขาดทุน"]] : []), ["fa", "FlowAccount"]];
   $("#main").innerHTML = `<div class="page">
     <div class="toolbar"><div class="seg" role="group" aria-label="รายงาน">${kinds.map(([v, t]) => `<button data-act="skind" data-k="${v}" aria-pressed="${S.sumKind === v}">${t}</button>`).join("")}</div>
       <span class="napper" aria-hidden="true"><img src="stickers/beagle-sleep-noz.png" alt="" onerror="this.parentNode.remove()"><i>z</i><i>z</i><i>Z</i></span>
@@ -2640,7 +2916,7 @@ function renderSummary() {
         : `<div class="rangenav"><button class="icon" data-act="sumPrev" aria-label="ก่อนหน้า">‹</button><span class="lbl2">${S.sumMode === "week" ? rangeLabel(from, to) : thMonth(from)}</span><button class="icon" data-act="sumNext" aria-label="ถัดไป">›</button><button class="link" data-act="sumNow">${S.sumMode === "week" ? "วีคนี้" : "เดือนนี้"}</button></div>`}
     </div>
     <div id="copyBox" hidden><textarea class="billtext" id="copyText" readonly aria-label="ตารางสำหรับคัดลอก"></textarea></div>
-    ${S.sumKind === "cash" ? cashHTML(from, to) : S.sumKind === "cust" ? custHTML(from, to) : plHTML(from, to)}
+    ${S.sumKind === "cash" ? profitHTML(from, to) + cashHTML(from, to) + farmHTML(from, to) : S.sumKind === "cust" ? custHTML(from, to) : S.sumKind === "fa" ? faHTML(from, to) : plHTML(from, to)}
   </div>`;
 }
 function cashHTML(from, to) {
@@ -2653,21 +2929,21 @@ function cashHTML(from, to) {
     <thead><tr><th>ชนิด</th><th class="n">ตัว</th><th class="n">กก.</th><th class="n">เฉลี่ย ฿/กก.</th><th class="n">บาท</th></tr></thead>
     <tbody>${TYPES.map(ty => { const b = P.sale.by[ty] || { n: 0, kg: 0, amt: 0 }; return `<tr><td>${ty}</td><td class="n">${fmtN(b.n, 0)}</td><td class="n">${kg1(b.kg)}</td><td class="n pencil">${b.kg ? fmtN(b.meat / b.kg) : "–"}</td><td class="n ink">${money(b.amt)}</td></tr>`; }).join("")}
     ${P.sale.oth ? `<tr><td>อื่นๆ</td><td colspan="3" class="pencil small">เลือด ไส้ ฯลฯ</td><td class="n ink">${money(P.sale.oth)}</td></tr>` : ""}
-    ${P.sale.disc ? `<tr><td>ส่วนลด</td><td colspan="3"></td><td class="n ink">−${money(P.sale.disc)}</td></tr>` : ""}
+    ${P.sale.disc ? `<tr><td>หัก ส่วนลด</td><td colspan="3"></td><td class="n ink">${money(P.sale.disc)}</td></tr>` : ""}
     <tr class="tot"><td>ขายสุทธิ</td><td class="n">${fmtN(P.sale.n, 0)}</td><td class="n">${kg1(P.sale.kg)}</td><td></td><td class="n"><span class="dbl">${money(P.saleNet)}</span></td></tr></tbody></table>
   ${dailyHTML(from, to)}
-  <div class="sec">เงินเข้า-ออกจริง</div>
+  <div class="sec">เงินรับ-จ่ายจริง</div>
   <table class="lined"><colgroup><col style="width:28%"><col style="width:18%"><col style="width:18%"><col style="width:16%"><col style="width:20%"></colgroup>
     <thead><tr><th></th>${METHODS.map(m => `<th class="n">${m}</th>`).join("")}<th class="n">รวม</th></tr></thead>
     <tbody><tr><td>รับจากลูกค้า</td>${METHODS.map(m => `<td class="n">${money(P.sale.m[m] || 0)}</td>`).join("")}<td class="n ink">${money(P.sale.paid)}</td></tr>
-    ${S.set.buyEnabled ? `<tr><td>จ่ายฟาร์ม</td>${METHODS.map(m => `<td class="n">${P.buy.m[m] ? "−" + money(P.buy.m[m]) : "0"}</td>`).join("")}<td class="n ink">−${money(P.buy.paid)}</td></tr>` : ""}
-    <tr><td>จ่ายค่าใช้จ่าย</td>${METHODS.map(m => `<td class="n">${P.exp.m[m] ? "−" + money(P.exp.m[m]) : "0"}</td>`).join("")}<td class="n ink">−${money(P.exp.total)}</td></tr>
+    ${S.set.buyEnabled ? `<tr><td>หัก จ่ายฟาร์ม</td>${METHODS.map(m => `<td class="n">${money(P.buy.m[m] || 0)}</td>`).join("")}<td class="n ink">${money(P.buy.paid)}</td></tr>` : ""}
+    <tr><td>หัก รายจ่าย</td>${METHODS.map(m => `<td class="n">${money(P.exp.m[m] || 0)}</td>`).join("")}<td class="n ink">${money(P.exp.total)}</td></tr>
     <tr class="tot"><td>คงเหลือ</td>${METHODS.map(m => `<td class="n">${money(net(m))}</td>`).join("")}<td class="n"><span class="dbl">${money(P.sale.paid - (S.set.buyEnabled ? P.buy.paid : 0) - P.exp.total)}</span></td></tr></tbody></table>
   <div class="sec">รายจ่ายตามหมวด</div>
   <table class="lined"><colgroup><col style="width:70%"><col style="width:30%"></colgroup>
     <tbody>${cats.length ? cats.map(c => `<tr><td>${esc(c)}</td><td class="n ink">${money(P.exp.cat[c])}</td></tr>`).join("") : `<tr><td class="pencil" colspan="2">ยังไม่มีรายจ่ายในช่วงนี้</td></tr>`}
     <tr class="tot"><td>รวม</td><td class="n"><span class="dbl">${money(P.exp.total)}</span></td></tr></tbody></table>
-  <p class="note">"ขาย" นับตามวันที่ขาย ส่วน "เงินเข้า-ออก" นับตามวันที่ได้รับหรือจ่ายเงินจริง</p>`;
+  <p class="note">"ขาย" นับตามวันที่ขาย ส่วน "เงินรับ-จ่าย" นับตามวันที่ได้รับหรือจ่ายเงินจริง</p>`;
 }
 /** ขายแยกรายวัน: วันละแถว กี่ตัว กี่กิโล ขายได้เท่าไร รับเงินเท่าไร (บาทเต็ม ไม่โชว์สตางค์ จอมือถือจะได้ไม่ล้น) แตะแถว = ไปหน้าบันทึกของวันนั้น */
 const DOW_S = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
@@ -2804,6 +3080,7 @@ function plHTML(from, to) {
 }
 function reportTsv() {
   const [f, t] = sumRange(), L = [];
+  if (S.sumKind === "fa") return [["วันที่", "ลูกค้า", "สินค้า", "จำนวน", "หน่วย", "ราคาต่อหน่วย", "จำนวนเงิน"], ...faSaleRows(f, t).map(r => [dmy(r.d), r.c, r.item, r.q, r.u, r.p, r.a])].map(r => r.join("\t")).join("\n");
   if (S.sumKind === "cust" && S.orderView !== "day") {
     const od = {}; orderCust(f, t).forEach(o => { od[o.c.id] = o; });
     L.push([`สรุปลูกค้า ${rangeLabel(f, t)}`], ["ลูกค้า", "ยกมา", "ขาย", "รับเงิน", "ส่วนลด", "ค้าง", "วันที่สั่ง", "ตัว", "เฉลี่ยตัว/วัน", "กก."]);
@@ -2850,14 +3127,12 @@ function renderSettings() {
     <p class="note"><b>ยกมา</b> = ยอดที่ลูกค้าค้างอยู่ ณ ต้นวันที่ "เริ่มนับหนี้" (${thShort(S.set.openingDate)}) · รายการขาย/รับเงินก่อนวันนั้นยังดูได้ในหน้าสรุป แต่ไม่นับเป็นหนี้ซ้ำ</p>
     <p class="note">รอบ = จำนวนรอบส่งประจำ เช่น สำโรงส่ง 3 ที่ ใส่ 3 หน้าบันทึกจะมีรอบ 1–3 ให้เลย แต่ละรอบจำราคาแยกกัน แต่หนี้รวมเป็นยอดเดียว · <b>ลูกค้าเลิกซื้อ</b>: เอาเครื่องหมายช่อง "ใช้งาน" ออก ชื่อจะย้ายไปหมวด "เลิกซื้อแล้ว" ด้านล่าง · เรียงชื่อในหน้าบันทึก: กดค้างที่ชื่อในหน้าบันทึกแล้วลาก หรือกด "จัดลำดับ"</p>
     ${offHTML()}
-    <div class="sec">รายจ่ายอื่นๆ (ที่ไม่ได้จ่ายทุกวัน)</div>
-    <label for="sCats"><span class="lbl">ค่าอะไรบ้าง คั่นด้วยจุลภาค (,) · ค่าหมู ค่ารถ ค่าจ้างทำ มีในหน้ารายจ่ายอยู่แล้ว</span><input class="fld l" id="sCats" data-sf="expenseCats" value="${esc(S.set.expenseCats.join(", "))}"></label>
     <div class="sec">ซื้อหมูจากฟาร์ม</div>
     <label for="sBuyOn" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sBuyOn" data-sf="buyEnabled" ${S.set.buyEnabled ? "checked" : ""} style="width:26px;height:26px;accent-color:var(--ink)"> เปิดใช้ฝั่งซื้อหมู (บันทึกซื้อ, เจ้าหนี้ฟาร์ม, กำไรขาดทุน)</label>
     ${S.set.buyEnabled ? `${S.farms.length ? table("buy", "ค้างจ่ายยกมา") : `<p class="note">ยังไม่มีฟาร์ม</p>`}
       <div class="toolbar" style="margin-top:8px"><input class="fld l" id="newFarm" placeholder="ชื่อฟาร์มใหม่" aria-label="ชื่อฟาร์มใหม่" style="max-width:260px"><button class="btn" data-act="addParty" data-pk="buy">เพิ่มฟาร์ม</button>${S.farms.length > 1 ? `<button class="btn" data-act="reorderOpen" data-pk="buy">จัดลำดับ</button>` : ""}</div>` : `<p class="note">ปิดไว้ก่อน เปิดเมื่อพร้อมใช้</p>`}
     <div class="sec">ข้อมูล</div>
-    <p class="note">${S.demo ? "โหมดตัวอย่าง: ไม่ได้เชื่อมกับ Google Sheet" : "ข้อมูลทั้งหมดอยู่ใน Google Sheet ทุกการลงบัญชีมีบันทึกในแท็บ ประวัติการแก้ไข"}</p>
+    <p class="note">${S.demo ? "โหมดตัวอย่าง: ไม่ได้เชื่อมกับ Google Sheet" : "ข้อมูลทั้งหมดอยู่ใน Google Sheet ทุกการบันทึกมีประวัติในแท็บ ประวัติการแก้ไข"}</p>
     <div class="actions" style="margin-top:8px"><button class="btn solid" data-act="logOpen">ดูประวัติการแก้ไข</button><button class="btn" data-act="auditToggle" aria-expanded="${!!S.auditOn}">ตรวจข้อมูลย้อนหลัง</button></div>
     ${S.auditOn ? auditHTML() : ""}
     <label for="sDev" style="display:block;margin-top:10px;max-width:320px"><span class="lbl">ชื่อเครื่องนี้ (โชว์ในประวัติว่าแก้จากเครื่องไหน)</span><input class="fld l" id="sDev" value="${esc(devName())}" placeholder="${esc(devGuess())}"></label>
@@ -3035,7 +3310,7 @@ document.addEventListener("click", async e => {
     case "ekind": {
       if (b.dataset.kind === S.entryKind) return;
       if (S.dirty && !(await closePanel())) return;
-      S.entryKind = b.dataset.kind; S.openId = null; S.draft = null; S.expDraft = null; render(); break;
+      S.entryKind = b.dataset.kind; S.openId = null; S.draft = null; render(); break; // รายจ่ายที่พิมพ์ค้างไว้ยังอยู่ กลับมาเจอเหมือนเดิม
     }
     case "open": openParty(b.dataset.id, b.dataset.round); break;
     case "close": closePanel(); break;
@@ -3072,7 +3347,7 @@ document.addEventListener("click", async e => {
     case "roundOff": {
       const t = draftTotals(), remain = r2(balBefore(S.entryKind, S.openId, S.date) + t.amt - t.paid);
       if (remain <= 0) return;
-      S.draft.disc = String(remain); S.draft.showDisc = true; $("#pDisc").value = S.draft.disc; S.dirty = true; updatePanelCalc(); toast(`ลดให้ ${money(remain)} ปิดยอดแล้ว กดลงบัญชีเพื่อบันทึก`); break;
+      S.draft.disc = String(remain); S.draft.showDisc = true; $("#pDisc").value = S.draft.disc; S.dirty = true; updatePanelCalc(); toast(`ลดให้ ${money(remain)} ปิดยอดแล้ว กดบันทึก`); break;
     }
     case "showDisc": S.draft.showDisc = true; updatePanelCalc(); $("#pDisc").focus(); break;
     case "clearDisc": S.draft.disc = ""; S.draft.showDisc = false; $("#pDisc").value = ""; S.dirty = true; updatePanelCalc(); break;
@@ -3089,20 +3364,36 @@ document.addEventListener("click", async e => {
     case "othShow": S.draft.showOth = true; renderPanel(); { const f = $("#pOth"); if (f) f.focus(); } break;
     case "othClear": S.draft.showOth = false; S.draft.oth = ""; S.dirty = true; renderPanel(); break;
     case "noteShow": S.draft.showNote = true; renderPanel(); { const f = $("#pNote"); if (f) f.focus(); } break;
-    case "emethod": S.expDraft.method = b.dataset.m; $$('[data-act="emethod"]').forEach(x => x.setAttribute("aria-pressed", String(x.dataset.m === S.expDraft.method))); break;
-    case "expSave": saveExpense(); break;
-    case "labUse": if (S.dx) { S.dx.rows.lab.n = b.dataset.n; S.dx.labTouched = true; S.dx.dirty = true; renderExpenses(); } break;
-    case "dxSave": dxSave(); break;
-    case "dxPadd": if (S.dx) { S.dx.pigs.push({ id: null, farm: "", kg: "", n: "", p: "", m: S.dx.pigs[0] ? S.dx.pigs[0].m : "โอน" }); S.dx.dirty = true; renderExpenses(); const f = $$(".dxfarm"); if (f.length) f[f.length - 1].focus(); } break;
-    case "dxPdel": if (S.dx) { const [p] = S.dx.pigs.splice(+b.dataset.i, 1); if (p && p.id) S.dx.removed.push(p.id); S.dx.dirty = true; dxAutoLab(S.dx); renderExpenses(); } break;
-    case "dxPrice": if (S.dx) { const p = S.dx.pigs[+b.dataset.i]; if (p) { p.p = pigLastPrice(p.farm); S.dx.dirty = true; renderExpenses(); } } break;
-    case "dxPm": case "dxM": if (S.dx) { const o = act === "dxPm" ? S.dx.pigs[+b.dataset.i] : S.dx.rows[b.dataset.i]; if (o) { o.m = o.m === "โอน" ? "เงินสด" : "โอน"; S.dx.dirty = true; renderExpenses(); } } break;
+    case "emethod": if (S.expDraft) { const E = S.expDraft; E.method = E.method === "โอน" ? "เงินสด" : "โอน"; E.touched = true; b.textContent = E.method; b.classList.toggle("cash", E.method === "เงินสด"); footUpdate(); } break;
+    case "eName": if (S.expDraft) { S.expDraft.cat = b.dataset.n; S.expDraft.touched = true; renderExpenses(); const f = $("#eAmt"); if (f) f.focus(); } break;
+    case "expSave": case "dxSave": dxSave(); break;
+    case "labUse": if (S.dx) { const it = dayItems()[+b.dataset.i]; if (it) { S.dx.rows[it.name].n = b.dataset.n; S.dx.labTouched[it.name] = true; S.dx.dirty = true; renderExpenses(); } } break;
+    case "xPadd": if (S.dx) { const it = dayItems()[+b.dataset.i], rows = it && S.dx.pigs[it.name]; if (rows) { rows.push({ id: null, farm: "", kg: "", n: "", p: "", m: rows[0] ? rows[0].m : "โอน" }); S.dx.dirty = true; renderExpenses(); const f = $$(`[data-xp^="${b.dataset.i}."][data-f="farm"]`); if (f.length) f[f.length - 1].focus(); } } break;
+    case "xPdel": case "xPrice": case "xPm": if (S.dx) {
+      const [i, j] = b.dataset.k.split(".").map(Number), it = dayItems()[i], rows = it && S.dx.pigs[it.name], p = rows && rows[j]; if (!p) break;
+      if (act === "xPdel") { rows.splice(j, 1); if (p.id) S.dx.removed.push(p.id); dxAutoLab(S.dx); }
+      else if (act === "xPrice") p.p = pigLastPrice(it.name, p.farm);
+      else p.m = p.m === "โอน" ? "เงินสด" : "โอน";
+      S.dx.dirty = true; renderExpenses(); } break;
+    case "xM": case "xMm": if (S.dx) { const it = (act === "xM" ? dayItems() : monthItems())[+b.dataset.k], o = it && (act === "xM" ? S.dx.rows : S.dx.mon)[it.name]; if (o) { o.m = o.m === "โอน" ? "เงินสด" : "โอน"; S.dx.dirty = true; b.textContent = o.m; b.classList.toggle("cash", o.m === "เงินสด"); footUpdate(); } } break;
+    case "itemsEdit":
+      if (expDirty() && !(await askConfirm("ตัวเลขที่กรอกไว้ยังไม่ได้บันทึก จะหายถ้าไปจัดหัวข้อ ไปเลยไหม?", "ไปจัดหัวข้อ"))) return;
+      S.dx = null; S.expDraft = null; S.itemsEdit = expItems().map(x => ({ ...x })); renderExpenses(); window.scrollTo(0, 0); break;
+    case "itemAdd": S.itemsEdit.push({ name: "", kind: "ยอด" }); renderExpenses(); { const f = $$("[data-ie]"); if (f.length) f[f.length - 1].focus(); } break;
+    case "itemDel": S.itemsEdit.splice(+b.dataset.i, 1); renderExpenses(); break;
+    case "itemUp": { const i = +b.dataset.i, L = S.itemsEdit; if (i > 0) [L[i - 1], L[i]] = [L[i], L[i - 1]]; renderExpenses(); break; }
+    case "itemsSave": itemsSave(); break;
+    case "goDate": changeDate(b.dataset.d); break;
+    case "itemsCancel": S.itemsEdit = null; renderExpenses(); break;
     case "expCancel": S.expDraft = null; renderExpenses(); break;
-    case "expEdit": { const x = S.expenses.find(y => y.id === b.dataset.id); if (!x) return; S.expDraft = { id: x.id, cat: x.cat, desc: x.desc || "", amount: String(x.amount), method: x.method || "เงินสด", err: "" }; renderExpenses(); { const c = $("#eCat"); if (c) c.scrollIntoView({ block: "center" }); } break; }
+    case "expEdit": {
+      const x = S.expenses.find(y => y.id === b.dataset.id); if (!x) return;
+      if (S.expDraft && S.expDraft.touched && !S.expDraft.id && !(await askConfirm("ช่องอื่นๆ ที่พิมพ์ไว้ยังไม่ได้บันทึก จะทิ้งไหม?", "ทิ้ง"))) return;
+      S.expDraft = { id: x.id, cat: x.cat, amount: String(x.amount), method: x.method || "โอน", err: "", touched: false }; renderExpenses(); { const c = $("#eAmt"); if (c) { c.scrollIntoView({ block: "center" }); c.focus(); } } break; }
     case "expDelete": {
-      const id = S.expDraft && S.expDraft.id; if (!id || !(await askConfirm("ลบรายจ่ายนี้?", "ลบ"))) return;
-      S.expenses = S.expenses.filter(x => x.id !== id); S.expDraft = null; renderExpenses();
-      backend.saveExpense({ id, deleted: true }).then(() => toast("ลบรายจ่ายแล้ว")).catch(() => { toast("ลบไม่สำเร็จ"); loadAll(true); }); break;
+      const id = S.expDraft && S.expDraft.id, x = id && S.expenses.find(y => y.id === id); if (!x || !(await askConfirm(`ลบ ${x.cat} ${money(x.amount)}?`, "ลบ"))) return;
+      S.expenses = S.expenses.filter(y => y.id !== id); S.expDraft = null; renderExpenses();
+      await sendExpenses([{ id, deleted: true }], "ลบแล้ว"); break;
     }
     case "dfilter": S.debtFilter = b.dataset.f; renderDebts(); break;
     case "payOpen": openPay(b.dataset.id, b.dataset.date, b.dataset.edit === "1", b.dataset.pick ? [b.dataset.pick] : null); break;
@@ -3126,9 +3417,9 @@ document.addEventListener("click", async e => {
     case "detail": openDetail(b.dataset.kind || "sale", b.dataset.id); break;
     case "closeDetail": closeDetail(); break;
     case "payBills": {
-      // พิมพ์ยอดไว้แล้วยังไม่ได้กดลงรับเงิน ถามก่อน ไม่ให้ยอดที่พิมพ์หายเงียบๆ
+      // พิมพ์ยอดไว้แล้วยังไม่ได้กดบันทึกรับเงิน ถามก่อน ไม่ให้ยอดที่พิมพ์หายเงียบๆ
       const T = payTot(S.pay), id = b.dataset.id;
-      if ((T.r || T.d) && !(await askConfirm("ยังไม่ได้กดลงรับเงิน ยอดที่ใส่ไว้จะหาย ไปหน้าบิลเลยไหม?", "ไปหน้าบิล"))) { renderPay(); break; }
+      if ((T.r || T.d) && !(await askConfirm("ยังไม่ได้กดบันทึกรับเงิน ยอดที่ใส่ไว้จะหาย ไปหน้าบิลเลยไหม?", "ไปหน้าบิล"))) { renderPay(); break; }
       openBillMgr(id); break;
     }
     case "bmBack": closeBillMgr(true); break;
@@ -3172,8 +3463,8 @@ document.addEventListener("click", async e => {
       break;
     }
     case "dayImg": {
-      // รูปทำจากยอดที่ลงบัญชีแล้วเท่านั้น ถ้ายังกรอกค้างอยู่ให้ถามก่อน
-      if (S.dirty && !(await askConfirm("ยังมีรายการที่กรอกค้างอยู่ ยังไม่ได้ลงบัญชี รูปจะไม่มีรายการนี้ ทำรูปเลยไหม?", "ทำรูปเลย"))) return;
+      // รูปทำจากยอดที่บันทึกแล้วเท่านั้น ถ้ายังกรอกค้างอยู่ให้ถามก่อน
+      if (S.dirty && !(await askConfirm("ยังมีรายการที่กรอกค้างอยู่ ยังไม่ได้บันทึก รูปจะไม่มีรายการนี้ ทำรูปเลยไหม?", "ทำรูปเลย"))) return;
       b.disabled = true; const old = b.textContent; b.textContent = "กำลังทำรูป…";
       try {
         const pages = await dayPages(dayModel(S.date)), blobs = await Promise.all(pages.map(c => canvasBlob(c, "image/png")));
@@ -3229,6 +3520,10 @@ document.addEventListener("click", async e => {
     case "auditToggle": S.auditOn = !S.auditOn; render(); break;
     case "dayToggle": { S.dayOpen = S.dayOpen || {}; const d = b.dataset.d; if (S.dayOpen[d]) delete S.dayOpen[d]; else S.dayOpen[d] = 1; render(); break; }
     case "gotoDay": S.tab = "entry"; S.entryKind = "sale"; S.date = b.dataset.d; S.openId = null; S.draft = null; S.dirty = false; render(); window.scrollTo(0, 0); break;
+    case "faPick": S.faPick = true; renderSummary(); break;
+    case "faTog": { const ids = faIds(); if (ids.has(b.dataset.id)) ids.delete(b.dataset.id); else ids.add(b.dataset.id); S.set.faCustomers = [...ids]; lsSet(LS_FA, S.set.faCustomers); S.faPick = true; renderSummary(); break; }
+    case "faDone": S.faPick = false; faSave(faIds()); renderSummary(); toast("บันทึกรายชื่อลูกค้าบริษัทแล้ว"); break;
+    case "faDl": faDownload(b.dataset.f); break;
     case "copyReport": { $("#copyBox").hidden = false; const ta = $("#copyText"); ta.value = reportTsv(); copyFrom(ta, "คัดลอกแล้ว วางใน Excel, Sheet หรือ LINE ได้"); break; }
     case "move": {
       const list = partiesOf(b.dataset.pk), i = +b.dataset.i, j = i + (+b.dataset.dir);
@@ -3264,9 +3559,10 @@ document.addEventListener("input", e => {
     setPick(S.pay, t.dataset.key, t.dataset.pr, num(t.value)); renderPayInputs();
     updatePay();
   } else if (t.dataset.ef && S.expDraft) {
-    const E = S.expDraft; E[t.dataset.ef] = t.value;
-    if (t.dataset.ef !== "desc" && E.err) { E.err = ""; $("#eErr").hidden = true; }
-  } else if (t.dataset.dx || t.dataset.dxp != null) dxInput(t);
+    const E = S.expDraft; E[t.dataset.ef] = t.value; E.touched = true; E.err = "";
+    footUpdate();
+  } else if (t.dataset.xp || t.dataset.xr || t.dataset.xmo) dxInput(t);
+  else if (t.dataset.ie != null && S.itemsEdit) S.itemsEdit[+t.dataset.ie].name = t.value;
 });
 document.addEventListener("change", e => {
   const t = e.target;
@@ -3287,7 +3583,8 @@ document.addEventListener("change", e => {
   }
   else if (t.id === "sumFrom" || t.id === "sumTo") { if (t.value) { S[t.id] = t.value; render(); } }
   else if (t.dataset.ef === "cat" && S.expDraft) S.expDraft.cat = t.value;
-  else if (t.dataset.dxp != null && t.dataset.f === "farm" && S.dx) renderExpenses(); // เปลี่ยนฟาร์ม = โชว์ "ราคาเดิม" ของฟาร์มนั้น
+  else if (t.dataset.iek != null && S.itemsEdit) S.itemsEdit[+t.dataset.iek].kind = t.value;
+  else if (t.dataset.xp && t.dataset.f === "farm" && S.dx) renderExpenses(); // เปลี่ยนฟาร์ม = โชว์ "ราคาเดิม" ของฟาร์มนั้น
   else if (t.dataset.sf) {
     const f = t.dataset.sf;
     if (f === "expenseCats") { const cats = t.value.split(",").map(x => x.trim()).filter(Boolean); if (!cats.length) { t.value = S.set.expenseCats.join(", "); return; } S.set.expenseCats = cats; }
@@ -3317,7 +3614,7 @@ function boot() {
   const hk = location.hash.match(/^#k=(.+)$/);
   if (hk && !S.demo) { setPin(decodeURIComponent(hk[1])); try { history.replaceState(null, "", location.pathname + location.search); } catch (e) { /* ignore */ } }
   S.pin = S.demo ? "" : getPin();
-  if (!S.demo) S.outbox = (lsGet(LS_OUT, []) || []).filter(x => x && x.key && x.line);
+  if (!S.demo) S.outbox = (lsGet(LS_OUT, []) || []).filter(x => x && x.key && (x.line || x.exp));
   buildTabs(); setSync();
   if (S.demo) { DEMO = buildDemo(); $("#demoBar").hidden = false; }
   render(); loadAll(false);
