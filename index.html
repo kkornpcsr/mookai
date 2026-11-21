@@ -2099,18 +2099,31 @@ function allocLabel(keys) {
   if (ds.length > 4) o.push(`${thShort(ds[0])}–${thShort(ds[ds.length - 1])} (${ds.length} วัน)`); else o.push(...ds.map(thShort));
   return o.join(", ");
 }
-/** เงินก้อนนี้จ่ายของวันไหน: บอกแค่ช่วงวัน (Korn ขอให้สั้น) · จ่ายครบหรือบางส่วน ดูที่ช่อง "ค้าง" ในตารางขาย */
+/** เงินก้อนนี้จ่ายของวันไหน (Korn 22 พ.ย.: บอกเฉพาะวันที่เงินไปลงจริง · ยังไม่รวมบิล = บอกเป็นรายวัน ไม่ทำเป็นช่วง
+ *  ลูกค้าอาจกลับไปจ่ายรายวันก็ได้ ต้องยืดหยุ่น)
+ *  บิลที่รวมแล้ว = "บิล 3–9 พ.ย." · วันที่ยังไม่รวมบิล / ลูกค้ารายวัน = ทีละวัน "11, 19 พ.ย." (เดือนเดียวกันเขียนเดือนครั้งเดียว)
+ *  วันสุดท้ายที่เงินหมดกลางวัน = "(19 พ.ย. บางส่วน)" */
 function paidForText(cut, debits, per) {
-  const agg = new Map();
-  for (const x of debits || []) for (const d in x.dm) {
-    const c = (cut || {})[d]; if (!(c > 0.004)) continue;
-    const key = per ? x : d, a = agg.get(key) || { lab: per ? billLab(x) : d === "open" ? "ยกมา" : thShort(d), amt: per ? x.amt : x.dm[d], cut: 0 };
-    a.cut += c; agg.set(key, a);
+  cut = cut || {};
+  const bills = [], days = [];
+  for (const x of debits || []) {
+    const ds = Object.keys(x.dm).filter(d => cut[d] > 0.004); if (!ds.length) continue;
+    if (x.opening) { bills.push("ยกมา"); continue; }
+    if (per && realCut(x)) { bills.push(billLab(x)); continue; }
+    ds.forEach(d => days.push({ d, part: cut[d] < num(x.dm[d]) - 0.004 }));
   }
-  const L = [...agg.values()]; if (!L.length) return "";
-  if (per) return L.map(a => a.lab).join(", ");
-  const ks = [...agg.keys()]; if (L.length === 1) return L[0].lab;
-  return ks[0] === "open" ? `ยกมา–${thShort(ks[ks.length - 1])}` : dRange(ks[0], ks[ks.length - 1]);
+  if (!bills.length && !days.length) return "";
+  // ทีละวัน จับกลุ่มตามเดือน: "30, 31 ต.ค., 1, 2 พ.ย." · เงินหมดกลางวันสุดท้าย บอกต่อท้าย
+  const groups = [];
+  for (const x of days) {
+    const g = groups[groups.length - 1], mo = x.d.slice(0, 7);
+    if (g && g.mo === mo) g.ds.push(x.d); else groups.push({ mo, ds: [x.d] });
+  }
+  const last = days[days.length - 1];
+  const dayTxt = groups.map(g => g.ds.map((d, i) => i === g.ds.length - 1 ? thShort(d) : String(+d.slice(8))).join(", ")).join(", ")
+    + (last && last.part ? ` (${thShort(last.d)} บางส่วน)` : "");
+  if (!per) return [...bills, dayTxt].filter(Boolean).join(", ");
+  return [bills.join(", "), dayTxt].filter(Boolean).join(" + ");
 }
 // รวมการตัดยอดของเงินทุกก้อนที่รับวันที่ d
 function cutOfDay(pays, d) { const o = {}; for (const p of pays) if (p.d === d) for (const k in p.cut || {}) o[k] = (o[k] || 0) + p.cut[k]; return o; }
